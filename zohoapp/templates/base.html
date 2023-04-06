@@ -14,6 +14,14 @@
     <link rel="stylesheet" href="static/css/style.css"/>
 
     <title>Zoho Django</title>
+    <style>body{
+      background-image: url("{% static 'images/wallpaper1.jpg'%}");
+      background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-attachment: fixed;
+    }
+    </style>
 </head>
 <body>
 
@@ -43,7 +51,6 @@
                   <li><a href="#"><span>About</span></a></li>
                   <li><a href="#"><span>Contact</span></a></li>
                   <li><a href="{% url 'register' %}"><span>Register/Login</span></a></li>
-                  <!-- <li><a href="#"><span>Login</span></a></li> -->
                 </ul>
               </nav>
             </div>

@@ -1,8 +1,12 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.utils.text import capfirst
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,auth
 from .models import *
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+
+
 
 
 def index(request):
@@ -45,3 +49,29 @@ def register(request):
         return redirect('register')
 
     return render(request,'register.html')
+
+def login(request):
+        
+    if request.method == 'POST':
+        
+        email_or_username = request.POST['emailorusername']
+        password = request.POST['password']
+
+        user = authenticate(request, username=email_or_username, password=password)
+        print(user)
+        if user is not None:
+            auth.login(request, user)
+            return redirect('home')
+        else:
+            return redirect('/')
+
+    return render(request, 'register.html')
+
+@login_required(login_url='login')
+def logout(request):
+    auth.logout(request)
+    return redirect('/')
+
+@login_required(login_url='login')
+def home(request):
+    return render(request,'home.html')
