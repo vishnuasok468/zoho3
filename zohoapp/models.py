@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class customer_details(models.Model):
+class company_details(models.Model):
+
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     contact_number = models.CharField(max_length=100,null=True,blank=True)
     company_name = models.CharField(max_length=100,null=True,blank=True)
@@ -13,3 +14,5 @@ class customer_details(models.Model):
     business_name = models.CharField(max_length=255,null=True,blank=True)
     company_type = models.CharField(max_length=255,null=True,blank=True)
     industry_type = models.CharField(max_length=255,null=True,blank=True)
+    profile_pic = models.ImageField(null=True,blank = True,upload_to = 'image/patient')
+
