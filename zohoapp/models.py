@@ -16,3 +16,38 @@ class company_details(models.Model):
     industry_type = models.CharField(max_length=255,null=True,blank=True)
     profile_pic = models.ImageField(null=True,blank = True,upload_to = 'image/patient')
 
+class Sales(models.Model):
+    Account_type=models.TextField(max_length=255)
+    Account_name=models.TextField(max_length=255)
+    Acount_code=models.TextField(max_length=255)
+    Account_desc=models.TextField(max_length=255)
+    def __str__(self):
+        return self.Account_name
+
+class Purchase(models.Model):
+    Account_type=models.TextField(max_length=255)
+    Account_name=models.TextField(max_length=255)
+    Acount_code=models.TextField(max_length=255)
+    Account_desc=models.TextField(max_length=255)
+    def __str__(self):
+        return self.Account_name
+class Unit(models.Model):
+    unit=models.TextField(max_length=255)
+
+    def __str__(self):
+        return self.unit
+    
+class AddItem(models.Model):
+    type=models.TextField(max_length=255)
+    Name=models.TextField(max_length=255)
+    unit=models.ForeignKey(Unit,on_delete=models.CASCADE)
+    sales=models.ForeignKey(Sales,on_delete=models.CASCADE)
+    purchase=models.ForeignKey(Purchase,on_delete=models.CASCADE)
+    date=models.DateTimeField(auto_now=True)
+    s_desc=models.TextField(max_length=255)
+    p_desc=models.TextField(max_length=255)
+    history=models.CharField(max_length=255)
+    s_price=models.CharField(max_length=255)
+    p_price=models.TextField(max_length=255)
+    satus=models.TextField(default='active')
+

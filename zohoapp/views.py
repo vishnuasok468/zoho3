@@ -125,3 +125,53 @@ def edit_profile(request,pk):
                 'company' : company,
             }
     return render(request,'edit_profile.html',context)
+
+def itemview(request):
+    viewitem=AddItem.objects.all()
+    return render(request,'item_view.html',{'view':viewitem})
+
+def additem(request):
+    unit=Unit.objects.all()
+    sale=Sales.objects.all()
+    purchase=Purchase.objects.all()
+    return render(request,'additem.html',{'unit':unit,'sale':sale,'purchase':purchase})
+def add_account(request):
+    if request.method=='POST':
+        Account_type  =request.POST['acc_type']
+        Account_name =request.POST['acc_name']
+        Acount_code =request.POST['acc_code']
+        Account_desc =request.POST['acc_desc']
+        
+        acc=Purchase(Account_type=Account_type,Account_name=Account_name,Acount_code=Acount_code,Account_desc=Account_desc)
+        acc.save()
+        return redirect('additem')
+    return render(request,'additem.html')
+
+def add(request):
+    if request.user.is_authenticated:
+        if request.method=='POST':
+            type=request.POST['type']
+            name=request.POST['name']
+            unit=request.POST['unit']
+            sel_price=request.POST['sel_price']
+            sel_acc=request.POST['sel_acc']
+            s_desc=request.POST['sel_desc']
+            cost_price=request.POST['cost_price']
+            cost_acc=request.POST['cost_acc']        
+            p_desc=request.POST['cost_desc']
+            
+            history="Created by" 
+            unit=Unit.objects.get(id=unit)
+            sel=Sales.objects.get(id=sel_acc)
+            cost=Purchase.objects.get(id=cost_acc)
+            ad_item=AddItem(type=type,Name=name,p_desc=p_desc,s_desc=s_desc,s_price=sel_price,p_price=cost_price,unit=unit,
+                        sales=sel,purchase=cost,history=history
+                            )
+            print(history)
+        
+        
+        
+    return render(request,'additem.html')
+
+
+
