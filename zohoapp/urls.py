@@ -13,5 +13,8 @@ urlpatterns = [
     path('additem',views.additem,name='additem'),
     path('add',views.add,name='add'),
     path('add_account',views.add_account,name='add_account'),
+    path('item_detail',views.item_detail,name='item_detail'),
+    path('detail/<int:id>',views.detail,name='detail')
+ 
     
 ]

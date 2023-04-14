@@ -131,7 +131,7 @@
     
       <section>
        <div class="row fixed-top ml-4 " style="top: 7rem;">
-        <div class="col-md-2">
+        <div class="col-md-2" style="border-right: 1px solid white;height: 100vh;">
           <h6 class="mb-4"><a class="active  " href="{% url 'base' %}"><i class="fa fa-fw fa-home mr-2 "></i> Home</a> </h6>
           <h6 class="mb-4"><a class="active  " href="{% url 'itemview' %}"><i class="fa-solid fa-sitemap mr-3 "></i>Items</a> <a class="ml-5 active" href="{% url 'additem' %}"><i class="fa-solid fa-plus "></i></a></h6>
           <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-building-columns mr-3"></i>Banking</a></h6>
@@ -145,7 +145,7 @@
         </div>
         <div class="col-md-10">
           <div class="row">
-            <div class="col-md-3"><a class="text-white">All Items</a></div>
+            <div class="col-md-3"><a class="text-white" style="font-size: 2rem;">All Items</a></div>
             <div class="col-md-6 form-inline" style="margin-left: 55rem;margin-top: -2rem;"><a style="color: #ccc;" class="btn btn-success mr-2" href="{% url 'additem' %}"><i class="fa-solid fa-plus "></i>New</a>
               <a style="color: #ccc;"href="#3">      
                 <form action="">
@@ -171,7 +171,7 @@
 
               <tr>
 
-                <td ><input class="mr-2" type="checkbox"><a class="text-white" href="#view">{{v.Name}}</a></td>
+                <td ><input class="mr-2" type="checkbox"><a class="text-white" href="{% url 'item_detail'  %}">{{v.Name}}</a></td>
                 <td>{{v.s_desc}}</td>
                 <td>{{v.s_price}}</td>
                 <td>{{v.unit.unit}}</td>

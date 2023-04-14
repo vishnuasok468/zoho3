@@ -38,6 +38,7 @@ class Unit(models.Model):
         return self.unit
     
 class AddItem(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
     type=models.TextField(max_length=255)
     Name=models.TextField(max_length=255)
     unit=models.ForeignKey(Unit,on_delete=models.CASCADE)

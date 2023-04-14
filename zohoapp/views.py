@@ -135,6 +135,8 @@ def additem(request):
     sale=Sales.objects.all()
     purchase=Purchase.objects.all()
     return render(request,'additem.html',{'unit':unit,'sale':sale,'purchase':purchase})
+
+
 def add_account(request):
     if request.method=='POST':
         Account_type  =request.POST['acc_type']
@@ -175,3 +177,26 @@ def add(request):
 
 
 
+def item_detail(request):
+    
+    items=AddItem.objects.all()
+   
+    context={
+       "items":items,
+      
+    }
+    return render(request,'item_description.html',context)
+
+
+def detail(request,id):
+    
+    items=AddItem.objects.all()
+    product=AddItem.objects.get(id=id)
+    print(product.id)
+    context={
+       "allproduct":items,
+       "product":product
+      
+    }
+    
+    return render(request,'demo.html',context)
