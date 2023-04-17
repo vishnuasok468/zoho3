@@ -152,7 +152,7 @@ def add_account(request):
 def add(request):
     if request.user.is_authenticated:
         if request.method=='POST':
-            type=request.POST['type']
+            type=request.POST.get('type')
             name=request.POST['name']
             unit=request.POST['unit']
             sel_price=request.POST['sel_price']
@@ -161,31 +161,48 @@ def add(request):
             cost_price=request.POST['cost_price']
             cost_acc=request.POST['cost_acc']        
             p_desc=request.POST['cost_desc']
-            
-            history="Created by" 
+            u=request.user.id
+            history="Created by" + str(u)
+            user=User.objects.get(id=u)
             unit=Unit.objects.get(id=unit)
             sel=Sales.objects.get(id=sel_acc)
             cost=Purchase.objects.get(id=cost_acc)
             ad_item=AddItem(type=type,Name=name,p_desc=p_desc,s_desc=s_desc,s_price=sel_price,p_price=cost_price,unit=unit,
-                        sales=sel,purchase=cost,history=history
+                        sales=sel,purchase=cost,history=history,user=user
                             )
-            print(history)
-        
-        
-        
+            ad_item.save()    
+
     return render(request,'additem.html')
 
+def edititem(request,id):
+    pedit=AddItem.objects.get(id=id)
+    p=Purchase.objects.all()
+    s=Sales.objects.all()
+    u=Unit.objects.all()
+    return render(request,'edititem.html',{'e':pedit,'p':p,'s':s,'u':u})
 
+def edit_db(request,id):
+        if request.method=='POST':
+            edit=AddItem.objects.get(id=id)
+            edit.type=request.POST.get('type')
+            edit.Name=request.POST['name']
+            unit=request.POST['unit']
+            edit.sel_price=request.POST['sel_price']
+            sel_acc=request.POST['sel_acc']
+            edit.s_desc=request.POST['sel_desc']
+            edit.cost_price=request.POST['cost_price']
+            cost_acc=request.POST['cost_acc']        
+            edit.p_desc=request.POST['cost_desc']
+            
+            
+            edit.unit=Unit.objects.get(id=unit)
+            edit.sel=Sales.objects.get(id=sel_acc)
+            edit.cost=Purchase.objects.get(id=cost_acc)
+            edit.save()
+            return redirect('itemview')
 
-def item_detail(request):
-    
-    items=AddItem.objects.all()
-   
-    context={
-       "items":items,
-      
-    }
-    return render(request,'item_description.html',context)
+        return render(request,'edititem.html')
+
 
 
 def detail(request,id):
@@ -200,3 +217,19 @@ def detail(request,id):
     }
     
     return render(request,'demo.html',context)
+
+def Action(request,id):
+    user=request.user.id
+    user=User.objects.get(id=user)
+    viewitem=AddItem.objects.all()
+    event=AddItem.objects.get(id=id)
+    h=History.objects.all()
+    if request.method=='POST':
+        action=request.POST['action']
+        event.satus=action
+        event.save()
+        if action == 'active':
+            History(user=user,message="Item marked as Active ").save()
+        else:
+            History(user=user,message="Item marked as in Active").save()
+    return render(request,'item_view.html',{'view':viewitem,'h':h})

@@ -44,7 +44,7 @@ class AddItem(models.Model):
     unit=models.ForeignKey(Unit,on_delete=models.CASCADE)
     sales=models.ForeignKey(Sales,on_delete=models.CASCADE)
     purchase=models.ForeignKey(Purchase,on_delete=models.CASCADE)
-    date=models.DateTimeField(auto_now=True)
+    date=models.DateTimeField(auto_now_add=True)
     s_desc=models.TextField(max_length=255)
     p_desc=models.TextField(max_length=255)
     history=models.CharField(max_length=255)
@@ -52,3 +52,7 @@ class AddItem(models.Model):
     p_price=models.TextField(max_length=255)
     satus=models.TextField(default='active')
 
+class History(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    date=models.DateTimeField(auto_now=True)
+    message=models.CharField(max_length=255)
