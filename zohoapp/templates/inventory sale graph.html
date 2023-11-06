@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .tr{
+        cursor: pointer;
+    }
+
+    @media print{
+    body{
+        visibility: hidden;
+    }
+
+    #printtable{
+        visibility: visible;
+        width: auto;
+        height: auto;
+        margin-top: -600px;
+        margin-left: -100px;
+    }
+}
+h2{
+    font-size: x-large;
+    font-family: 'Segoe UI', Tahoma,;
+    color:#dfe4e9;
+  }
+  .card{
+        background: none;
+    }
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+ 
+
+tr:hover {
+  background-color : rgb(94, 94, 101);
+  color: aliceblue;
+cursor: pointer
+}
+    .btn {
+  background-color: white;
+  border: none;
+  color: green;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: white;
+}
+
+</style>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        height: 5vh;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media print and (color) {
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="page-content">
+    <div class="card radius-15">
+        <div class="card-body">
+            <div class="card-title">
+                <center><h2 class="mb-0" style="font-size: 35px;color: rgb(218, 164, 48);">{{ company.company_name  }}</h2></center><br>
+                <center><label  style="font-size: 40px;color: rgb(218, 164, 48);">INVENTORY SALE GRAPH </label></center>
+                <center><p id="hdate" style="font-size: 20px;color: rgb(218, 164, 48);"></p></center>
+            </div>
+            <hr/>
+        </div>
+    </div>
+
+
+    <div class="card radius-15">
+        <div class="card-body">
+            <form action="" method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="Between">From</label> &nbsp;
+                        <input type="date" name="fromdate" id="fromdate"  style="width: 35%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);"> 
+                        <label for="To">To</label>
+                        <input type="date" name="todate" id="todate" style="width: 35%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);" >  &nbsp;
+                    </div>  
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" id="search" placeholder="Search..." class="form-control" autocomplete="off" 
+                        style="color: rgb(255, 255, 255);background: transparent;width: 20vw;">
+                    </div></form>
+                    <div class="col-md-4"></div>
+                    <div class="btn-group col-md-1 mt-2" style="float: right; height:5vh;">
+                    
+                    </div>
+                    
+                    
+                    <div class="btn-group col-md-1 mt-2" style="float: right; height:5vh;">
+                       <a  id="myBtn" class="btn btn-outline-info text-grey"
+                            onclick="graphdiv()"><i class="fa fa-line-chart" style="background: white; color: rgb(218, 164, 48);"></i></a>
+                    </div>&nbsp;
+                    <div class="btn-group col-md-1 mt-2" style="float: right; height:5vh;">
+                        <button class="btn" ><a href="{% url 'inven_details' %}" class="fa fa-close" style="background: white; color: rgb(218, 164, 48);"></a></button>
+                    </div>
+                    
+                </div>
+          
+        </div>
+    </div>
+
+    <div class="card radius-15 p-5" id="graph_div" style="display: none;background-color: #303232; color:rgb(218, 164, 48) ;">
+        <div class="card-body">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card radius-15 p-5" id="sales_div">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12" id="saletable">
+                   
+                     
+                          
+                       
+                        <div class="table-responsive" style="margin-top: 100px;">
+                            <p style="text-align: right;color: black; display: none;" id="datediv">
+                                <span style="font-weight: bold;" >From Date : <span id="from"></span> </span><br> 
+                                <span style="font-weight: bold;" >To Date : <span id="to"></span></span>
+                              </p>
+                            <table class="table table-hover " id="saletable" >
+                                <thead>
+                                    <tr>
+                                        <th class="center font-weight-dark border-dark"class="table" style=" color: rgb(218, 164, 48);">
+                                            DATE
+                                        </th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                            SALE QUANTITY
+                                        </th>
+                                        <th class="center font-weight-dark border-dark"class="table" style=" color: rgb(218, 164, 48);">
+                                            ITEM
+                                        </th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                            TYPE
+                                        </th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody id="tb">
+                                    {% for i in inv %}
+                                        <tr class="tr">
+                                            <td class="center text-white">{{ i.inv.inv_date | date:'Y-m-d'}}</td> 
+                                            <td class="center text-white">{{i.quantity}}</td> 
+                                            <td class="center text-white">{{ i.product}}</td>  
+                                            <td class="center text-white">Inventory</td>         
+                                            
+                                                
+                                        </tr></a>
+                                    {% endfor %}
+                                    {% for c in cnote %}
+                                        <tr class="tr">
+                                            <td class="center text-white">{{ c.creditnote.creditnote_date| date:'Y-m-d'}}</td> 
+                                            <td class="center text-white">{{ c.quantity }}</a></td>
+                                            <td class="center text-white">{{ c.item_name }}</td>  
+                                            <td class="center text-white">Credit Note</td>         
+                                            
+                                        </tr></a>
+                                    {% endfor %}
+                                    {% for r in rinv %}
+                                        <tr class="tr">
+                                            <td class="center text-white">{{ r.ri.start| date:'Y-m-d'}}</td> 
+                                            <td class="center text-white">{{ r.quantity}}</a></td>
+                                            <td class="center text-white">{{ r.iname}}</td>  
+                                            <td class="center text-white">Reccuring Invoice</td>         
+                                             
+                                        </tr></a>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('salesChart').getContext('2d');
+
+const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Data',
+            data: [],
+            backgroundColor: 'rgb(218, 164, 48)',
+            borderColor: 'rgb(218, 164, 48)',
+            borderWidth: 1,
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+function addDataPoint() {
+    const tableData = extractDataFromTable();
+    const dates = tableData.map(item => item.date);
+    const sales = tableData.map(item => item.sales); 
+
+    var fromDate = document.getElementById('fromdate').value;   
+    var toDate = document.getElementById('todate').value;
+    if(dates[0] != fromDate){
+      dates.unshift(fromDate)
+      sales.unshift(null)
+    }
+    if(dates[dates.length - 1] != toDate){
+      dates.push(toDate)
+      sales.push(null)
+    }
+
+    myChart.data.labels = dates;
+    myChart.data.datasets[0].data = sales;
+    // Redraw the chart
+    myChart.update();
+}
+
+function graphdiv(){
+    $('#graph_div').toggle();
+    $('#sales_div').toggle();
+    addDataPoint()
+}
+
+function extractDataFromTable() {
+    const table = document.getElementById('tb');
+    const rows = table.getElementsByTagName('tr');
+    
+    const data = [];
+    
+    for (let i = 0; i < rows.length; i++) {
+        if (window.getComputedStyle(rows[i]).display !== 'none') {
+            const cells = rows[i].getElementsByTagName('td');
+            const date = cells[0].textContent;
+            const sales = parseInt(cells[1].textContent);
+            data.push({ date, sales });
+        }
+    }
+    
+    return data;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+    var $rows = $('.table tbody tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        $rows.show().filter(function() {
+            console.log($rows.show())
+
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            console.log(text)
+            return !~text.indexOf(val);
+        }).hide();
+    });
+});
+</script>
+
+
+<script>
+function ApplyDateFilter() { 
+
+    var fromDate = document.getElementById('fromdate').value;
+    var toDate = document.getElementById('todate').value;
+    document.getElementById("datediv").style.display = "block";
+    document.getElementById("from").innerHTML = fromDate;
+    document.getElementById("to").innerHTML = toDate;
+    document.getElementById("hdate").innerHTML = fromDate +" to " + toDate;
+    table = document.getElementById("saletable");
+    tr = table.getElementsByTagName("tr");
+ 
+    for (i = 1; i < tr.length; i++) {
+        let rowVisible = false;
+        td = tr[i].getElementsByTagName("td");
+
+        // Loop through all table cells (columns) in each row
+        for (j = 0; j < td.length; j++) {
+           
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                var check = new Date(txtValue)
+                var from = new Date(fromDate);
+                var to = new Date(toDate);
+                if(check >= from && check <= to){
+                    rowVisible = true;
+                    break;
+                }
+            }
+        }
+
+        // Show/hide the row based on the search results
+        tr[i].style.display = rowVisible ? "" : "none";
+    }
+}
+
+</script>
+
+<script>
+const fromDateInput = document.getElementById("fromdate");
+const toDateInput = document.getElementById("todate"); 
+fromDateInput.addEventListener("change", ApplyDateFilter);
+toDateInput.addEventListener("change", ApplyDateFilter);
+fromDateInput.addEventListener("change", addDataPoint);
+toDateInput.addEventListener("change", addDataPoint);
+</script>
+
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+<script type="text/javascript">
+function ExportToExcel(type, fn, dl) {
+var elt = document.getElementById('saletable');
+var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+return dl ?
+    XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+    XLSX.writeFile(wb, fn || ('sales_summary_report.' + (type || 'xlsx')));
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function ($) {
+    $(document).on('click', '.btn_pdf', function (event) {
+        event.preventDefault();
+        var element = document.getElementById('saletable');  
+        element.style.color = 'black';
+        element.style.backgroundColor = 'white';
+        var opt =
+        {
+            margin: 1,
+            filename: 'sales_summary_report' + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', }
+        };
+        html2pdf().set(opt).from(element).save();
+    });
+});
+</script>
+
+<script>
+function printtable(){
+    var printContents = document.getElementById("saletable").innerHTML;
+
+    var $printerDiv = $('<div class="printContainer"></div>'); // create the div that will contain the stuff to be printed
+    $printerDiv.html(printContents); // add the content to be printed
+    $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+    window.print(); // call print
+    $printerDiv.remove(); // remove the div
+    $('body').removeClass("printingContent");
+}
+</script>
+
+
+{% endblock %}

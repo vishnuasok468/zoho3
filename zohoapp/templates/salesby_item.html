@@ -1,0 +1,526 @@
+<!-- .....replace by athul.... -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+
+        .printable-content table {
+            margin: 10px;
+        }
+       
+
+        .printable-content,
+        .printable-content * {
+            visibility: visible;
+        }
+
+        .printable-content {
+            width: 200%;
+            max-width: 80%;
+            padding: 20px;
+           
+
+
+        }
+
+        .printable-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+        }
+    }
+
+    .daterangepicker {
+        background-color: #f0f0f0;
+        color: #000;
+    }
+</style>
+<div>
+    <center><h2 class="text" style="color: aliceblue;">SALES BY ITEMS</h2></center>
+    <hr>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-5">
+     <div class="d-flex">
+        <!--<div class="mr-3"> -->
+            <!-- Date range calendar input -->
+
+            <!-- <div id="reportrange"
+                style="cursor: pointer; padding: 5px 10px;  width: 40;  color: #010101; background-color: white;">
+                <i class="fa fa-calendar"></i>&nbsp;
+                <span></span>
+                <i class="fa fa-caret-down"></i>
+            </div>
+        </div> -->
+        <!-- <a href="{% url 'customize_report1' %}" style="margin-left: 10px;">Customize report <i class="fa fa-cog"></i></a> -->
+    </div>
+    <div class="d-flex">
+        <!-- <button class="btn btn-light mr-3 " id="pdf" onclick="display()">Print</button> -->
+        <!-- <a class="btn btn-light mr-3" href="">Graph</a> -->
+        <!-- Print button -->
+        <button class="btn btn-outline-light mr-3 " style="background-color: rgb(214, 141, 5);color: white;" id="pdf" onclick="display()">Print</button>
+
+        <div style="width:3px;"></div>
+        <div class="dropdown">
+            <button class="btn btn-outline-light dropdown-toggle " style="background-color: rgb(214, 141, 5);color: white;" type="button" id="exportDropdown" data-bs-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Export
+            </button>
+
+            <div class="dropdown-menu" aria-labelledby="exportDropdown">
+                <a class="dropdown-item" href="#" onclick="exportAsPDF()">PDF</a>
+                <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+            </div>
+            <a href="{% url 'reports' %}" class="btn btn-danger btn-outline-light bg-danger" >
+                <i class="fa fa-times-circle "></i>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" placeholder="Search...." style="width: 70%; border-radius: 10px;padding: 8px; border: 3px solid rgb(214, 141, 5);">
+
+    </div>
+    <div class="col">
+        <form action="{% url 'salesby_item_filter' %}" method="post">
+            {% csrf_token %}
+            From <input type="date" id="d1" name="d1"  style="width: 40%; border-radius: 10px;padding: 8px;border: 3px solid rgb(214, 141, 5);" required>
+            To <input type="date" id="d2" name="d2"  style="width: 40%; border-radius: 10px;padding: 8px;border: 3px solid rgb(214, 141, 5);" required>
+            <button class=" fa fa-filter btn-warning btn-outline-light" style="padding: 10px;border-radius: 10px;background-color: rgb(214, 141, 5);color: white;"></button>
+            
+        </form>
+
+    </div>
+</div>
+<hr>
+<div class="printable-wrapper" id="container-to-print">
+    
+    <div class="printable-content">
+        
+        
+        <h1 class="text text-center" style="color: aliceblue;">{{ company.company_name }}</h1>
+            
+        <h5 class="text  text-center" style="color: aliceblue;">Salesby Items</h5> 
+        <p class="text  text-center" style="color: white;" id="date-range-display">From_{{start}} _To _{{end}}_</p>
+        <!-- <p class="text  text-center" style="color: aliceblue;">From 21 Jan 2023 To 21 Jan 2024</p> -->
+            
+        
+        <table class="table table-bordered table-striped mt-4" id="table" >
+            <thead>
+                <tr style="color: rgb(214, 141, 5)">
+                    <th style="color: rgb(214, 141, 5)"><b>Date</b></th>
+                    <th style="color: rgb(214, 141, 5)"><b>Item Number</b></th>
+                    <th style="color: rgb(214, 141, 5)"><b>Type</b></th>
+                    <th style="color: rgb(214, 141, 5)"><b>Item Name</b></th>
+                    
+                    <th style="color: rgb(214, 141, 5)"><b>Quantity sold</b></th>
+                    <th style="color: rgb(214, 141, 5)"><b>Amount</b></th>
+
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+
+                {% for c in items %}
+
+
+                <tr>
+                    <td style="color: #ccc;" id="date"><a class="text-white" href="{% url 'salesgraph' c.product %}">{{ c.inv.due_date }}
+                        </a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.product %}">{{ c.inv.invoice_no }}</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.product %}">Invoice</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.product %}">{{ c.product }}</a></td>
+                    
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.product %}">{{ c.quantity }}</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.product %}">{{ c.total }}</td>
+                    {% endfor %}
+                </tr>
+                {% for c in items2 %}
+
+
+                <tr>
+                    <td style="color: #ccc;" id="date"><a class="text-white" href="{% url 'salesgraph' c.iname %}">{{ c.ri.start }}
+                        </a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.iname %}">{{ c.ri.order_num }}</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.iname %}">Recurring Invoice</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.iname %}">{{ c.iname }}</a></td>
+                    
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.iname %}">{{ c.quantity }}</a></td>
+                    <td style="color: #ccc;"><a class="text-white" href="{% url 'salesgraph' c.iname %}">{{ c.amt }}</td>
+                    {% endfor %}
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="printable-content mt-3">
+    <p style="color: rgb(8, 176, 50);">**Amount is displayed in your base currency: INR</p>
+</div>
+
+<script>
+   
+//   function searchTable() {
+//       let input, filter, table, tr, td, i, j, txtValue;
+//       input = document.getElementById("searchInput");
+//       filter = input.value.toLowerCase();
+//       table = document.getElementById("tableBody");
+//       tr = table.getElementsByTagName("tr");
+
+//       // Loop through all table rows (excluding the first row, which contains the column headers)
+//       for (i = 1; i < tr.length; i++) {
+//         let rowVisible = false;
+//         td = tr[i].getElementsByTagName("td");
+
+//         // Loop through all table cells (columns) in each row
+//         for (j = 0; j < td.length; j++) {
+//           if (td[j]) {
+//             txtValue = td[j].textContent || td[j].innerText;
+//             if (txtValue.toLowerCase().indexOf(filter) > -1) {
+//               rowVisible = true;
+//               break;
+//             }
+//           }
+//         }
+  
+//         // Show/hide the row based on the search results
+//         tr[i].style.display = rowVisible ? "" : "none";
+//       }
+//     }
+  
+//     // Attach the search function to the input field's "input" event
+//     document.getElementById("searchInput").addEventListener("input", searchTable);
+
+
+
+        // Function to handle the search
+    function searchTable() {
+      let input, filter, table, tr, td, i, j, txtValue;
+      input = document.getElementById("searchInput");
+      filter = input.value.toLowerCase();
+      table = document.getElementById("table");
+      tr = table.getElementsByTagName("tr");
+
+      // Loop through all table rows (excluding the first row, which contains the column headers)
+      for (i = 1; i < tr.length; i++) {
+        let rowVisible = false;
+        td = tr[i].getElementsByTagName("td");
+
+        // Loop through all table cells (columns) in each row
+        for (j = 0; j < td.length; j++) {
+          if (td[j]) {
+            txtValue = td[j].textContent || td[j].innerText;
+            if (txtValue.toLowerCase().indexOf(filter) > -1) {
+              rowVisible = true;
+              break;
+            }
+          }
+        }
+  
+        // Show/hide the row based on the search results
+        tr[i].style.display = rowVisible ? "" : "none";
+      }
+    }
+  
+    // Attach the search function to the input field's "input" event
+    document.getElementById("searchInput").addEventListener("input", searchTable);
+
+   
+    function exportAsPDF() {
+        const container = document.getElementById('container-to-print');
+
+        // Save the original background color
+        const originalBackgroundColor = container.style.backgroundColor;
+
+        // Set the container's background color to white
+        container.style.backgroundColor = 'white';
+
+        // Apply styling changes to the container's content
+        const textWhiteElements = container.querySelectorAll('.text');
+        textWhiteElements.forEach(element => {
+            element.style.color = 'black'; // Set text color to black
+        });
+
+        const tableElements = container.querySelectorAll('table');
+        const tableCells = container.querySelectorAll('td, th');
+        const tableRows = container.querySelectorAll('tr');
+
+        tableElements.forEach(table => {
+            table.style.backgroundColor = '#ffffff'; // Set background color to white
+            table.style.color = '#000000'; // Set text color to black
+        });
+
+        tableCells.forEach(cell => {
+            cell.style.backgroundColor = '#ffffff'; // Set background color to white
+            cell.style.color = '#000000'; // Set text color to black
+            cell.style.border = '1px solid black'; // Add a black border
+        });
+
+        tableRows.forEach(row => {
+            row.style.backgroundColor = '#000000'; // Set background color to black
+        });
+
+        const pdfOptions = {
+            margin: 0,
+            filename: '{{company_data.company_name}}SalesbyItem.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        };
+
+        // Generate PDF from the container
+        html2pdf().from(container).set(pdfOptions).save().then(() => {
+
+            // Restore the original background color
+            container.style.backgroundColor = originalBackgroundColor;
+
+            textWhiteElements.forEach(element => {
+                element.style.color = 'white'; // Restore original text color
+
+                // Remove the pdf-background class after generating the PDF
+                container.classList.remove('pdf-background');
+            });
+        });
+    }
+
+
+    // Function to save Excel using XLSX
+    function exportToExcel() {
+        var table = document.querySelector('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'report.xlsx');
+    }
+
+    // Function to handle export based on dropdown selection
+    // document.getElementById('exportDropdown').addEventListener('change', function () {
+    //     var selectedValue = this.value;
+    //     if (selectedValue === 'pdf') {
+    //         exportToPDF();
+    //     } else if (selectedValue === 'xls') {
+    //         exportToExcel();
+    //     }
+    // });
+    // document.getElementById('exportDropdown').addEventListener('click', function () {
+    // var selectedValue = this.textContent.trim();
+    // if (selectedValue === 'PDF') {
+    //     exportToPDF();
+    // } else if (selectedValue === 'XLS (Excel)') {
+    //     exportToExcel();
+    // }
+    //     window.onload = function() {
+    //     document.getElementById('exportDropdown').addEventListener('click', function () {
+    //         var selectedValue = this.textContent.trim();
+    //         if (selectedValue === 'PDF') {
+    //             exportToPDF();
+    //         } else if (selectedValue === 'XLS (Excel)') {
+    //             exportToExcel();
+    //         }
+    //     });
+    // };
+    document.getElementById('exportDropdown').addEventListener('change', function () {
+        var selectedValue = this.value;
+        if (selectedValue === 'pdf') {
+            exportToPDF();
+        } else if (selectedValue === 'xls') {
+            exportToExcel();
+        }
+    });
+    const pdfExportLink = document.getElementById('pdf'); // This should be the link for PDF export
+    pdfExportLink.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the link from navigating
+        exportToPDF();
+    });
+
+
+    $(function(){
+        // Declare variables
+        var start, end, table, tr, td,date, i, txtValue;
+        start = document.getElementById("d1").value;
+        end = document.getElementById("d2").value;
+        table = document.getElementById("tableBody");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            date= tr[i].getElementById("date").value;
+      
+
+                if (start >  date < end) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+ 
+        }
+    });
+
+    $(function () {
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            // $('#date-range-display').html('From ' + start.format('MMMM D, YYYY') + ' To ' + end.format('MMMM D, YYYY'));
+            document.getElementById('d1').value = start.format('MMMM D, YYYY');
+            document.getElementById('d2').value = end.format('MMMM D, YYYY');
+
+
+            // $(document).ready(function () {
+            //     var start_date = start
+            //     console.log(start_date)
+            //     var end_date = end
+            //     $(document).on('change', function () {
+
+
+            //         $.ajax({
+            //             type: "GET",
+            //             url: "",
+            //             data: {
+            //                 start: start,
+            //                 end: end
+            //             },
+            //             success: function (json) {
+            //                 alert(json);
+            //             }
+            //         });
+            //     });
+
+            // });
+
+
+            // $("#reportrange").on('click',function () {
+            //         var date = $(this).val();
+
+            // $.ajaxSetup({
+            //             headers: {
+            //                 "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+            //             }
+            //         });
+            // $.ajax({
+            //             url: "",
+            //             method: 'POST',
+            //             data: {
+            //                 'date': date
+            //             },
+            //             dataType: 'json',
+            //             success: function (data) {
+            //                 if (data.taken) {
+            //                     alert("Username taken");
+            //                 }
+            //             }
+            //         });
+            //     });
+        }
+
+
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Previous Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                'Previous Quarter': [
+                    moment().subtract(3, 'months').startOf('quarter'),
+                    moment().subtract(3, 'months').endOf('quarter')
+                ]
+            },
+
+
+        }, cb);
+
+        cb(start, end);
+
+
+
+    });
+
+
+
+
+
+
+
+
+    // function adjustTableForPrint() {
+
+    //     const table = document.querySelector('.printable-content table');
+    //     const container = document.querySelector('.printable-content');
+
+
+    //     const scaleFactor = container.offsetWidth / table.offsetWidth;
+
+
+    //     table.style.transform = `scale(${scaleFactor})`;
+    //     table.style.transformOrigin = 'top right';
+
+
+    //     const marginTop = (container.offsetHeight - table.offsetHeight * scaleFactor) / 2;
+    //     table.style.marginTop = `${marginTop}px`;
+    // }
+
+    // //  "Print" button
+    // const printButton = document.getElementById('pdf');
+    // printButton.addEventListener('click', function() {
+    //     adjustTableForPrint();
+    //     window.print();
+    // });
+
+    // Function to adjust the printing view
+
+    function adjustPrintingView() {
+        // Center the table horizontally on the printed page
+        const printableTable = document.querySelector('.printable-content table');
+        if (printableTable) {
+            printableTable.style.margin = '0 auto';
+        }
+
+        // Center the headings at the top of the page
+        const headings = document.querySelectorAll('.printable-content .text');
+        headings.forEach(heading => {
+            heading.classList.add('text-center');
+        });
+
+        // Adjust margins and paddings for the printable content
+        const printableContent = document.querySelector('.printable-content');
+        if (printableContent) {
+            printableContent.style.margin = '0';
+            printableContent.style.padding = '0';
+        }
+    }
+
+    // "Print" button
+    const printButton = document.getElementById('pdf');
+    printButton.addEventListener('click', function () {
+        adjustPrintingView();
+        window.print();
+    });
+
+
+
+
+
+
+
+</script>
+
+
+
+
+{% endblock %}

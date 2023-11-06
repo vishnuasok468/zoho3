@@ -1,0 +1,771 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+  crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"
+  integrity="sha512-LwZthDLbb+dritfG9jbFyY1ClYqlkF4I9foqo+783wcl6EPR+kE3uqb0OPsieHt4pFH4HVduwX6rTTDmCaC20g=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://fontawesome.com/icons/pencil?f=classic&s=solid"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+<style>
+  .dropdown-item:hover {
+    color: rgb(226, 149, 5);
+  }
+
+
+
+  .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: rgb(252, 236, 217);
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  #tr_data:hover {
+    background-color: #757575;
+  }
+</style>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+
+<script type="text/javascript">
+  $(document).ready(function ($) {
+    console.log('print');
+
+    $(document).on('click', '.btn_print', function (event) {
+      console.log('print1');
+      event.preventDefault();
+
+      //credit : https://ekoopmans.github.io/html2pdf.js
+
+      var element = document.getElementById('whatToPrint');
+
+      //easy
+      //html2pdf().from(element).save();
+
+      //custom file name
+      //html2pdf().set({filename: 'code_with_mark_'+js.AutoCode()+'.pdf'}).from(element).save();
+
+
+      //more custom settings
+      var opt =
+      {
+        margin: 1,
+        filename: 'pricelist_' + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      // New Promise-based usage:
+      html2pdf().set(opt).from(element).save();
+
+
+    });
+
+
+
+  });
+</script>
+
+
+
+
+<!-- <script>
+
+    function uplodfile() {
+        console.log('upload');
+
+        async function generatePDF() {
+            // document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+
+            //Downloading
+            var downloading = document.getElementById("whatToPrint");
+            var doc = new jsPDF('l', 'pt');
+
+            await html2canvas(downloading, {
+                //allowTaint: true,
+                //useCORS: true,
+                // width: 600
+
+            }).then((canvas) => {
+                //Canvas (convert to PNG)
+                doc.addImage(canvas.toDataURL("image/png"), 'PNG', 15, 10, 700, 850);
+            })
+
+
+
+            data = doc.save("Document.pdf");
+
+
+            //End of downloading
+
+            // document.getElementById("downloadButton").innerHTML = "Click to download";
+        }
+
+        $.ajax({
+            method: "POST",
+            url: "/estimate_pdf/",
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (res) {
+                console.log(res)
+            }
+
+
+        })
+    }
+
+</script> -->
+
+
+
+<div style="top: 7rem; ">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="col-md-6 py-2"><a class="text-white" style="font-size: 1.5rem;"> All Pricelist</a></div>
+      <div class="row  mx-2">
+      </div>
+      <div class="row">
+        <div class="col-sm-8 col-md-8 col-lg-8" style="width: 10vw;">
+            <input type="text" id="search" class="form-control text-dark mb-2 mt-2" placeholder="search......">
+        </div>
+        
+        <div class="col-sm-4 col-md-4 col-lg-4 d-flex justify-content-between mt-2" style="margin-left: -22px;">
+          <div class="dropdown ms-2 pt-1">
+            <button class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" type="button" data-toggle="dropdown">
+                Sort
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" href="#" data-sort="all">All</a>
+                {% comment %} <a class="dropdown-item" href="#" data-sort="godownname">Name</a> {% endcomment %}
+                <a class="dropdown-item" href="#" data-sort="item">Name</a>
+            </div>
+        </div>
+            <div class="dropdown ms-2 pt-1">
+                <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href="" data-toggle="dropdown">
+                    <i style="color: chocolate;" class="fa fa-filter"></i>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <a class="dropdown-item" href="#" id="filterAllButton">All</a>
+                    <a class="dropdown-item" href="#" id="filterActiveButton">Active</a>
+                    <a class="dropdown-item" href="#" id="filterInactiveButton">Inactive</a>
+                </div>
+            </div>
+            
+            
+           
+            <a style="color: white; background-color: rgb(210, 132, 30); height: 32px; margin-left: 8px; margin-top: 5px;" class="btn mr-1" href="{% url 'addprice' %}">
+              <i class="fa-solid fa-plus"><b>+</b></i>
+          </a>
+        </div>
+    </div>
+
+      <div class="pt-3 ps-2 " style="height: 600px; overflow-y: scroll;overflow-x: hidden;">
+        <table id="godowntable" class="text-white" style="width: 100%;">
+          <tbody>
+              {% for v in allproduct %}
+              <td>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a style="color: rgb(218, 143, 5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" href="{% url 'viewlist' v.id %}">{{ v.name }}</a>
+                    </div>
+                    {% comment %} <div class="col-md-6">
+                        <a style="color: rgb(218, 143, 5); margin-left: 6vw;" href="{% url 'godownoverview' v.id %}">{{ v.stockkeeping }}</a>
+                    </div> {% endcomment %}
+                </div>
+                <div class="row mt-3">
+                </div>
+            </td>
+            
+              
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="col-md-8 " >
+      <div class="col-md-5 text-light" style="font-size: 1.5rem; margin-left: 10px; margin-bottom: 1vw;">
+        {{product.name }}</div>
+      <div class="row  mx-2 py-3" style="background-color: rgba(136, 136, 135, 0.5)">
+       
+        <div class="col-md-12 text-white text-right my-auto" style="text-align: end;">
+          <div class="btn-group" role="group" aria-label="Basic example">
+          
+            <a href="{% url 'editlist' product.id %}" class="btn btn-sm ms-1  text-white"
+              style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" data-toggle="tooltip"
+              title="Edit">
+              <i class="fas fa-pencil-alt"></i> </a>
+            <a href="" class="btn btn-sm text-white ms-1 btn_print"
+              style="background-color:  rgb(212, 139, 3);height: 1.7rem;border-radius: 5px;" data-toggle="tooltip"
+              title="PDF" id="pdf">
+              <i class="far fa-file-pdf"></i></a>
+            <a href="" class="btn btn-sm text-white ms-1 " onclick="printDiv()"
+              style="background-color:  rgb(212, 139, 3);border-radius: 5px;" data-toggle="tooltip" title="Print">
+              <i class="fa fa-print"></i></a>
+
+
+            <div class="dropdown m-0 p-0 ms-1" title="comments" style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
+              <a href=" " class=" fas fa-comment-dots dropdown-toggle  btn-sm text-white ms-1"  
+                  data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+              </a>
+
+              <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                  <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                   data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                  <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                  data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                          
+              </div>
+          </div>
+
+
+            <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+            <form method="post" enctype="multipart/form-data" id="upload-form" action="">
+              {% csrf_token %}
+              <input type="file" name="attachment" id="attachment" onchange="handleFileSelection(event)" style="display: none;">
+              <a href="#" class="btn btn-sm text-white ms-1"  id="file-button" style="background-color: rgb(212, 139, 3); border-radius: 5px; height: 1.7rem;">
+                  <i class="fa fa-paperclip"></i>
+              </a>
+      </form>
+  
+    <script>
+      document.getElementById('file-button').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('attachment').click();
+      });
+    
+      function handleFileSelection(event) {
+        var input = event.target;
+        var form = document.getElementById('upload-form');
+        form.submit();
+      }
+    </script>
+
+          </div>
+
+          <a class="btn  btn-sm text-white ml-1" style="background-color:  rgb(212, 139, 3); height: 1.7rem; "
+            href="{% url 'active_status' product.id %}" id="sts">{{product.status}}</a>
+
+            <a href="" class="btn btn-sm text-white ms-1 "  data-target="#delete"
+        style="background-color:  rgb(212, 139, 3); height: 1.7rem; border-radius: 5px; margin-left: -1.7rem;" data-toggle="modal" title="Delete">
+        <i class="fas fa-trash-alt"></i></a>
+        </div>
+        
+      </div>
+
+
+      <div id="div_godown" class="mx-2 my-4 p-4 "
+        style="background-color: rgba(124, 124, 123, 0.507); height: 600px; overflow-y: scroll;">
+        
+          <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
+            style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
+            <h4 class="mr-4  text-dark" style="text-align:center;" >{{product.name }}</h4>
+            <br>
+            <h4 class="mr-4  text-dark" >Type</h4>
+            <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+              {{product.types}}</h4>
+        
+              <h4 class="mr-4  text-dark" >Description</h4>
+            <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+              {{product.description}}</h4>
+        
+              <h4 class="mr-4  text-dark" >Details</h4>
+            <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+              {{product.percentage}} % {{product.mark}}</h4>
+        
+              <h4 class="mr-4  text-dark" >Rounding</h4>
+            <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+              {{product.roundoff}}</h4>
+        
+              <h4 class="mr-4  text-dark" >Currency</h4>
+            <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+              {{product.currency}}</h4>
+
+          </div>
+
+
+                 <!-- DElete modal -->
+
+  <div class="modal fade " id="delete"
+    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+    <div class="modal-dialog modal-xl m-5 p-5">
+        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                <h5 class="m-3 text-uppercase text-light">Enter Reason</h5>
+                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                    aria-label="Close">&times;</button>
+
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                <div class="card p-0 m-0">
+                    <form action="{% url 'delete_item' product.id %}" method="post" class="needs-validation" novalidate autocomplete="off"
+                        id="modalComment">
+                        {% csrf_token %}
+                        <div class="row mt-2">
+                            <div class="col-md-6 mt-2">
+                              <div style="color: red;">{{errmsg}}</div>
+                                <input type="text" class="form-control text-dark bg-light" id="delete" name="deletereason"  style="height: 100px; width: 520px;" required> 
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Delete </button>
+                                    <button type="button"
+                                        class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                        data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">Cancel</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+              <!-- comment modal -->
+
+    <div class="modal fade " id="cmnts"
+    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+    <div class="modal-dialog modal-xl m-5 p-5">
+        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                    aria-label="Close">&times;</button>
+
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                <div class="card p-0 m-0">
+                    <form action="" method="post" class="needs-validation" novalidate autocomplete="off"
+                        id="modalComment">
+                        {% csrf_token %}
+                        <div class="row mt-2">
+                            <div class="col-md-6 mt-2">
+                                <textarea class="form-control text-dark bg-light" id="comment" name="comments" style="height: 200px; width: 520px;" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Save </button>
+                                    <button type="button"
+                                        class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                        data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">Cancel</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ....................................  comment list modal ................ -->
+
+<div class="modal fade " id="cmt_list"
+   style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+ <div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header " style="background: rgb(32, 35, 37);">
+            <h5 class="m-3 text-uppercase text-light">LIST</h5>
+            <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                aria-label="Close">&times;</button>
+
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
+            <div class="card p-0 m-0">
+
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="p-2">
+                            <table class="table table-bordered" style="table-layout: fixed;">
+                                <thead>
+                                  <tr>
+                                    <th>sl no.</th>
+                                    <th>Comments</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                  </tr>
+                                </thead>
+                                {% for comt in Comments %}
+                                <tbody>
+                                    <tr>
+                                      <td>{{ forloop.counter }}</td>
+                                      <td id="comment-text-{{ comt.id }}">{{ comt.content }}</td>
+                                        {% comment %} <td><textarea name="" id="" cols="80" rows="5" style="border: none;background-color:transparent ;color: white;">{{ comt.content }}</textarea></td> {% endcomment %}
+                                        <td><button class="btn btn-primary" onclick="editComment({{ comt.id }})">Edit</button></td> 
+                                        <td><button class="btn btn-primary"><a href="" style="color: white;">Delete</a></button></td> 
+                                    </tr>
+                                </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+        </div>
+      </div>
+      </section>
+    </div>
+
+    <div style="display: none;">
+      <div class="slip m-1 p-4 pl-2 ml-1  bg-light" id="whatToPrint1"
+      style="box-shadow: 5px 5px 10px rgb(45, 45, 45); width: 98%; ">
+    {% comment %} <h4 class="mr-4  text-dark" >Date</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.date}}</h4> {% endcomment %}
+
+
+      <h4 class="mr-4  text-dark" >Type</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.types}}</h4>
+
+      <h4 class="mr-4  text-dark" >Description</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.description}}</h4>
+
+      <h4 class="mr-4  text-dark" >Details</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.percentage}} % {{product.mark}}</h4>
+
+      <h4 class="mr-4  text-dark" >Rounding</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.roundoff}}</h4>
+
+      <h4 class="mr-4  text-dark" >Currency</h4>
+    <h4 class="text-dark" style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;">:
+      {{product.currency}}</h4>
+
+  </div>
+</div>
+
+    <script>
+      $(document).ready(function() {
+        var originalTable = $('#godowntable').clone(); // Clone the original table on page load
+    
+        // Function to sort items by name
+        function sortByName() {
+          var rows = $('#godowntable tbody tr').get();
+          rows.sort(function(a, b) {
+            var keyA = $(a).children('td').eq(1).text().toUpperCase(); // Adjust the column index for Name
+            var keyB = $(b).children('td').eq(1).text().toUpperCase(); // Adjust the column index for Name
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
+            return 0;
+          });
+          $('#godowntable tbody').empty(); // Clear the table body
+          $.each(rows, function(index, row) {
+            $('#godowntable tbody').append(row);
+          });
+        }
+    
+        // Function to sort items by HSN/SAC
+        function sortByItem() {
+          var rows = $('#godowntable tbody tr').get();
+          rows.sort(function(a, b) {
+            var keyA = $(a).children('td').eq(0).text().toUpperCase(); // Adjust the column index for HSN/SAC
+            var keyB = $(b).children('td').eq(0).text().toUpperCase(); // Adjust the column index for HSN/SAC
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
+            return 0;
+          });
+          $('#godowntable tbody').empty(); // Clear the table body
+          $.each(rows, function(index, row) {
+            $('#godowntable tbody').append(row);
+          });
+        }
+    
+        // Function to restore the table to its original state
+        function restoreOriginalTable() {
+          $('#godowntable').replaceWith(originalTable.clone()); // Replace the current table with the original table clone
+        }
+    
+        // Handle sorting based on data-sort attribute
+        $('[data-sort]').on('click', function() {
+          var sortType = $(this).data('sort');
+          if (sortType === 'godownname') {
+            sortByName();
+          } else if (sortType === 'item') {
+            sortByItem();
+          } else if (sortType === 'all') {
+            restoreOriginalTable();
+          }
+        });
+      });
+    </script>
+    
+    
+<script>
+    function editComment(commentId) {
+        const commentText = $(`#comment-text-${commentId}`).text();
+        const editedComment = prompt('Edit the comment:', commentText);
+        if (editedComment !== null) {
+            // Send the edited comment to the server using AJAX
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    comment_id: commentId,
+                    edited_comment: editedComment,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function () {
+                    // Update the comment text on the page
+                    $(`#comment-text-${commentId}`).text(editedComment);
+                },
+                error: function () {
+                    alert('An error occurred while editing the comment.');
+                }
+            });
+        }
+    }
+</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+
+    <script>
+      function printDiv() {
+        var printContents = document.getElementById("whatToPrint1").innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        // Create a new window for printing
+        var printWindow = window.open('', '', 'height=1000, width=1000');
+
+        // Set the content of the new window to the content you want to print
+        printWindow.document.write('<html>');
+        printWindow.document.write('<body>');
+        printWindow.document.write(printContents);
+        printWindow.document.write('</body></html>');
+
+        // Close the document after printing
+        printWindow.document.close();
+
+        // Trigger the print operation
+        printWindow.print();
+
+        // Restore the original content to your page
+        document.body.innerHTML = originalContents;
+      }
+    </script>
+
+
+    <script>
+      function toggleModal() {
+        const modal = document.getElementById("myModal");
+        if (modal.style.display === "none") {
+          modal.style.display = "block";
+          // You can add an AJAX call here to load comments dynamically, if needed
+        } else {
+          modal.style.display = "none";
+        }
+      }
+
+      // Function to close the modal
+      function closeModal() {
+        const modal = document.getElementById("myModal");
+        modal.style.display = "none";
+      }
+
+      function submitComment() {
+        document.getElementById('commentForm').submit();
+      }
+    </script>
+
+
+    <script>
+      function filterItems(status) {
+        $('tbody tr').hide(); // Hide all rows initially
+        if (status === 'active' || status === 'Active') {
+          $('tr.active').show();
+        } else if (status === 'inactive' || status === 'Inactive') {
+          $('tr.inactive').show();
+        } else {
+          $('tbody tr').show(); // Show all rows when 'All' is selected
+        }
+      }
+
+      $(document).ready(function () {
+        // Attach the filter function to the filter buttons
+        $('#filterActiveButton').on('click', function () {
+          filterItems('active');
+        });
+
+        $('#filterInactiveButton').on('click', function () {
+          filterItems('inactive');
+        });
+
+        $('#filterAllButton').on('click', function () {
+          filterItems('all');
+        });
+      });
+    </script>
+
+    <div id="upload-message" style="display:none;"></div>
+
+    <script>
+      // Add click event listener to all rows with class "clickable-row"
+      const rows = document.querySelectorAll('.clickable-row');
+      rows.forEach(row => {
+        row.addEventListener('click', () => {
+          // Get the URL from the "data-href" attribute
+          const url = row.getAttribute('data-href');
+          // Navigate to the URL
+          window.location.href = url;
+        });
+      });
+    </script>
+
+    <script>
+
+      function print() {
+        var content = document.getElementById("whatToPrint");
+        var printWindow = window.open('', 'PrintWindow');
+        printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + content + '</body></html>');
+        printWindow.print();
+        printWindow.close();
+
+
+      }
+
+
+
+
+      // function saveAsPDF() {
+      //     const element = document.getElementById("whatToPrint");
+      //     const opt = {
+      //         margin: 1,
+      //         filename: "estimate.pdf",
+      //         image: { type: "jpeg", quality: 0.98 },
+      //         html2canvas: { scale: 2 },
+      //         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      //         output: "save", // this option tells html2pdf to save the file instead of downloading it
+      //         outputParam: "D:/sumi/Altos/zoho_django (1)/zoho_django/media/image/estimate.pdf" // this is the path where the file will be saved
+      //     };
+      //     html2pdf().set(opt).from(element).save();
+      // }
+
+      // function ConvertToPDF() {
+      //     var doc = new jsPDF();
+      //     var HTMLelement = $(".convert_to_pdf").html();
+      //     doc.fromHTML(HTMLelement, 10, 10, {
+      //         'width': 190
+      //     });
+      //     doc.save('estimateslip.pdf');
+      // }
+
+
+    </script>
+    <script>
+      function openFilePicker() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf'; // set the file type filter to only allow PDF files
+        input.addEventListener('change', () => {
+          const file = input.files[0];
+          // send the selected file to the server via AJAX
+          const formData = new FormData();
+          formData.append('file', file);
+          $.ajax({
+            url: '/send_email/',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+              alert('File uploaded successfully');
+            },
+            error: function (xhr, status, error) {
+              alert('Error uploading file: ' + error);
+            }
+          });
+        });
+        input.click();
+      }
+    </script>
+
+    <script>
+      $(document).ready(function() {
+        var $rows = $('#godowntable tbody tr');
+        $('#search').keyup(function () {
+          var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    
+          $rows.hide().filter(function () {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+          }).show();
+        });
+      });
+    </script>
+    
+    <script>
+      function comment_list() {
+        document.getElementById("div_godown").style.display = "none";
+        document.getElementById("comments_fieldset1").style.display = "block";
+        document.getElementById("comments_fieldset").style.display = "none";
+
+      }
+      function create_comment() {
+        document.getElementById("div_godown").style.display = "none";
+        document.getElementById("comments_fieldset").style.display = "block";
+        document.getElementById("comments_fieldset1").style.display = "none";
+      }
+    </script>
+    {% endblock %}

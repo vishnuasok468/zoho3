@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+
+<style>
+  
+    .col {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+
+
+    @media print {
+    table, th, td, tr {
+      border: 1px solid black;
+      padding: 10px; /* Ensure black borders when printing */
+     
+    }
+    table {
+    margin: 0 auto; /* Center the table horizontally */
+  }
+    }
+
+    @media (max-width: 768px) {
+    
+        #d1,
+        #d2,
+        #search-box {
+            width: 30%;
+        }
+
+
+    }
+
+    .daterangepicker {
+        background-color: #f0f0f0;
+        color: #000;
+    }
+ 
+   
+</style>
+<div class="d-flex justify-content-between align-items-center" style="margin-top: 40px;">
+    <div class="d-flex">
+        <div class="col">
+            <form action="" method="post" id="date-form">
+                {% csrf_token %}
+                From <input type="date" id="d1" name="d1" required>
+                To <input type="date" id="d2" name="d2" required>
+             
+                <span id="date-error" style="color: red;"></span>
+             
+            </form>
+        </div> 
+       
+        <!-- <a href="{% url 'customize_report' %}" style="margin-left: 30px;">Customize report <i class="fa fa-cog"></i></a> -->
+    </div>
+   
+    <div class="d-flex">
+     
+      <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp;
+        <button class="btn btn-light mr-2" id="pdf1" onclick="exportAsPDF()"><i class="fa fa-file-pdf-o"></i>PDF</button>
+      
+        <div style="width: 3px;"></div>
+        <div class="dropdown">
+            <button class="btn btn-light mr-3 dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Export
+            </button>
+            <div class="dropdown-menu" aria-labelledby="exportDropdown">
+             
+                <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+            </div>
+            <a href="{% url 'reports' %}" class="btn btn-light" style=" color: rgb(1, 1, 1);">
+                <i class="fa fa-times-circle"></i>
+            </a>
+        </div>
+        
+    </div>
+    
+  </div>
+  <div class="dropdown ml-auto" style="  margin-top:10px;">
+    <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-filter"></i> 
+    </button>
+    <div class="dropdown-menu" aria-labelledby="filterDropdown">
+      <a class="dropdown-item" href="#" data-sort="type">Customer Name</a>
+      <a class="dropdown-item" href="#" data-sort="customer">Email</a>
+      <a class="dropdown-item" href="#" data-sort="amount">Total Amount</a>
+  </div>
+</div>
+  <div class="input-group input-group-sm ml-auto" style="width: 150px; margin: 10px;margin-left: 80px; margin-top:-32px ;" >
+    <input type="text" id="searchInput" class="form-control" style="color: black !important;" placeholder="Search..." onkeyup="searchTable()">&nbsp;&nbsp;
+      <div class="input-group-sm">
+         
+             
+         
+      </div>
+      
+  </div>
+  <!-- <div class="dropdown ml-auto" style=" margin-left: 800px; margin-top:10px;">
+      <button class="btn btn-warning btn-outline-light dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-filter"></i> 
+      </button>
+      <div class="dropdown-menu" aria-labelledby="filterDropdown">
+        <a class="dropdown-item" href="#" data-category="customerName">Customer Name</a>
+        <a class="dropdown-item" href="#" data-category="Email">Email</a>
+        <a class="dropdown-item" href="#" data-category="creditnote_date">Creditnote Date</a>
+        
+    </div>
+  </div> -->
+  <hr style="color: #999; background-color: #999; height: 1px; border: none;">
+  <div class="printable-wrapper" id="container-to-print">
+    <div class="printable-content">
+        <center>
+            {% if company.company_name != None %}
+                <a class="text" style="font-size: 1rem; color: rgb(246, 246, 246);">{{ company.company_name }}</a><br>
+            {% else %}
+                <a class="text" style="font-size: 1rem; color: white;">Add Company</a><br>
+            {% endif %}
+            <h4 class="text" style="color: white;">Credit Note Details</h4>
+            <h5 class="text" style="color: white;">Basis:</h5>
+            <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
+        </center>
+        <div id="table-container">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped mt-4" id="data-table">
+                    <thead>
+                     
+                        <tr>
+                            <th style="color: white;">Date</th>
+                            <th style="color: white;">Creditnote Number</th>
+                            <th style="color: white;">customer name</th>
+                            <th style="color: white;">Email</th>
+                            <th style="color: white;">Total amount</th>
+                            <th style="color: white;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+      
+                        {% for cr in credit %}
+                        <tr>
+                            <td style="color: white;">{{cr.creditnote_date}}</td>
+                            <td style="color: white;">{{cr.credit_note}}</td>
+                            <td style="color: white;">{{cr.customer.customerName}}</td>
+                            <td style="color: white;">{{cr.customer.customerEmail}}</td>
+                            <td style="color: white;">{{cr.total}}</td>
+                            <td style="color: white;">{{cr.subtotal}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="printable-content mt-3"></div>
+
+<script>
+
+
+function exportAsPDF() {
+  const container = document.getElementById('container-to-print');
+  const printableWrapper = document.getElementById('printable-content-wrapper'); 
+  
+  // Clone the container element
+  const clonedContainer = container.cloneNode(true);
+
+  // Save the original background color of the container
+  const originalBackgroundColor = clonedContainer.style.backgroundColor;
+  
+  // Set the cloned container's background color to white
+  clonedContainer.style.backgroundColor = 'white';
+  
+  // Apply styling changes to the cloned container's content
+  const textWhiteElements = clonedContainer.querySelectorAll('.text');
+  textWhiteElements.forEach(element => {
+    element.style.color = 'black'; // Set text color to black
+  });
+
+  const tableElements = clonedContainer.querySelectorAll('table');
+  const tableCells = clonedContainer.querySelectorAll('td,th');
+  const tableRows = clonedContainer.querySelectorAll('tr');
+  
+  tableElements.forEach(table => {
+    table.style.backgroundColor = '#ffffff'; // Set background color to white
+    table.style.color = '#000000'; // Set text color to black
+    table.style.width = '98%';
+    table.style.margin = '0 auto';
+
+    
+  });
+
+  tableCells.forEach(cell => {
+    cell.style.backgroundColor = '#ffffff'; // Set background color to white
+    cell.style.color = '#000000'; // Set text color to black
+    cell.style.border = '1px solid black'; // Add a black border
+    cell.style.whiteSpace = 'normal';
+
+    
+  });
+  
+
+  
+  const pdfOptions = {
+    margin: 10, // Apply marginTop
+    filename: '{{company_data.company_name}}Creditnote_details.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }, // Change orientation to portrait
+  };
+  
+  // Generate PDF from the cloned container
+  html2pdf().from(clonedContainer).set(pdfOptions).save().then(() => {
+    // Restore the original background color of the original container
+    container.style.backgroundColor = originalBackgroundColor;
+
+    textWhiteElements.forEach(element => {
+      element.style.color = 'white'; // Restore original text color
+    });
+  });
+}
+
+   // Function to save Excel using XLSX
+   function exportToExcel() {
+       var table = document.querySelector('table');
+       var ws = XLSX.utils.table_to_sheet(table);
+       var wb = XLSX.utils.book_new();
+       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+       XLSX.writeFile(wb, 'report.xlsx');
+   }
+
+   // Function to handle export based on dropdown selection
+   document.getElementById('exportDropdown').addEventListener('change', function () {
+       var selectedValue = this.value;
+       if (selectedValue === 'pdf') {
+           exportToPDF();
+       } else if (selectedValue === 'xls') {
+           exportToExcel();
+       }
+   });
+   const pdfExportLink = document.getElementById('pdf1'); // This should be the link for PDF export
+pdfExportLink.addEventListener('click', function (event) {
+   event.preventDefault(); // Prevent the link from navigating
+   exportToPDF();
+});
+
+
+function printPageContent() {
+  const contentToPrint = document.getElementById('container-to-print');
+  const clonedContent = contentToPrint.cloneNode(true);
+
+  // Find all the elements with the class "text" within the cloned content
+  const textElements = clonedContent.querySelectorAll('.text');
+  const filterDropdowns = clonedContent.querySelectorAll('.filter-dropdown');
+
+  // Set the text color to black for each element with the class "text"
+  textElements.forEach(element => {
+    element.style.color = '#000000'; // Text color (black)
+  });
+
+  // Set the dropdown element with "none"
+  filterDropdowns.forEach(dropdown => {
+    dropdown.style.display = 'none';
+  });
+
+  // Set table styles for black text color, borders, and padding
+  const tableElements = clonedContent.querySelectorAll('table');
+  tableElements.forEach(table => {
+    // Set text color for table headers
+    const tableHeaders = table.querySelectorAll('th');
+    tableHeaders.forEach(th => {
+      th.style.color = '#000000';
+    
+    });
+   
+
+    // Set border and padding styles for table cells
+    const tableCells = table.querySelectorAll('td, th, tr');
+    tableCells.forEach(cell => {
+      cell.style.border = '1px solid black'; // Black border
+      cell.style.padding = '10px'; // Padding
+      cell.style.color = '#000000';
+      
+      
+    });
+    table.style.margin = '0 auto';
+  });
+
+  // Print the cloned content
+  const printWindow = window.open('', '_blank');
+  printWindow.document.body.appendChild(clonedContent);
+  printWindow.print();
+  printWindow.close();
+}
+
+
+//date
+const d1 = document.getElementById('d1');
+const d2 = document.getElementById('d2');
+const dateError = document.getElementById('date-error');
+const dataTable = document.getElementById('data-table');
+const dateRangeDisplay = document.getElementById('date-range-display');
+
+d1.addEventListener('input', filterData);
+d2.addEventListener('input', filterData);
+
+function filterData() {
+  const fromDate = new Date(d1.value);
+  const toDate = new Date(d2.value);
+
+  if (isNaN(toDate)) {
+    dateError.textContent = '';
+  } else if (fromDate > toDate) {
+    dateError.textContent = 'Invalid date range';
+  } else {
+    dateError.textContent = '';
+    const rows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+      const rowDateText = rows[i].getElementsByTagName('td')[0].textContent;
+      const rowDate = new Date(rowDateText);
+
+      if (!isNaN(rowDate)) {
+        // Compare dates without considering the time component
+        const rowDateWithoutTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate());
+        const fromDateWithoutTime = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+        const toDateWithoutTime = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+        if (rowDateWithoutTime >= fromDateWithoutTime && rowDateWithoutTime <= toDateWithoutTime) {
+          rows[i].style.display = '';
+        } else {
+          rows[i].style.display = 'none';
+        }
+      }
+    }
+
+    // Update the date range display
+    dateRangeDisplay.textContent = ` from ${d1.value} to ${d2.value}`;
+  }
+}
+
+//search
+function searchTable() {
+    let input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("tableBody");
+    tr = table.getElementsByTagName("tr");
+
+    console.log("Filter Value:", filter);
+
+    // Loop through all table rows (excluding the first row, which contains the column headers)
+    for (i = 0; i < tr.length; i++) {
+        let rowVisible = false;
+        td = tr[i].getElementsByTagName("td");
+
+        // Loop through all table cells (columns) in each row
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                console.log("Text Value:", txtValue);
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    rowVisible = true;
+                    break;
+                }
+            }
+        }
+
+        // Show/hide the row based on the search results
+        tr[i].style.display = rowVisible ? "" : "none";
+    }
+}
+
+
+  //filter
+  $(document).ready(function() {
+            function sortTable(criteria) {
+                const rows = $("#data-table tbody tr").get();
+                rows.sort(function(rowA, rowB) {
+                    const cellA = $(rowA).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    const cellB = $(rowB).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    return cellA.localeCompare(cellB);
+                });
+                $("#data-table tbody").empty().append(rows);
+            }
+
+            // Handle click event on dropdown items
+            $(".dropdown-menu a").click(function() {
+                const sortingCriteria = $(this).data("sort");
+                if (sortingCriteria) {
+                    sortTable(sortingCriteria);
+                }
+            });
+        });
+
+  
+    
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+{%endblock%}

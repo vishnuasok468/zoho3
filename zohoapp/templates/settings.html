@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<!-- ........................................................ By Nikhila Ajayan ........................... -->
+
+<div class="container-fulid containerprof" >
+    <div class="card radius-15 p-3">
+        
+        <div class="card-body">
+            <div class="card-title">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h2 class="mb-0 text-uppercase text-right">Settings</h2>
+                    </div>
+                    <div class="col-md-3 col-lg-3 col-sm-3"></div>
+                    <div class="col-md-3 col-lg-3 col-sm-3"></div>
+                    <div class="col-md-3 col-lg-3 col-sm-3">
+                        <h4 class="ms-5" style="color: rgb(177, 116, 4);text-align: end;">{{ company.company_name }}</h4>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="card radius-15 ">
+        <div class="row mt-1">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <button class="btn  ms-3" style="background-color: rgb(212, 139, 3);" onclick="set_submenu()">Sub Menu</button>
+                <button class="btn " style="background-color: rgb(212, 139, 3);" onclick="set_slip()">slip/pdf/print</button>
+            </div>
+           
+        </div>
+        <form class="p-5" action="{% url 'edit_setting' my_settings.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+           
+            <fieldset1  id="sub_menu" >
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <h3>Activate/Deactivate SubMenu</h3>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Items</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Items</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.items == 'yes' %}
+    
+                                <input type="checkbox" name="item" checked>
+                                {% else %}
+                                <input type="checkbox" name="item" value="-1">
+                                {% endif %}
+    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Price List</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.pricelist == 'yes' %}
+    
+                                <input type="checkbox" name="pricelist" checked>
+                                {% else %}
+                                <input type="checkbox" name="pricelist" >
+                                {% endif %}
+    
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Bank And Cash</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Offline Banking</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.offline_banking == 'yes' %}
+                                <input type="checkbox" name="offlinebanking" checked>
+                                {% else %}
+                                <input type="checkbox" name="offlinebanking" >
+    
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Banking</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.banking == 'yes' %}
+                                <input type="checkbox" name="banking" checked>
+                                {% else %}
+                                <input type="checkbox" name="banking" >
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">sales</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Customers</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.customers == 'yes' %}
+                                <input type="checkbox" name="customer" checked>
+                                {% else %}
+                                <input type="checkbox" name="customer" >
+                                {% endif %}
+    
+    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Estimates</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.estimates == 'yes' %}
+                                <input type="checkbox" name="estimate" checked>
+                                {% else %}
+                                <input type="checkbox" name="estimate" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Retainer Invoices</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.retainer_invoices == 'yes' %}
+                                <input type="checkbox" name="retainerinvoice" checked>
+                                {% else %}
+                                <input type="checkbox" name="retainerinvoice" >
+                                {% endif %}
+    
+    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Sales Orders</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.sales_orders == 'yes' %}
+                                <input type="checkbox" name="salesorder" checked>
+                                {% else %}
+                                <input type="checkbox" name="salesorder" >
+                                {% endif %}                        
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Delivery Challan</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.delivery_challans == 'yes' %}
+                                <input type="checkbox" name="deliverychallan" checked>
+                                {% else %}
+                                <input type="checkbox" name="deliverychallan" >
+                                {% endif %}
+    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Invoices</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.invoices == 'yes' %}
+                                <input type="checkbox" name="invoice" checked>
+                                {% else %}
+                                <input type="checkbox" name="invoice" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Credit Notes</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.credit_notes == 'yes' %}
+                                <input type="checkbox" name="creditnotes" checked>
+                                {% else %}
+                                <input type="checkbox" name="creditnotes" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Recurring Invoices</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.recurring_invoices == 'yes' %}
+                                <input type="checkbox" name="recurringinvoice" checked>
+                                {% else %}
+                                <input type="checkbox" name="recurringinvoice" >
+                                {% endif %}
+    
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Purchases</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Vendors</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.vendors == 'yes' %}
+                                <input type="checkbox" name="vendor" checked>
+                                {% else %}
+                                <input type="checkbox" name="vendor" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Vendors Credit</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.vendor_credits == 'yes' %}
+                                <input type="checkbox" name="vendorcredit" checked>
+                                {% else %}
+                                <input type="checkbox" name="vendorcredit" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Expenses</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.expenses == 'yes' %}
+                                <input type="checkbox" name="expense" checked>
+                                {% else %}
+                                <input type="checkbox" name="expense" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Recurring Expenses</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.recurring_expenses == 'yes' %}
+                                <input type="checkbox" name="recurringexpense" checked>
+                                {% else %}
+                                <input type="checkbox" name="recurringexpense" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Purchase Orders</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.purchase_orders == 'yes' %}
+                                <input type="checkbox" name="purchaseorder" checked>
+                                {% else %}
+                                <input type="checkbox" name="purchaseorder">
+                                {% endif %}
+    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Payment Made</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.payment_made == 'yes' %}
+                                <input type="checkbox" name="paymentmade" checked>
+                                {% else %}
+                                <input type="checkbox" name="paymentmade" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Bills</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.bills == 'yes' %}
+                                <input type="checkbox" name="bill" checked>
+                                {% else %}
+                                <input type="checkbox" name="bill" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Recurring Bills</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.recurring_bills == 'yes' %}
+                                <input type="checkbox" name="recurringbill" checked>
+                                {% else %}
+                                <input type="checkbox" name="recurringbill" >
+                                {% endif %}
+    
+    
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-sm-3 col-md-3 col-lg-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Time Tracking</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Projects</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.projects == 'yes' %}
+                                <input type="checkbox" name="project" checked>
+                                {% else %}
+                                <input type="checkbox" name="project" >
+                                {% endif %}
+                            </div>
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Accountant</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Chart Of Accounts</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.chart_of_accounts == 'yes' %}
+                                <input type="checkbox" name="chartofaccount" checked>
+                                {% else %}
+                                <input type="checkbox" name="chartofaccount" >
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <h4 class="text-uppercase" style="text-align: center;color: rgb(206, 136, 6);">Payroll</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Employees</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.employees == 'yes' %}
+                                <input type="checkbox" name="employee" checked>
+                                {% else %}
+                                <input type="checkbox" name="employee" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-lg-10 col-md-10">
+                                <h6 style="color: rgb(240, 239, 238);">Employee's Loan</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.employees_loan == 'yes' %}
+                                <input type="checkbox" name="employeeloan" checked>
+                                {% else %}
+                                <input type="checkbox" name="employeeloan" >
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+                
+            </fieldset1>
+            <fieldset2 id="slip" style="display: none;">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <h3>Activate/Deactivate <span style="font-style: italic;">slip,pdf,print</span> options</h3>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-sm-3 col-lg-3 col-md-3">
+                        <div class="row">
+                            <div class="col-sm-10 col-md-10 col-lg-10">
+                                <h6 style="color: rgb(240, 239, 238);">pdf</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.pdf == 'yes' %}
+                                <input type="checkbox" name="pdf" checked>
+                                {% else %}
+                                <input type="checkbox" name="pdf">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-md-10 col-lg-10">
+                                <h6 style="color: rgb(240, 239, 238);">slip</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.slip == 'yes' %}
+                                <input type="checkbox" name="slip" checked>
+                                {% else %}
+                                <input type="checkbox" name="slip">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-10 col-md-10 col-lg-10">
+                                <h6 style="color: rgb(240, 239, 238);">print</h6>
+                            </div>
+                            <div class="col-sm-2 col-lg-2 col-md-2">
+                                {% if my_settings.print_opt == 'yes' %}
+                                <input type="checkbox" name="print" checked>
+                                {% else %}
+                                <input type="checkbox" name="print">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset2>
+            <div class="row mt-4 mb-4">
+                <div class="col-sm-12 col-md-4 col-lg-4"></div>
+                <div class="col-sm-12 col-md-4 col-lg-4">
+                    <button class="btn" style="background-color: rgb(210, 132, 30);" type="submit" name="action" value="Save">Save</button> 
+                </div>
+                <div class="col-sm-12 col-md-4 col-lg-4"></div>
+            </div>
+        </form>
+        
+    </div>
+
+</div>
+
+<script>
+    function set_slip()
+    {
+        document.getElementById("sub_menu").style.display="none";
+        document.getElementById("slip").style.display="block";
+    }
+    function set_submenu()
+    {
+        document.getElementById("sub_menu").style.display="block";
+        document.getElementById("slip").style.display="none";
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,1175 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+<style>
+    * {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .table tr:hover {
+        background-color: #f1fcfc;
+    }
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000;
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+
+
+    
+.table-container {
+    display: inline-block;
+    overflow-x: auto; 
+    max-width: 100%; 
+}
+
+
+.truncate-text {
+    max-width: 350px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+#mytable tr {
+    display: table-row;
+}
+
+
+.actoinacto .dropdown-item:hover {
+    background-color: #0baef4;
+}
+
+
+
+.dropdown-item:hover{
+    color: rgb(226, 149, 5);
+}
+
+
+
+    .modal{
+      z-index: 9999;
+      overflow: scroll;
+    }
+
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: rgb(252, 236, 217);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    #tr_data:hover{
+    background-color: #757575;
+    }
+</style>
+<section>
+    <div class="row p-3 ">
+        <div class="list col-4 col-lg-4 col-md-3  col-sm-2 py-3">
+            <div class="header">
+                <h5>ALL INVOICE LIST</h5>
+            </div>
+            <div class="searchbar">
+                
+                <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
+                    
+                    style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
+                <a class="btn btn-outline mx-1" style="color: #ccc;background-color: rgb(210, 132, 30);"  href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button">
+                    <i class="fa fa-filter"></i>
+                </a>
+               
+                <div class="dropdown-menu actoinacto" >
+                    <a class="dropdown-item" href="{% url 'detailedview' invoice.id %}">All</a>
+  
+                    <a class="dropdown-item" href="{% url 'filter_inv_det_draft' invoice.id %}">Draft</a>
+                    <a class="dropdown-item" href="{% url 'filter_inv_det_send' invoice.id %}">Send</a>
+                </div>
+                
+                <a class="btn btn-outline mr-1" style="color: #ccc;background-color: rgb(210, 132, 30);" href="{% url 'add_prod' %}"><i class="fa fa-plus"></i></a>
+            </div>
+            <hr>
+            {% for v in inv_dat %}
+            <a href="{% url 'invoice_slip' v.id %}" style="color: rgb(218, 143, 5);cursor: pointer;"> 
+                 <table class="text-white" style="width: 100%; ">
+                
+                 <tbody id="table">
+                <tr id="tr_data" class="border-bottom clickable-row" style="cursor: pointer;" >
+                    <td>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- <h5 style="color: rgb(218, 143, 5);">{{v.customer.customerName}}</h5> -->
+                                <h5 style="color: rgb(218, 143, 5);">{{v.customer.customerName}}</h5>
+                            </div>
+                            <div class="col-md-6 text-right" style="color: rgb(218, 143, 5);">&#x20B9;{{v.grandtotal}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p>{{v.invoice_no}}</p>
+                            </div>
+                            <div class="col-md-3 text-left">
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <p>{{v.status}}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+      
+                        </div>
+                    </td>
+                </tr>
+               
+            </tbody>
+        
+            </table>
+        </a>
+        
+        {% endfor %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterLinks = document.querySelectorAll(".filter-link");
+        const tableRows = document.querySelectorAll(".clickable-row");
+
+        filterLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const status = link.getAttribute("data-status");
+
+                tableRows.forEach(function (row) {
+                    if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                        row.style.display = "table-row";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+
+<script>
+    function printForm() {
+        var selectedArea = document.getElementById("selected-area");
+
+        var printWindow = window.open('', 'PrintWindow', 'height=800,width=800');
+
+        // Check if selectedArea exists
+        if (selectedArea) {
+            printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+            printWindow.print();
+            printWindow.close();
+        } else {
+            alert("No content to print!");
+        }
+    }
+    
+
+</script>
+            
+        </div>
+        <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
+            <div id="overview">
+                <div class="p-name">
+                    <h3 class="px-2 pb-2" id="id1"> {{invoice.invoice_no}}</h3>
+                </div>
+
+                <div class="bar pt-3">
+                    <div class="left">
+                       
+                        <a class="btn mx-1 fa fa-file-word" href="{% url 'detailedview' id=invoice.id %}">Template</a>
+
+
+                    
+                        <a class="btn mx-1, fa fa-eye"  href="{% url 'invoice_overview' id=invoice.id %}">Overview</a>
+                        <a class="btn mx-1, fas fa-file-invoice"  href="#home">Slip</a>
+                    </div>
+                   
+                    <div class="right">
+                        
+                        <a class="btn ml-1" href="{% url 'edited_prod' id=invoice.id %}" data-toggle="tooltip" title="Edit"><i
+                                class="fas fa-edit"></i></a>
+                                <a href="" onclick="printForm()" style="border-radius: 5px;height: 1.7rem;" class="btn btn-sm m-1 text-white btn_print" 
+                        data-toggle="tooltip" title="Print">
+                        <i class="mdi mdi-printer"></i></a>
+
+                                {% if invoice.status == 'Draft'%}
+                                <a href="{% url 'change_status_invoice' id=invoice.id  %}" style="border-radius: 5px;height: 1.7rem;" class="btn btn-sm m-1 text-white"
+                                data-toggle="tooltip" title="Change Status">
+                               <i class="fas fa-exchange-alt"></i></a>
+                               
+                                {% endif %}
+                                
+                           
+                            <a href="{% url 'emailattachment' %}" class="btn btn-sm text-white ms-1"
+                            style="border-radius: 5px;height: 1.7rem;" data-toggle="tooltip" title="Email">
+                                <i class="fas fa-envelope"></i></a>
+                          
+                               
+                                  
+                                <div class="dropdown btn ml-1 " title="comments" style="height: 1.7rem;">
+                                    <a href=" " class=" fas fa-comment-dots  btn-sm text-white ms-1"  
+                                        data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                                    </a>
+                  
+                                    <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                        <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                         data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                                        <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                        data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                                                
+                                    </div>
+                                </div>
+                               
+                        <a class="btn btn_print ml-1" href="" id="convertToPDFButton" data-toggle="tooltip"
+                            title="Pdf"><i class="mdi mdi-file-pdf"></i></a>
+                        <!-- onclick="generatePDF()" -->
+                        
+                        <script type="text/javascript">
+                            $(document).ready(function ($) {
+                                console.log('print');
+
+                                $(document).on('click', '.btn_print', function (event) {
+                                    console.log('print1');
+                                    event.preventDefault();
+                                    var element = document.getElementById('div-to-pdf');
+                                    var opt =
+                                    {
+                                        margin: 1,
+                                        filename: 'Invoice_slip' + '.pdf',
+                                        image: { type: 'jpeg', quality: 0.98 },
+                                        html2canvas: { scale: 2 },
+                                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                                    };
+                                    html2pdf().set(opt).from(element).save();
+
+                                });
+
+                            });
+                        </script>
+                        {% if invoice.file != "" %}
+                        <a href="{{invoice.file.url}}"  style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" class="btn ms-1 text-white"
+                            data-toggle="tooltip" title="Download Attached File">
+                            <span class="mdi mdi-download"></span></a>
+                        {% endif %}
+
+                        <a href="{% url 'dele' invoice.id %}" class="btn btn-sm text-white" title="Delete" style="border-radius: 5px;height: 1.7rem;" 
+          onclick="return confirm('Do you want to Delete this Invoice?');"><i class="fas fa-trash-alt"></i></a>
+                        
+                        
+                        <div class="dropdown-menu">
+                            {% if attach %}
+                            <div class="table-container">
+                            <table class="table table-borderless">
+                                {% for a in attach %}
+                                {% for loan in loans %}
+                                <tr>
+                                    <td>{{forloop.counter}}.</td>
+                                    <td>
+                                        
+                                        <a href="{% url 'download_loan_attach' payroll_id=loan.payroll.id attachment_id=a.id %}">
+                                            <div class="truncate-text">{{ a.attach.name }}</div>
+                                        </a>
+                                    </td>
+                                    <td><a href="{% url 'delete_loan_attach' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                            {% else %}
+                            <div class="text-center">No Attachment found</div>
+                            {% endif %}
+                        </div>
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
+
+                            title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
+                            
+                        <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
+                            data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
+                            <form  class="btn ml-1" method="post" action="{% url 'add_loan_attach' payroll_id=loan.payroll.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="file-input"  data-toggle="tooltip" title="Upload Attachments">
+                                    <i class="fas fa-paperclip"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+                                <input type="hidden" id="payroll-id" value="{{ loan.payroll.id }}">
+                            </form>
+                            {% endfor %}
+                            
+
+                    <script>    
+                        function uploadFile() {
+                            const fileInput = document.getElementById("file-input");
+                            const file = fileInput.files[0];
+                            const csrfToken = getCookie('csrftoken');
+                            const payrollId = document.getElementById("payroll-id").value;
+                            
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            
+                            fetch(`/add_loan_attach/${payrollId}/`, {
+                                method: "POST",
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response from the server (if needed)
+                                const messageDiv = document.getElementById("upload-message");
+        if (data.message) {
+            // Display the success message
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "green";
+        }
+        messageDiv.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+                        
+                    </script>                    
+{%for loan in loans%}
+{% if loan.active %}
+                    <a class="btn ml-1" href="{% url 'loan_deactive' loan.id %}" id="sts">Active</a>
+                    {%else%}
+                    <a class="btn ml-1" href="{% url 'loan_active' loan.id %}" id="sts">Deactive</a>
+                    {%endif%}
+                    {%endfor%}
+                        
+                    </div>
+                </div>
+                <div id="upload-message" style="display:none;"></div>
+                <hr>
+                
+                <div id="div_estimate"  class="mx-2 my-4 p-4 border"
+                style="background-color: rgba(124, 124, 123, 0.507); width: 700px; height: 1200px;">
+                <div class="slip p-5 convert_to_pdf bg-light" id="selected-area"
+                    style="box-shadow: 5px 5px 10px rgb(45, 45, 45);  width: 650px; height: 1200px;">
+                    <div class="row">
+                        <div class="col-sm-2 col-lg-2 col-md-2">
+                            <h7 class="text-dark" style="font-size: 1rem; margin-left: 20rem;margin-top: -15%;">Slip</h7>
+                            <!-- <div style="height: 40px;background-color: rgb(192, 128, 8);" > -->
+                                <h4 class="pt-2" style="color: rgb(192, 128, 8);">{{ invoice.status }}</h4>
+                     <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 ">
+                            <h3 class="text-dark" style="text-transform: uppercase;">{{ company.company_name }}</h3>
+                            <p class="text-dark" style="font-size: .71rem;font-weight: bold;">{{ company.address }}</p>
+                            <p class="text-dark" style="font-size: .71rem;font-weight: bold;">{{ company.city }},{{ company.state }}</p>
+                            <h1 class="text-dark" style="font-size: 3rem; margin-left: 20rem;margin-top: -15%;">INVOICE</h1><br>
+                            
+                            <h6 class="text-dark" style="margin-left: 20rem;margin-top: -1%;">invoice Number : {{invoice.invoice_no }}</h6>
+                        </div>
+                        <!-- <div class="col-md-6 text-right">
+                            <h1 class="text-dark" style="font-size: 3rem; margin-left: 2rem;">ESTIMATE</h1>
+                            <h6 class="text-dark">Estimate Number : {{estimate.estimate_no }}</h6>
+                        </div> -->
+                    </div>
+                    <hr>
+                    <div class="row ">
+                        <div class="col-md-12 mt-auto">
+                            <h6 class="text-dark">Bill To</h6>
+                            <h6 style="color: rgb(218, 142, 3);">{{ invoice.customer.customerName }} <br><span class="text-dark">{{ invoice.customer.customerEmail }}</span> </h6>
+                            {% if estimate.customer.GSTIN %}
+                            <h6 class="text-dark ">GSTIN : {{ estimate.customer.GSTIN }}</h6>
+                            {% endif %}
+                            <h6 class="text-dark " style="margin-left: 20rem;margin-top: -4%;">Order Date : {{ invoice.inv_date }}</h6>
+                            
+
+                        </div>
+                        <!-- <div class="col-md-6 text-right mt-auto">
+                            <h6 class="text-dark ">Order Date : {{ estimate.estimate_date }}</h6>
+                        </div> -->
+                    </div>
+                    <table class="table mt-2 " style="border-color: black;border-collapse: collapse;background-color: rgb(237, 237, 240);">
+                        <thead >
+                            <tr style="border-bottom: 1px solid black; solid black;border-right: .1px solid black;border-top: 1px solid black;   width: 100px; height: 5px;"> 
+                                <th style="color: black;">#</th>
+                                <th  style="width: 3rem;color: black;">Item</th>
+                                <th  style="width: 3rem;color: black;">Hsn</th>
+                                <th  style="color: black;width: .2rem;">Quantity</th>
+                                <th  style="color: black;width: .2rem;">Rate</th>
+                                <th  style="color: black;width: .2rem;">Discount</th>
+                                <th  style="color: black;width: .2rem;">Tax</th>
+                                <th  style="color: black;width: .2rem;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-left: 1px solid black;border-right: 1px solid black" class="text-right text-dark">
+                            {% for item in invoiceitem %}
+                            <tr style="border-bottom: 1px solid black;">
+                                <td class="text-right text-dark">{{ forloop.counter }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.product }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.hsn }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.quantity }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.rate|floatformat:1 }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.discount|floatformat:1 }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.tax }}</td>
+                                <td class="text-right text-dark" style="text-align: center;">{{ item.total|floatformat:1 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <!-- <div class="col-sm-6 col-md-6 col-lg-6"></div> -->
+
+                        <div class="col-sm-11 col-md-11 col-lg-11">
+                            <table class="mt-2" style="margin-left: 70%;margin-top: 3%;">
+                                <tr>
+                                    <td class=" text-dark" style="font-weight: bold;">Sub-Total:</td>
+                                    
+                                    <td class="text-right text-dark" style="text-align: end;">{{ invoice.subtotal|floatformat:1}}</td>
+                                </tr>
+                                {% if estimate.cgst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">CGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ invoice.cgst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.sgst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">SGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ invoice.sgst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.igst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">IGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ invoice.igst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.shipping_charge != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">Shipping Charge:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ invoice.shipping_charge|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.adjustment != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">Adjustment:</td>
+                                    <td class="text-end text-dark" style="text-align: end;">{{ invoice.adjustment|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+        
+                                    <td class="text-right text-warning" style="font-weight: bold;">Total:</td>
+                                    <!-- <td class="text-right text-dark "></td>
+                                    <td class="text-right text-dark"></td>
+                                    <td class="text-right text-dark"></td> -->
+                                    <td class="text-right " style="font-weight: bold;text-align: end;color: rgb(233, 153, 3);">{{ invoice.grandtotal|floatformat:1}}</td>
+                                </tr>
+        
+                            </table>
+                        </div>
+                        <div class="col-sm-1 col-md-1 col-lg-1"></div>
+
+                    </div>
+
+
+                </div>
+                <!-- <button id="generate-pdf">Generate PDF</button> -->
+
+                
+            </div>
+
+           
+            
+ <!-- comment modal -->
+
+ <div class="modal fade " id="cmnts"
+ style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+ <div class="modal-dialog modal-xl m-5 p-5">
+     <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+         <div class="modal-header " style="background: rgb(32, 35, 37);">
+             <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+             <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                 aria-label="Close">&times;</button>
+
+         </div>
+         <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+             <div class="card p-0 m-0">
+                 <form action="{% url 'add_invoice_comment' invoice.id %}" method="post" class="needs-validation" novalidate autocomplete="off"
+                     id="modalComment">
+                     {% csrf_token %}
+                     <div class="row mt-2">
+                         <div class="col-md-6 mt-2">
+                             <textarea class="form-control text-dark bg-light" id="comment" name="comments" required
+                                 style="height: 200px; width: 520px;"></textarea>
+                         </div>
+                     </div>
+
+                     <div class="row mt-5">
+                         <div class="col-md-4"></div>
+                         <div class="col-md-4">
+                             <div class="d-flex">
+                                 <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Save </button>
+                                 <button type="button"
+                                     class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                     data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">Cancel</span>
+                                 </button>
+                             </div>
+                         </div>
+                         <div class="col-md-4"></div>
+                     </div>
+                 </form>
+             </div>
+         </div>
+     </div>
+
+ </div>
+</div>
+
+
+
+<!-- ....................................  comment list modal ................ -->
+
+<div class="modal fade " id="cmt_list"
+   style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+ <div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header " style="background: rgb(32, 35, 37);">
+            <h5 class="m-3 text-uppercase text-light">LIST</h5>
+            <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                aria-label="Close">&times;</button>
+
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
+            <div class="card p-0 m-0">
+
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="p-2">
+                            <table class="table table-bordered" style="table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="background-color:rgb(218, 143, 3) ;color: white;">Comments</th>
+                                    </tr>
+                                </thead>
+                                {% for comt in inv_comments %}
+                                <tbody>
+                                    <tr>
+                                        <!-- <td><input type="text" value="{{ comt.comments }}" style="width: 100%;height: 20px;"></td> -->
+                                        <td><textarea name="" id="" cols="80" rows="5" style="border: none;background-color:transparent ;color: white;">{{ comt.comments }}</textarea></td>
+                                    </tr>
+                                </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+
+    // function printSelectedArea() 
+    // {
+    //   var selectedArea = document.getElementById("selected-areaa");
+    //   var printWindow = window.open('', 'PrintWindow', 'height=800,width=800');
+    //   printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+    //   printWindow.print();
+    //   printWindow.close();
+    // }
+
+
+   </script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+   <script type="text/javascript">
+    $(document).ready(function ($) {
+        console.log('print');
+
+        $(document).on('click', '.btn_print', function (event) {
+            console.log('print1');
+            event.preventDefault();
+
+            //credit : https://ekoopmans.github.io/html2pdf.js
+
+            var element = document.getElementById('whatToPrint');
+
+            
+            var opt =
+            {
+                margin: 1,
+                filename: 'invoice_' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // New Promise-based usage:
+            html2pdf().set(opt).from(element).save();
+
+
+        });
+
+
+
+    });
+</script>
+
+
+
+ <!-- ......................................    -->
+<!-- <section >
+  
+        
+        <div class="col-sm-12 col-md-8 col-lg-8  mb-5 " style="width: 100%;" >
+
+          <div class="row" >
+            <div class="col-md-12" ><a class="text-white" style="font-size: 1.5rem;"><h2>{{invoice.invoice_no}}</h2></a></div>
+            
+            <div class="col-md-12 p-2  bg-light form-inline justify-content-start" style="width: 100%;">
+             <a href="{% url 'edited_prod' invoice.id %}"  class=" text-dark mr-3"><i class="fa fa-pencil"></i>Edit</a>
+             
+             
+ 
+                <a href=""  class="  text-dark mr-3" ><i class="fa fa-share-alt"></i>
+ 
+                 Share</a>
+                <a href="{% url 'dele' invoice.id %}" class="  text-dark mr-3" ><i class='fas fa-record-vinyl'></i>
+                 Delete </a>
+                
+                 <div class="dropdown" >
+               
+                   <a class="dropdown-toggle text-dark"   href=""  data-toggle="dropdown"  >
+                     <i class="fa fa-envelope"></i> Mail/SMS
+                   </a>
+                   <div class="dropdown-menu " >
+                     <a class="dropdown-item" href="{% url 'emailattachment' %}">Send as MAIl</a>
+                     <a class="dropdown-item" href="#">Send as SMS</a>
+                     
+                    
+   
+                     
+                   </div>
+                
+               </div>
+               <div class="dropdown ml-2" >
+               
+                 <a class=" text-dark" href="" onclick="printSelectedArea()"  >
+                   <i class="fa fa-file-pdf-o"></i>PDF/Print
+                 </a>
+                
+             </div>
+ 
+            </div> 
+          </div>
+          
+          <div style="overflow-y: scroll;height: 600px;width: 100%;">
+         
+            <section id="selected-area" style="background-color: rgb(255, 221, 176);"class=" p-2 m-2 mb-5">
+              <style>
+                
+body {
+font-family: Arial, sans-serif;
+background-color: #f2f2f2;
+padding: 1px;
+margin: 0;
+}
+
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 20px;
+box-shadow: 0 0 10px rgba(0,0,0,0.2);
+margin-bottom: 20px;
+}
+
+.logo img {
+max-height: 100px;
+}
+
+.company-info h2 {
+margin: 0;
+font-size: 2em;
+}
+
+.company-info p {
+margin: 0;
+line-height: 1.5;
+}
+
+.i.invoice-box {
+background-color: #fff;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.invoice-box h1 {
+font-size: 2em;
+margin-bottom: 20px;
+}
+
+.invoice-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.invoice-details p, .client-details p {
+margin: 5px 0;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+th, td {
+padding: 10px;
+text-align: left;
+border-bottom: 1px solid #ddd;
+}
+
+#th {
+background-color: #f2f2f2;
+}
+
+.invoice-total {
+margin-top: 20px;
+text-align: right;
+}
+
+.invoice-total p {
+margin: 5px 0;
+}
+
+footer {
+background-color: #fff;
+padding: 20px;
+box-shadow: 0 0 10px rgba(0,0,0,0.2);
+text-align: center;
+font-size: 0.8em;
+color: #888;
+margin-top: 20px;
+}
+
+footer p {
+margin: 5px 0;
+}
+
+
+              </style>
+                <header style="	background-color: #8b3131;border-radius: 1rem;">
+                    <div class="logo ">
+                        <img class="ml-2" width="100rem" style="border-radius: 50%;" src="{% static 'images/zlogo.png' %}" alt="Company Logo">
+                    </div>
+                    <div style="background: #8b3131;color: black;" class="company-info">
+                        <h2 class="text-white">{{comp.company_name}}</h2>
+                        <p class="text-white"> {{comp.address}}<br>{{comp.city}}<br>Ph: {{comp.contact_number}}<br>Email: {{comp.company_email}}</p>
+                    </div>
+                    
+                </header>
+                <div class="invoice-box">
+                    <h1 class="text-dark">Invoice</h1>
+                    <div class="invoice-header">
+                        <div class="invoice-details text-dark">
+                          <p class="text-dark">Order No#: {{invoice.order_no}}</p>
+
+                            <p class="text-dark">Invoice #: {{invoice.invoice_no}}</p>
+                            <p class="text-dark">Invoice Date: {{invoice.inv_date}}</p>
+                        </div>
+                        <div class="client-details">
+                            <p class="text-dark">Client Name: {{invoice.customer.customerName}}</p>
+                            <p class="text-dark">Address: {{invoice.customer.Address1}}<br>{{invoice.customer.Address2}}</p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                              
+                              <th id="th">Product</th>
+                              <th id="th">Hsn</th>
+                              <th id="th">Description</th>
+                                <th id="th">Quantity</th>
+                                <th id="th">Price</th>
+                                <th id="th">Tax %</th>
+                                <th id="th"> Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          {% for i in invoiceitem %}
+                          <tr>
+                            <td>{{i.product}}</td>
+                            <td>{{i.hsn}}</td>
+                            <td>{{i.desc}}</td>
+                            <td>{{i.quantity}}</td>
+                            <td>{{i.rate}}</td>
+                            <td>{{i.tax}}</td>
+                            <td>{{i.total}}</td>
+                          </tr>
+                          {% endfor %}
+
+                      </tbody>
+                    </table>
+                    
+                    <div class="invoice-total ">
+                        <p class="text-dark ">Subtotal: {{invoice.subtotal}}</p>
+                        <p class="text-dark ">IGST: <span class="ml-4"></span><b>{{invoice.igst}}</b> </p>
+                        <p class="text-dark">SGST: <span class="ml-4"></span><b> {{invoice.sgst}}</b></p>
+                        <p class="text-dark">CGST: <span class="ml-4"></span> <b>{{invoice.cgst}}</b></p>
+                        <p class="text-dark">Tax: <span class="ml-4"></span> <b>{{invoice.t_tax}}</b></p>
+                        <p class="text-dark">Total: <span class="ml-4"></span> <b>{{invoice.grandtotal}}</b></p>
+                    </div>
+                   
+                </div>
+
+                <footer class="mb-5">
+                    <p class="text-dark">&copy; Zho Books 2023 | Info park kakkanad kochi, Ernamkulam, kerala India 12345 | Phone: (123) 456-7890 | Email: info@zohodjango.com</p>
+                </footer>
+                <div class="mt-5 mb-5">
+    
+                </div>
+               </section>
+
+               <script>
+
+
+               function printSelectedArea() 
+               {
+                 var selectedArea = document.getElementById("selected-area");
+                 var printWindow = window.open('', 'PrintWindow', 'height=800,width=800');
+                 printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+                 printWindow.print();
+                 printWindow.close();
+               }
+
+              </script>
+    
+
+         </div>
+ 
+ 
+               </div>
+               
+          </div>
+          
+                
+        </div>
+     
+        </div>
+     
+       </div>
+  </div>
+ 
+   </div> -->
+  <!-- </section> -->
+
+ 
+  <script>
+    var $rows = $('#table tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        
+        $rows.hide().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+    });
+  
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  
+
+
+
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the CSRF cookie name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+   
+
+
+</script>
+<script>
+
+    jQuery(document).ready(function ($) {
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+    });
+
+        
+    
+    
+  
+    
+        var $rows = $('#table tr');
+        $('#search').keyup(function() {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            
+            $rows.hide().filter(function() {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return ~text.indexOf(val);
+            }).show();
+        });
+      
+     
+   
+    
+    
+    
+
+        
+</script>
+<script>
+    function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+
+
+
+
+
+    function toggleLoanActiveStatus(loanId) {
+        // Send an AJAX request to toggle the active status
+        $.ajax({
+            url: `/toggle_loan_active/${loanId}/`,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                // Update the button text and style based on the response
+                const activeButton = document.getElementById('active-button');
+                if (data.active) {
+                    activeButton.textContent = 'Deactivate';
+                    activeButton.classList.remove('btn-success');
+                    activeButton.classList.add('btn-danger');
+                } else {
+                    activeButton.textContent = 'Activate';
+                    activeButton.classList.remove('btn-danger');
+                    activeButton.classList.add('btn-success');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    
+</script>
+<!-- <script>
+    function generatePDF() {
+        const container = document.getElementById('div-to-pdf');
+        const options = {
+            filename: 'employee.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            htmt2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(container).set(options).save();
+    };
+
+
+</script> -->
+
+{% endblock %}
+
+<!-- edit com attach dele active/inactive -->
+
+
+ 

@@ -1,0 +1,694 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"> -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/print-this/printThis.js"></script>
+
+<style>
+  .custom-height {
+    height: 40px;
+  }
+
+  .list-item {
+    cursor: pointer;
+  }
+
+  .vertical-separator {
+    border-right: 1px solid #ddd;
+  }
+
+  .list-item:hover {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+  }
+
+  .list-item:hover {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    text-decoration: none;
+  }
+
+  .custom-item:hover {
+    color: white;
+  }
+
+  section {
+    background-color: #202325;
+    /* padding-top: 20px;
+    padding-left: 20px; */
+    /* padding: 20px 0 20px 10px; */
+    border-radius: 10px;
+  }
+
+  footer {
+    margin-top: 40px;
+    width: 100%;
+    height: auto;
+    padding: 20px;
+  }
+
+  .text-center {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .left-section {
+    text-align: left;
+  }
+
+  .right-section {
+    text-align: right;
+  }
+
+  .list-item.active {
+    border: 1px solid #F86F03;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  @media print {
+    body:not(.print-mode) * {
+      display: none !important;
+    }
+  }
+  .blue-container {
+        background-color: #DEB887; 
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+        padding: 30px;
+        /* border-radius: 10px;  */
+    }
+    #container {
+      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5); 
+    }
+   
+</style>
+<section>
+  <!-- <h1 class="text-white m-2">Manual Journal</h1>
+  <br> -->
+  <!-- <div class="row" style="top: 7rem;"> -->
+    <h2 class="mb text-white" style="margin-left: 8px;">Manual Journal</h2>
+  <!-- </div> -->
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col-md-4 vertical-separator">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="search-bar">
+            <div class="col-md-12">
+            <form action="{% url 'journal_list' %}" method="GET" class="input-group">
+              <input type="text" name="query" placeholder="Search..." class="form-control custom-height text-dark">
+            </form>
+            </div>
+        </div>
+          <div class="dropdown">
+            <button class="btn btn-dark border-primary" style="color: #F86F03;" type="button"
+            id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa fa-filter"></i>
+            </button>
+            <ul class="dropdown-menu bg-dark" aria-labelledby="filterDropdown">
+              <li><a class="dropdown-item custom-item text-light" href="{% url 'journal_list' %}">All</a></li>
+              <li><a class="dropdown-item custom-item text-light" href="{% url 'journal_list' %}?filter=draft">Draft</a>
+              </li>
+              <li><a class="dropdown-item custom-item text-light"
+                href="{% url 'journal_list' %}?filter=published">Published</a></li>
+              </ul>
+            </div>
+            <a href="{% url 'add_journal' %}" class="btn btn-dark border-primary"
+              style="color: #F86F03;"><i class="fa fa-plus"></i></a>
+        </div>
+        <hr>
+        <div class="list-group mt-3">
+          {% for journal in journals %}
+          <a href="#" class="list-item {% if selected_journal_id == journal.id %}active{% endif %}"
+            data-journal-id="{{ journal.id }}">
+            <div class="d-flex justify-content-between text-white">
+              <span>{{ journal.date }}</span>
+              <span><i class="fa fa-inr"></i>{{ journal.total_debit }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-white mt-2">
+              <span>{{ journal.journal_no }}</span>
+              {% if journal.status == 'draft' %}
+              <span class="status draft" style="color: orangered;">{{ journal.status }}</span>
+              {% elif journal.status == 'published' %}
+              <span class="status published text-success">{{ journal.status }}</span>
+              {% else %}
+              <span class="status">{{ journal.status }}</span>
+              {% endif %}
+            </div>
+          </a>
+          <br>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-overview">Overview</button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-template">Template</button>
+          </div>
+          <div>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-publish">Publish</button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-comment" data-toggle="modal" data-target="#commentModal"><i class="fa fa-comments" aria-hidden="true"></i></button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-edit"><i class="fa fa-edit" aria-hidden="true"></i></button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-save-pdf"><i class="fa fa-file-pdf" aria-hidden="true"></i></button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-print"><i class="fa fa-print" aria-hidden="true"></i></button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-attachment"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+            <button style="background-color: rgb(210, 132, 30); color: white;" class="btn btn-delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <hr class="mt-4">
+        <div class="">
+          <!-- ... Existing content ... -->
+          <div class="details-section mt-4">
+            <!-- Content for the right section goes here -->
+          </div>
+          <div class="overview-section mt-4" style="display: none;">
+            <!-- Content for the overview section (populated when "Overview" button is clicked) -->
+            <!-- The content will be loaded dynamically using JavaScript when the button is clicked. -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title" id="commentModalLabel">Comments</h5>
+        <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Existing comments -->
+        <div class="existing-comments">
+          <!-- Comments will be dynamically added here using JavaScript -->
+        </div>
+
+        <!-- New comment entry field -->
+        <div class="form-group">
+          <label for="commentText">Add a Comment:</label>
+          <textarea class="form-control bg-dark" id="commentText" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+        <button type="button" class="btn btn-primary btn-save-comment">Save Comment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function () {
+    // $('.list-item').click(function (event) {
+    //   event.preventDefault();
+    //   const journalId = $(this).data('journal-id');
+    //   const detailsSection = $('.details-section');
+    function loadJournalDetails(journalId) {
+      const detailsSection = $('.details-section');
+      console.log('Journal ID:', journalId); // Add this line for debugging
+
+      $.ajax({
+        url: `/get_journal_details/${journalId}/`,
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          detailsSection.empty();
+
+          detailsSection.append(`
+          <div class="blue-container">
+                      <div class="container-fluid bg-white text-dark" id="container">
+                          <br><br>
+                          <div class="row justify-content-center">
+                              <div class="col-md-12">
+                                  <h2 class="left-align">${data.company_name}</h2>
+                                  <p class="left-align">${data.address}</p>
+                                  <hr>
+                                  <div class="text-center">
+                                      <div class="left-section">
+                                          <p><strong>Notes:</strong></p>
+                                          <p><strong>${data.selected_journal.notes}</strong></p>
+                                          <p><strong>Reference No: ${data.selected_journal.reference_no}</strong></p>
+                                      </div>
+                                      <div class="right-section">
+                                          <p><strong>Journal No: ${data.selected_journal.journal_no}</strong></p>
+                                          <p><strong>Date: ${data.selected_journal.date}</strong></p>
+                                          <p><strong>Amount: <i class="fa fa-inr"></i>${data.selected_journal.total_credit}</strong></p>
+                                      </div>
+                                  </div>
+                                  <hr>
+                                  <div class="table-responsive">
+                                      <table class="table">
+                                          <thead>
+                                              <tr>
+                                                  <th>Account Name</th>
+                                                  <th>Description</th>
+                                                  <th>Contact</th>
+                                                  <th>Debits</th>
+                                                  <th>Credits</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody>
+                                              ${data.journal_entries.map(entry => `
+                                                  <tr>
+                                                      <td>${entry.account}</td>
+                                                      <td>${entry.description}</td>
+                                                      <td>${entry.contact}</td>
+                                                      <td>${entry.debits}</td>
+                                                      <td>${entry.credits}</td>
+                                                  </tr>
+                                              `).join('')}
+                                          </tbody>
+                                      </table>
+                                  </div>
+                                  <div class="text-center">
+                                      <table class="table">
+                                          <tbody>
+                                              <tr>
+                                                  <td>Total Debit:</td>
+                                                  <td><i class="fa fa-inr"></i>${data.selected_journal.total_debit}</td>
+                                              </tr>
+                                              <tr>
+                                                  <td>Total Credit:</td>
+                                                  <td><i class="fa fa-inr"></i>${data.selected_journal.total_credit}</td>
+                                              </tr>
+                                              <tr>
+                                                  <td>Difference:</td>
+                                                  <td>${data.selected_journal.difference}</td>
+                                              </tr>
+                                          </tbody>
+                                      </table>
+                                  </div>
+                                  <footer>
+                                  <h5 class="text-center" style="font-size: 12px;">
+                                    © Zoho Books 2023 | Info park kakkanad kochi, Ernamkulam, kerala India 12345 |
+                                    Phone: (123) 456-7890 | Email: info@zohodjango.com
+                                  </h5>
+                                </footer>
+                                  </div>
+                          </div>
+                      </div>
+                      </div>
+                      `);
+        },
+        error: function (error) {
+          console.error('Error fetching journal details:', error);
+        }
+      });
+      $('.list-item').removeClass('active');
+      $(`.list-item[data-journal-id="${journalId}"]`).addClass('active');
+    }
+    const selectedJournalId = localStorage.getItem('selectedJournalId');
+
+    if (selectedJournalId) {
+      loadJournalDetails(selectedJournalId);
+    }
+
+    $('.list-item').click(function (event) {
+      event.preventDefault();
+      const journalId = $(this).data('journal-id');
+      $('.list-item').removeClass('active');
+      $(this).addClass('active');
+
+      loadJournalDetails(journalId);
+      localStorage.setItem('selectedJournalId', journalId);
+
+    });
+
+    function updateJournalStatus(journalId) {
+      $.ajax({
+        url: `/update_journal_status/${journalId}/`,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        },
+        success: function (data) {
+          location.reload();
+        },
+        error: function (error) {
+          console.error('Error updating journal status:', error);
+        }
+      });
+    }
+
+    $('.btn-publish').click(function () {
+      const selectedJournalId = $('.list-item.active').data('journal-id');
+      if (selectedJournalId) {
+        updateJournalStatus(selectedJournalId);
+      } else {
+        console.error('No journal item selected for publishing.');
+      }
+    });
+
+    $(document).on('click', '.btn-comment', function () {
+  const selectedJournalId = $('.list-item.active').data('journal-id');
+
+  if (selectedJournalId) {
+    $.ajax({
+      url: `/get_journal_comments/${selectedJournalId}/`,
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+    const commentModal = $('#commentModal');
+    const existingCommentsSection = commentModal.find('.existing-comments');
+    existingCommentsSection.empty();
+
+        let commentCounter = 1;
+        data.comments.forEach(comment => {
+          const deleteButton = data.is_current_user_comment ? `<button class="btn btn-sm btn-danger m-1 btn-delete-comment" data-comment-id="${comment.id}"><i class="fa fa-trash"></i></button>` : '';
+          const commentHtml = `
+            <div class="comment d-flex justify-content-between">
+              <div class="d-flex">
+              <div class="comment-number">${commentCounter}.</div>
+              <div class="comment-text ml-4">${comment.text}</div>
+            </div>
+              <div class="d-flex">
+                <p class="comment-info m-2">${comment.date_time}</p>
+                ${deleteButton}
+              </div>
+            </div>
+          `;
+          existingCommentsSection.append(commentHtml);
+          commentCounter++;
+        });
+
+        // Open the comment modal
+        commentModal.modal('show');
+      },
+      error: function (error) {
+        console.error('Error fetching existing comments:', error);
+      }
+    });
+  } else {
+    console.error('No journal item selected for adding a comment.');
+  }
+});
+
+    // Handler for the "Save Comment" button click
+    $(document).on('click', '.btn-save-comment', function () {
+      const commentText = $('#commentText').val();
+      const selectedJournalId = $('.list-item.active').data('journal-id');
+
+      if (selectedJournalId) {
+        // AJAX call to save the new comment
+        $.ajax({
+          url: `/save_journal_comment/${selectedJournalId}/`,
+          method: 'POST',
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            text: commentText,
+          },
+          success: function () {
+            // After saving the comment, reload the journal details section to show the new comment
+            loadJournalDetails(selectedJournalId);
+            console.log('Comment saved successfully.');
+            // Close the comment modal
+            $('#commentModal').modal('hide');
+            $('#commentText').val('');
+          },
+          error: function (error) {
+            console.error('Error saving the comment:', error);
+          }
+        });
+      } else {
+        console.error('No journal item selected for adding a comment.');
+      }
+    });
+
+    // Handler for the "Delete Comment" button click
+    $(document).on('click', '.btn-delete-comment', function () {
+      const commentId = $(this).data('comment-id');
+      const selectedJournalId = $('.list-item.active').data('journal-id');
+
+      if (selectedJournalId) {
+        // AJAX call to delete the comment
+        $.ajax({
+          url: `/delete_journal_comment/${commentId}/`,
+          method: 'POST',
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function () {
+            // After deleting the comment, reload the journal details section to remove the deleted comment
+            loadJournalDetails(selectedJournalId);
+            // Close the comment modal
+            $('#commentModal').modal('hide');
+          },
+          error: function (error) {
+            console.error('Error deleting the comment:', error);
+          }
+        });
+      } else {
+        console.error('No journal item selected for deleting the comment.');
+      }
+    });
+
+    $('#commentModal').on('shown.bs.modal', function (e) {
+      $('.modal-backdrop').remove();
+    });
+
+    // Remove 'modal-open' class when modal is closed
+    $('#commentModal').on('hidden.bs.modal', function (e) {
+      $('body').removeClass('modal-open');
+    });
+  
+    $('.btn-edit').click(function () {
+      const selectedJournalId = $('.list-item.active').data('journal-id');
+
+      if (selectedJournalId) {
+        // Navigate to the edit page for the selected journal
+        window.location.href = `/edit_journal/${selectedJournalId}/`;
+      } else {
+        console.error('No journal item selected for editing.');
+      }
+    });
+
+    $('.btn-delete').click(function () {
+  const selectedJournalId = $('.list-item.active').data('journal-id');
+
+  if (selectedJournalId) {
+    // Show a confirmation dialog before proceeding with deletion
+    if (confirm("Are you sure you want to delete this journal?")) {
+      // AJAX call to delete the journal and its entries
+      $.ajax({
+        url: `/delete_journal/${selectedJournalId}/`,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        },
+        success: function (data) {
+          // After successful deletion, reload the journal list to remove the deleted journal from the list
+          window.location.reload();
+        },
+        error: function (error) {
+          console.error('Error deleting the journal:', error);
+        }
+      });
+    }
+  } else {
+    console.error('No journal item selected for deleting.');
+  }
+});
+
+document.querySelector('.btn-save-pdf').addEventListener('click', function () {
+    const element = document.getElementById('container'); 
+
+   
+    const pdfOptions = {
+      margin: 10,
+      filename: 'journal.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    };
+
+    html2pdf().from(element).set(pdfOptions).save();
+  });
+
+  $('.btn-print').click(function () {
+      const detailsSection = $('.details-section');
+
+      // Get the HTML content of the details-section
+      const printableContent = detailsSection.html();
+
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <html>
+          <head>
+            <title>Print</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+            <!-- Add any additional styles needed for printing -->
+            <style>
+              .text-center {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .left-section {
+    text-align: left;
+  }
+
+  .right-section {
+    text-align: right;
+  }
+  footer {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+          </head>
+          <body>
+            ${printableContent}
+          </body>
+        </html>
+      `);
+      doc.close();
+      // Wait for the content to be fully loaded before printing
+      iframe.onload = function () {
+        iframe.contentWindow.print();
+
+        // Remove the iframe from the DOM after printing is done
+        document.body.removeChild(iframe);
+      };
+    });
+
+  $('.btn-attachment').click(function () {
+    const selectedJournalId = $('.list-item.active').data('journal-id');
+
+    if (selectedJournalId) {
+        $.ajax({
+            url: `/get_journal_attachment/${selectedJournalId}/`,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.attachment_url) {
+                    // Create a download link and trigger the click event to initiate download
+                    const link = document.createElement('a');
+                    link.href = data.attachment_url;
+                    link.download = 'attachment-file-name.ext'; // Replace with the actual file name
+                    link.click();
+                } else {
+                    // Show a tooltip or an alert indicating that there is no attachment
+                    alert('No attachment found.');
+                }
+            },
+            error: function (error) {
+                console.error('Error fetching journal attachment:', error);
+            }
+        });
+    } else {
+        console.error('No journal item selected for downloading attachment.');
+    }
+});
+
+
+    $('.btn-overview').click(function () {
+      const selectedJournalId = $('.list-item.active').data('journal-id');
+      console.log(selectedJournalId);
+      if (selectedJournalId) {
+        loadJournalDetails(selectedJournalId);
+
+        $.ajax({
+          url: `/get_journal_details_for_overview/${selectedJournalId}/`,
+          method: 'GET',
+          dataType: 'json',
+          success: function (data) {
+            const overviewContent = `
+            <div class="container-fluid text-dark" style="background-color:#DEB887">
+            <br>
+            <p>Status: <span class="badge" style="background-color:#6E3D2E;">${data.selected_journal.status}</span></p>
+
+    <div class="row justify-content-center">
+      <div class="col-md-11">
+        <h2 class="left-align text-dark">${data.company_name}</h2>
+        <p class="left-align text-secondary">${data.address}</p>
+        <hr class="bg-secondary">
+        <div class="text-center">
+            <div class="left-section">
+              <p><strong>Notes:</strong>
+              <br>${data.selected_journal.notes}</p>
+              <p><strong>Reference No:</strong><br> ${data.selected_journal.reference_no}</p>
+              <p><strong>Journal No:</strong><br> ${data.selected_journal.journal_no}</p>
+              <p><strong>Date:</strong><br> ${data.selected_journal.date}</p>
+              <p><strong>Amount:</strong><br> <i class="fa fa-inr"></i>${data.selected_journal.total_credit}</p>
+            </div>
+            <div class="right-section" style="background-color:#6E3D2E;border-radius:10px;">
+              ${data.journal_entries.map(entry => `
+              <div class="entry text-white p-3">
+                <p><strong>Account Name:</strong> ${entry.account}</p>
+                <p><strong>Description:</strong> ${entry.description}</p>
+                <p><strong>Contact:</strong> ${entry.contact}</p>
+                <p><strong>Debits:</strong> ${entry.debits}</p>
+                <p><strong>Credits:</strong> ${entry.credits}</p>
+                <p><strong>Total Debit:</strong> <i class="fa fa-inr"></i>${data.selected_journal.total_debit}</p>
+                <p><strong>Total Credit:</strong> <i class="fa fa-inr"></i>${data.selected_journal.total_credit}</p>
+                <p><strong>Difference:</strong> ${data.selected_journal.difference}</p>
+              </div>
+            `).join('')}
+            </div>
+          </div><br>
+        <hr class="bg-secondary">
+      </div>
+    </div>
+    <footer>
+      <h5 class="text-center text-muted" style="font-size: 12px;">
+        © Zoho Books 2023 | Info park kakkanad kochi, Ernamkulam, kerala India 12345 |
+        Phone: (123) 456-7890 | Email: info@zohodjango.com
+      </h5>
+    </footer>
+  </div>
+    `;
+          $('.details-section').hide();
+          $('.details-section').empty(); 
+          $('.overview-section').html(overviewContent);
+          $('.overview-section').show();
+          },
+          error: function (error) {
+            console.error('Error fetching journal details for overview:', error);
+          }
+        });
+      } else {
+        console.error('No journal item selected for overview.');
+      }
+
+      $('.btn-template').click(function () {
+        const selectedJournalId = $('.list-item.active').data('journal-id');
+        console.log(selectedJournalId);
+        if (selectedJournalId) {
+          loadJournalDetails(selectedJournalId);
+          $('.overview-section').hide();
+          $('.overview-section').empty(); 
+          $('.details-section').show();
+        } else {
+          console.error('No journal item selected for template.');
+        }
+      });
+      
+    });
+  });
+</script>
+{% endblock %}

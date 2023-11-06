@@ -1,0 +1,534 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    h2 {
+        font-size: x-large;
+        font-family: 'Segoe UI', Tahoma, ;
+        color: #dfe4e9;
+    }
+
+    .card {
+        background: none;
+    }
+
+    tbody tr td {
+        border: none;
+        border-top: none;
+        border-style: none;
+        color: azure;
+        justify-content: center;
+    }
+
+
+    tr:hover {
+        background-color: rgb(46, 46, 47);
+        color: aliceblue;
+        cursor: pointer
+    }
+
+    .btn {
+        background-color: white;
+        border: none;
+        color: green;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* Darker background on mouse-over */
+    .btn:hover {
+        background-color: white;
+    }
+</style>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        height: 5vh;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media print and (color) {
+        /* * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        } */
+
+        body * {
+            visibility: hidden;
+        }
+
+
+        .printable-content table {
+            margin: 0;
+
+
+        }
+
+        tbody tr td {
+            border: 1px solid black;
+
+        }
+
+        .printable-content,
+        .printable-content * {
+            visibility: visible;
+            color: black !important;
+            padding: 10px !important;
+            
+
+        }
+
+        .printable-content {
+            width: 200%;
+            max-width: 100%;
+            color: black !important;
+            
+
+
+        }
+
+        .printable-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* width: 91vw; */
+            width: 100%;
+            color: black !important;
+            padding: 0% !important;
+            margin-left: -4 !important;
+
+        }
+
+        .printable-content .search {
+            display: none;
+        }
+
+
+    }
+</style>
+
+<div class="card-body">
+    <div class="bar">
+        <div class=" left">
+
+            <div class="date-filter" style="display: flex; align-items: center;">
+                <label for="FromDate" style="margin-right: 10px;">From:</label>
+                <input type="date" id="FromDate" style="border-radius: 8px;border: 3px solid rgb(200, 166, 104);" class="text-center">
+                <label for="ToDate" style="margin-left: 10px;">To:</label>
+                &nbsp;&nbsp;&nbsp;<input type="date" id="ToDate" style="border-radius: 8px;border: 3px solid rgb(200, 166, 104);" class="text-center">
+            </div>
+            
+
+            <!-- <div class="px-2">
+                <label style="text-align:left ">From:</label>
+                <input name="FromDate" class="inputdate" type="date" id="in1"
+                    style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);">
+            </div>
+
+            <div class="px-2">
+                <label style="text-align:left ">To:</label>
+                <input name="ToDate" type="date" class="inputdate" id="in2"
+                    style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);">
+            </div> -->
+        </div>
+        <div class="d-flex">
+
+            <!-- <a href="">
+                   <button class=" btn btn-outline-info"><i class="fa fa-line-chart" style="background: white; color: rgb(218, 164, 48);"></i>
+             </a>    </button>&nbsp;&nbsp;
+               -->
+            <button class="btn btn-outline-info" style="background: white; color: rgb(218, 164, 48);" id="pdf"
+                onclick="display()"><i class="fa fa-print"></i></button>&nbsp;&nbsp;
+
+
+            <button class="btn btn_pdf btn-outline-info" style="background: white; color: rgb(218, 164, 48);"> <i
+                    class="fa fa-file-pdf"></i>
+            </button>&nbsp;&nbsp;
+            <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()" class="dropdown-item"
+                style="background: white; color: rgb(218, 164, 48);"> <i
+                    class="fa fa-file-excel"></i></button>&nbsp;&nbsp;
+
+
+
+            <button class="btn"><a href="{% url 'report_inventory_view' %}" class="fa fa-close"
+                    style="background: white; color: rgb(218, 164, 48);"></a></button>&nbsp;&nbsp;
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="printable-wrapper" id="container-to-print">
+
+    <div class="printable-content">
+        <center>
+            <h6 style="font-size: 30px;color: rgb(218, 164, 48);">{{company.company_name }}</h6>
+            <h2 class="my-4" id="headline" style="font-size: 35px;color: rgb(218, 164, 48);">INVOICE DETAILS</h2>
+            <div class="display">
+                <div id="d1" style="display: inline-block;"></div>&nbsp;-&nbsp;
+                <div id="d2" style="display: inline-block;"></div>
+            </div>
+
+            <!-- <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p> -->
+
+            <!-- <p class="text" style="color: white;">From 21 Jan 2023 To 21 Jan 2024</p> -->
+        </center>
+
+        <div class="printable-content search">
+            <input name="SearchInp" class="form-control text-dark" id="search" placeholder="Search..."
+                style="width: 20vw;background-color: white;">
+        </div>
+
+        <div id="pdf-card">
+
+
+            <table class="table table-responsive-md mt-4 table-bordered" id="myTable">
+                <thead>
+
+                    <tr style="">
+
+                        <th class="table text-center" style=" color: rgb(218, 164, 48);width: auto;">Date
+                        </th>
+                        <th class="table text-center" style="color: rgb(218, 164, 48);width: auto;">Customer
+                            Name</th>
+                        <th class="table text-center" style=" color: rgb(218, 164, 48);width: auto;">Invoice
+                        </th>
+                        <th class="table text-center" style=" color: rgb(218, 164, 48);width: auto;">Total
+                        </th>
+                        <th class="table text-center" style="color: rgb(218, 164, 48);width: auto;">Balance
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for i in invoice %}
+                    <tr class="text-center " id="tb">
+                        <td id="tb" style="">{{ i.inv_date }}</td>
+                        <td>{{ i.customer.customerName }}</td>
+                        <td>{{ i.invoice_no }}</td>
+                        <td>{{ i.grandtotal }}</td>
+                        <td>{{ i.balance }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    </tr>
+
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get references to the date input fields and the display div
+    var fromDateInput = document.getElementById("FromDate");
+    var toDateInput = document.getElementById("ToDate");
+    var d1 = document.getElementById("d1");
+    var d2 = document.getElementById("d2");
+
+    // Function to update the display div with the selected dates
+    function updateDisplay() {
+        // Parse the selected date values as Date objects
+        var fromDate = new Date(fromDateInput.value);
+        var toDate = new Date(toDateInput.value);
+
+        // Check if the selected dates are valid
+        if (!isNaN(fromDate) && !isNaN(toDate)) {
+            // Format the dates in the desired format
+            var fromDateString = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+            var toDateString = toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Update the content of the display div
+            d1.textContent = fromDateString;
+            d2.textContent = toDateString;
+        }
+    }
+
+    // Add event listeners to the date input fields to trigger the updateDisplay function
+    fromDateInput.addEventListener("input", updateDisplay);
+    toDateInput.addEventListener("input", updateDisplay);
+</script>
+
+<script>
+    var fromDateInput = document.getElementById("FromDate");
+    var toDateInput = document.getElementById("ToDate");
+
+    fromDateInput.addEventListener("input", filterTable);
+    toDateInput.addEventListener("input", filterTable);
+
+    function filterTable() {
+        var fromDate = new Date(fromDateInput.value);
+        var toDate = new Date(toDateInput.value);
+
+        var table = document.getElementById("myTable");
+        var rows = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            var dateCell = row.getElementsByTagName("td")[0];
+            if (dateCell) {
+                var cellDate = new Date(dateCell.textContent);
+                if (cellDate >= fromDate && cellDate <= toDate) {
+                    row.style.display = "";
+                } else if (cellDate.toDateString() === fromDate.toDateString() || cellDate.toDateString() === toDate.toDateString()) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        }
+    }
+
+
+</script>
+
+<script>
+
+    function updateSelectedDates() {
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+
+        var startDateString = startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        var endDateString = endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        document.getElementById("d1").textContent = startDateString;
+        document.getElementById("d2").textContent = endDateString;
+    }
+
+    // Attach the function to the change event of the date inputs
+    document.getElementById("in1").addEventListener("change", updateSelectedDates);
+    document.getElementById("in2").addEventListener("change", updateSelectedDates);
+
+</script>
+
+
+
+
+<script>
+
+    $(document).ready(function ($) {
+
+
+        $(document).on('click', '.btn_pdf', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var name = document.getElementById("headline").innerHTML;
+            var div2 = document.getElementById("div2");
+            var element = document.getElementById('pdf-card');
+            element.style.color = 'black';
+            element.style.backgroundColor = 'rgb(27, 27, 29)';
+            var opt =
+            {
+                margin: 1,
+                filename: name + '.pdf',
+                image: { type: 'png', quality: 0.98 },
+                html2canvas: { scale: 3, useCORS: true, backgroundColor: null },
+                jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+
+        });
+
+    });
+    function selectParty() {
+        document.getElementById("pin").addEventListener("input", function () {
+            var filterValue = this.value.toLowerCase();
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+
+
+            if (document.getElementById("in1").value == '' && document.getElementById("in2").value == '') {
+                for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header row
+
+                    var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+
+                    if (firstColumnValue.indexOf(filterValue) > -1) {
+
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+
+                }
+
+            }
+            else {
+                var startDate = new Date(document.getElementById("in1").value);
+                var endDate = new Date(document.getElementById("in2").value);
+                for (var i = 1; i < rows.length; i++) {
+                    var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+                    var row = rows[i];
+                    var dateCell = row.cells[1];
+                    var rowDate = new Date(dateCell.textContent);
+
+                    if (rowDate >= startDate && rowDate <= endDate) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+
+                }
+            }
+
+
+
+
+        });
+    }
+    selectParty();
+    const inputElement = document.querySelector('input[name="party"]');
+    const headlineElement = document.getElementById('headline');
+    inputElement.addEventListener('input', function () {
+
+        const selectedValue = inputElement.value;
+        if (selectedValue == '') {
+            head = 'INVENTORY DETAILS'
+        }
+        else {
+            head = selectedValue + ' DETAILS';
+        }
+        headlineElement.textContent = head.toUpperCase();
+
+    });
+
+</script>
+
+
+
+
+<script>
+
+    function adjustTableForPrint() {
+
+
+        const table = document.querySelector('.printable-content table');
+        const container = document.querySelector('.printable-content');
+
+
+        const scaleFactor = container.offsetWidth / table.offsetWidth;
+
+
+        table.style.transform = `scale(${scaleFactor})`;
+        table.style.transformOrigin = 'top left';
+
+
+        const marginTop = (container.offsetHeight - table.offsetHeight * scaleFactor) / 2;
+        table.style.marginTop = `${marginTop}px`;
+    }
+
+    //  "Print" button
+    const printButton = document.getElementById('pdf');
+    printButton.addEventListener('click', function () {
+        adjustTableForPrint();
+        window.print();
+    });
+</script>
+
+
+
+
+
+<script>
+    function printTable() {
+        // Get the printable content (the table) to be printed
+        var printableContent = document.querySelector('.table-responsive.printable-content');
+
+        // Create a new window for printing
+        var printWindow = window.open('', '', 'width=800,height=600');
+
+        // Clone the content to be printed
+        var printableContentClone = printableContent.cloneNode(true);
+
+        // Append the cloned content to the print window
+        printWindow.document.body.appendChild(printableContentClone);
+
+        // Print the contents
+        printWindow.print();
+
+        // Close the print window after printing
+        printWindow.close();
+    }
+
+</script>
+
+
+
+
+
+
+
+
+<!-- Search -->
+<script>
+    $(document).ready(function () {
+        // Get the input field and table
+        var $searchInput = $("#search");
+        var $table = $("#myTable");
+
+        // Listen for changes in the input field
+        $searchInput.on("input", function () {
+            var searchValue = $(this).val().toLowerCase();
+
+            // Loop through the table rows
+            $table.find("tbody tr").each(function () {
+                var $row = $(this);
+
+                // Get the text content of each cell in the row
+                var rowData = $row.text().toLowerCase();
+
+                // Check if the search value is found in any cell's text
+                if (rowData.indexOf(searchValue) > -1) {
+                    $row.show();
+                } else {
+                    $row.hide();
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+    function exportAsExcel() {
+        const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'Invoice Details.xlsx');
+    }
+</script>
+
+
+
+
+
+
+
+{% endblock %}

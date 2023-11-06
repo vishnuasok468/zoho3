@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+</head>
+<style>
+    .column_button {
+        height: 4vh;
+        width: 5vh;
+        float: right;
+        margin-right: 2vh;
+    }
+
+    .daterangepicker {
+        color: #010101;
+    }
+
+    #reportrange span {
+        font-size: 1rem;
+    }
+</style>
+
+<div class="container-fluid ">
+    <div class="row">
+        <div class="col-md-11">
+            <h1 class="text-uppercase">Customize Report</h1>
+        </div>
+        <div class="col-md-1">
+            <a href="{% url 'horizontal_profit_and_loss' %}" class="btn  btn-light close-button">
+                X
+            </a>
+        </div>
+    </div><br><br>
+
+
+    <div class="row row-container">
+        <div class="col-md-3"><br>
+            <div class="nav-item " id="general">
+                <a class="nav-link cursor-pointer active"
+                    style="background-color: grey; color: white; font-size: 3vh;">General</a>
+            </div>
+        </div>
+
+        <div class="col-md-9 myDiv" id="generaldiv">
+            <form>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label style="font-size: medium;">Date Range</label>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-control text-dark bg-white">
+
+                                <!-- Date range calendar input -->
+                                <div id="reportrange"
+                                    style="cursor: pointer; color: #010101; background-color: #fff;width: 100%;">
+                                    <span></span> <i class="fa fa-caret-down"></i>
+                                </div>
+
+                                <script>
+                                    $(function () {
+                                        // Retrieve the saved dates
+                                        var savedDates = JSON.parse(localStorage.getItem('selectedDates'));
+
+                                        // Initialize start and end variables as moment objects
+                                        var start = savedDates ? moment(savedDates.start) : moment().subtract(29, 'days');
+                                        var end = savedDates ? moment(savedDates.end) : moment();
+
+                                        function cb(start, end) {
+                                            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                                        }
+
+                                        // Initialize the date range picker
+                                        $('#reportrange').daterangepicker({
+                                            startDate: start,
+                                            endDate: end,
+                                            ranges: {
+                                                'Today': [moment(), moment()],
+                                                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                                                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                                                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                                                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                                                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                                'Previous Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                                                'Previous Quarter': [
+                                                    moment().subtract(3, 'months').startOf('quarter'),
+                                                    moment().subtract(3, 'months').endOf('quarter')
+                                                ]
+                                            }
+                                        }, cb);
+
+                                        cb(start, end);
+                                    });
+
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+                </div><br>
+                <br><br><br><br><br>
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-4 d-flex">
+                        <button class="btn btn-success"
+                            style="width: 100%; background-color: transparent; margin-right: 2vh;">Run
+                            Report</button>
+                        <a class="btn btn-danger" href="{% url 'horizontal_profit_and_loss' %}"
+                            style="width: 100%; background-color: transparent;">Cancel</a>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

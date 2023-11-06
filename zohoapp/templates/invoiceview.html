@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+<style>
+
+.dropdown-item:hover{
+    color: rgb(226, 149, 5);
+}
+
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  #tr_data:hover{
+    background-color: #757575;
+
+
+    
+  }
+
+
+  .btn{
+    color: rgb(218, 164, 48);
+    outline-color: azure;
+    border: 2px solid rgb(25, 91, 145);
+}
+.btn:hover{
+    color: darkslategray;
+    background-color: lightblue;
+    outline: none;
+}
+    
+</style>
+
+
+
+
+
+
+<section >
+  <div class="row ">
+    <div class="col-md-12 " style="width: 100%;">
+        <div class="row mx-2">
+            <div class="col-md-6"><a class="text-white" style="font-size: 2rem;">All Invoices</a></div>
+        </div> 
+    </div> 
+    <div class="card radius-15 mb-5">
+      <div class="card-body">
+          <div class="row">
+              <div class=" col-md-3">
+                  <input type="text" id="search" placeholder="Search..." class="form-control text-light bg-dark px-3 py-2" autocomplete="off">
+              </div>
+              <div class="col-md-3">
+                  <div class="dropdown">
+                      <button class="btn btn-outline-warning  px-3 py-2" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-sort-amount-up"></i>
+                      Sort
+                      </button>
+                      <div class="dropdown-menu ">
+                        <a class="dropdown-item" href="#" id="all-challan">
+                          <i class="fa fa-sort"></i>All
+                      </a>
+
+                        <a class="dropdown-item" href="#" id="sort-challan">
+                          <i class="fa fa-sort"></i>Invoice Number
+                      </a>
+                      <a class="dropdown-item" href="#" id="sort-customer">
+                          <i class="fa fa-sort"></i>Customer Name
+                      </a>
+          
+          
+                      </div>
+                  </div>
+              </div>
+                  
+                  
+
+              <div class="col-md-3"></div>
+              <div class="col-md-3">
+                  
+                  <a class="btn text-center btn-outline-warning px-3 py-2 " data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                  role="button"><i class="fa fa-filter mx-3"></i>
+                  </a>
+                  <div class="dropdown-menu ">
+                    <a class="dropdown-item" href="{% url 'invoiceview' %}">All</a>
+                    <a class="dropdown-item" href="{% url 'filter_invoice_draft' %}">Draft</a>
+                    <a class="dropdown-item" href="{% url 'filter_invoice_sent' %}">Send</a>
+            
+                  </div>
+                  <a class="btn text-center btn-outline-warning px-3 py-2 "  href="{% url  'add_prod' %}" class="btn fa fa-plus text-right px-3 py-2" role="button">
+                      <span class="mt-2">&nbsp;&nbsp; NEW</span>
+                  </a>
+              </div>
+          </div>
+          <hr>
+
+<div class="row">
+
+<div class="col-sm-12 col-md-12 col-lg-12 mt-5">
+    <table class="table  text-white " style="width: 100%;"  id="table-id">
+        <thead>
+            <tr>
+              <th>DATE</th>
+                <th>INVOICE NO.</th>
+                
+               
+                <th>CUSTOMER NAME</th>
+                <th>MAIL ID</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>BALANCE</th>
+                
+            </tr>
+        </thead>
+        <tbody id="table">
+            {% for v in invoice %}
+
+            <tr id="tr_data" style="cursor: pointer;" class="clickable-row" data-href="{% url 'invoice_overview' v.id %}">
+                <!-- onclick="location.href ='{% url 'detailedview' v.id %}' " -->
+                <td > {{v.inv_date}}</td>
+                <td style="color: rgb(226, 150, 9);">{{v.invoice_no}}</td>
+                
+               
+                <td>{{v.customer.customerName}}</td>
+                <td>{{v.customer.customerEmail}}</td>
+                <td>{{v.grandtotal}}</td>
+               <td>{{v.status}}</td>
+               <td>{{v.balance}}</td>
+               
+               <!-- <td><a style="border-radius: 50%;" class="btn btn-danger" href="{% url 'dele' v.id %}">delet</a></td> -->
+            </tr>
+
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+</div>
+
+
+
+
+   
+  </section>
+  <script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        // Get the URL from the "data-href" attribute
+        const url = row.getAttribute('data-href');
+        // Navigate to the URL
+        window.location.href = url;
+      });
+    });
+  </script>
+  <script>
+    var $rows = $('#table tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        
+        $rows.hide().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+    });
+  
+    
+  </script>
+
+  
+<script>
+  $(document).ready(function () {
+    var $rows = $('#table-id tbody tr');
+    var originalOrder = $rows.toArray(); // Keep a reference to the original order of rows
+
+    $('#search').keyup(function () {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        $rows.hide().filter(function () {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+    });
+
+    $('#sort-challan').on('click', function () {
+        sortTable(1); // Sort by Challan Number (2nd column)
+    });
+
+    $('#sort-customer').on('click', function () {
+        sortTable(2); // Sort by Customer Name (3rd column)
+    });
+
+    $('#all-challan').on('click', function () {
+        // Reset to the original order of rows
+        $('#table-id tbody').empty().append(originalOrder);
+    });
+
+    function sortTable(column) {
+        $rows.sort(function (a, b) {
+            var aVal = $(a).find('td').eq(column).text();
+            var bVal = $(b).find('td').eq(column).text();
+            return aVal.localeCompare(bVal);
+        });
+        $('#table-id tbody').html($rows);
+    }
+});
+
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  
+  
+
+{% endblock %}

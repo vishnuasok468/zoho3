@@ -1,0 +1,623 @@
+
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+
+  
+  h2{
+    font-size: x-large;
+    font-family: 'Segoe UI', Tahoma,;
+    color:#dfe4e9;
+  }
+  .card{
+        background: none;
+    }
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+ 
+
+tr:hover {
+  background-color : rgb(46, 46, 47);
+  color: aliceblue;
+cursor: pointer
+}
+    .btn {
+  background-color: white;
+  border: none;
+  color: green;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: white;
+}
+
+    
+</style>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        height: 5vh;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media print and (color) {
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+        <div class="card-body">
+          <div class="bar">
+            <div class=" left">
+          <div class="px-2">
+            <label style="text-align:left ">From:</label>
+            <input name="FromDate" class="inputdate"  type="date" id="in1"  style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);" >
+        </div>
+
+        <div class="px-2">
+            <label style="text-align:left ">To:</label>
+            <input name="ToDate" type="date" class="inputdate"  id="in2" style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);" >
+        </div>   </div>    
+        <div class="d-flex">
+            
+            <a href="{% url 'inventorysalegraph' %}">
+                   <button class=" btn btn-outline-info"><i class="fa fa-line-chart" style="background: white; color: rgb(218, 164, 48);"></i>
+             </a>    </button>&nbsp;&nbsp;
+              
+          <button class="btn btn_print btn-outline-info" style="background: white; color: rgb(218, 164, 48);"><i class="fa fa-print"></i></button>&nbsp;&nbsp;
+      
+           
+              <button class="btn btn_pdf btn-outline-info" style="background: white; color: rgb(218, 164, 48);">  <i class="fa fa-file-pdf"></i>    
+            </button>&nbsp;&nbsp;
+             <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()"  class="dropdown-item"  style="background: white; color: rgb(218, 164, 48);">   <i class="fa fa-file-excel"></i></button>&nbsp;&nbsp;
+             
+         
+            
+        <button class="btn" ><a  href="{% url 'report_inventory_view' %}" class="fa fa-close" style="background: white; color: rgb(218, 164, 48);"></a></button>&nbsp;&nbsp;
+      </div>
+      
+      </div>
+    </div>
+       
+       
+            <div class="card-title" id="div2">
+                <center>
+                    <h6 style="font-size: 30px;color: rgb(218, 164, 48);">{{company.company_name }}</h6>
+                    <h2 class="my-4" id="headline" style="font-size: 35px;color: rgb(218, 164, 48);">INVENTORY DETAILS</h2>
+                    <div class="display">
+                        <div id="d1" style="display: inline-block;"></div>-
+                        <div id="d2" style="display: inline-block;"></div>
+                    </div>
+
+                </center>
+             
+            </div>
+
+            <div class="bar">
+                <div class=" left">
+                   
+                    <div class="px-2">
+                       
+                        <input name="party" list="party" class="form-control" id="pin" placeholder="Search Items..." style="color: rgb(255, 255, 255);background: transparent;width: 20vw;">
+                        <datalist id="party" >
+                          {% for i in item %}
+                           <option value="{{i.Name}}">
+                              {% endfor %}
+                           
+                      </datalist>
+                    </div>
+
+                </div>
+               
+        </div>
+        <hr>
+    <div  id="pdf-card">
+      <div class="card-body">
+            <div class="container-fluid">
+                <div class="table-responsive"  > 
+                <table class="table table-responsive-md mt-4 table-bordered"
+                    id="myTable" >
+                    <thead >
+               
+                      <tr  >
+                        <th class="hidden"></th>
+                        <th style=" color: rgb(218, 164, 48);">Date</th>
+                        <th class="table" style="color: rgb(218, 164, 48);text-align: center;">Type</th>
+                     
+                        <th class="table" style=" color: rgb(218, 164, 48);">Sale Quantity</th>
+                        <th class="table" style=" color: rgb(218, 164, 48);">Purchase Quantity	</th>
+                        <th class="table" style="color: rgb(218, 164, 48);">Adjustment Quantity	</th>	
+                        <th class="table" style="color: rgb(218, 164, 48);">Closing Quantity</th>
+                      </tr> 
+                    </thead>
+            
+                    <tbody>
+                                   
+                                 
+                      {% for p in inv %} 
+                      <tr class="text-center" id="tb">
+                   
+                                        
+                    
+                        <td id="tb" style="display: none;" >{{p.product}}</td>              
+                        <td>{{p.inv.inv_date| date:'Y-m-d' }}</td>
+                        <td>Invoice</a></td>     
+                        
+                     
+                        <td>{{p.quantity}}</td>
+                   
+                     
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                
+                      </tr>  
+                      {% endfor %} 
+                      {% for p in recur %} 
+                                          
+                        <tr class="text-center" id="tb">
+                   
+                      
+                          <td style="display: none;" id="tb">{{p.iname}}</td>              
+                          <td >{{p.ri.start| date:'Y-m-d'}}</td>
+                          <td>Recurring_Invoice</a></td>     
+                          
+                       
+                          <td>{{p.quantity}}</td>
+                     
+                       
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
+                  
+                        </tr>  
+                          {% endfor %} 
+                          {% for p in estim %} 
+                                          
+                          <tr class="text-center" id="tb">
+                     
+                        
+                            <td style="display: none;" id="tb">{{p.item_name}}</td>              
+                            <td>{{p.estimate.estimate_date| date:'Y-m-d'}}</td>
+                            <td>Estimates</a></td>     
+                            
+                         
+                            <td>{{p.quantity}}</td>
+                       
+                         
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                    
+                          </tr>  
+                            {% endfor %} 
+  
+                            {% for p in sale %} 
+                                          
+                            <tr class="text-center" id="tb">
+                       
+                          
+                              <td style="display: none;" id="tb">{{p.product}}</td>              
+                              <td>{{p.sale.sales_date| date:'Y-m-d'}}</td>
+                              <td> Sales_Order</a></td>     
+                              
+                           
+                              <td>{{p.quantity}}</td>
+                         
+                           
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                      
+                            </tr>  
+                              {% endfor %} 
+                              {% for p in challan %} 
+                                          
+                              <tr class="text-center" id="tb">
+                         
+                            
+                                <td style="display: none;" id="tb">{{p.item_name}}</td>              
+                                <td>{{p.chellan.chellan_date| date:'Y-m-d'}}</td>
+                                <td>Delivery_Chellan</a></td>     
+                                
+                             
+                                <td>{{p.quantity}}</td>
+                           
+                             
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                        
+                              </tr>  
+                                {% endfor %} 
+                               
+                                {% for i in credit %}          
+                                <tr class="text-center" id="tb">
+                           
+                              
+                                  <td  style="display: none;" id="tb">{{i.item_name }}</td>              
+                                  <td>{{i.creditnote.creditnote_date| date:'Y-m-d'}}</td>
+                                  <td>Credit_Note</a></td>     
+                                  
+                               
+                                  <td>{{i.quantity}}</td>
+                             
+                               
+                                  <td>0</td>
+                                  <td>0</td>
+                                  <td>0</td>
+                          
+                                </tr>  
+                                  {% endfor %} 
+                                {% for p in pars %} 
+                          <tr class="text-center"  id="tb">
+                       
+                                            
+                        
+                            <td  style="display: none;" id="tb">{{p.item}}</td>              
+                            <td>{{p.PO.Ord_date| date:'Y-m-d'}}</td>
+                            <td>Purchase_Order</td>     
+                            
+                         
+                            <td>0</td>
+                       
+                         
+                            <td>{{p.quantity}}</td>
+                            <td>0</td>
+                            <td>0</td>
+                    
+                          </tr>  
+                            {% endfor %} 
+                            
+                            {% for p in vencredit %} 
+                            <tr class="text-center"  id="tb">
+                         
+                                              
+                          
+                              <td  style="display: none;" id="tb">{{p.product}}</td>              
+                              <td>{{p.inv.vendor_date| date:'Y-m-d'}}</td>
+                              <td>Vendor_Credits</td>     
+                              
+                           
+                              <td>0</td>
+                         
+                           
+                              <td>{{p.quantity}}</td>
+                              <td>0</td>
+                              <td>0</td>
+                      
+                            </tr>  
+                              {% endfor %} 
+  
+                              {% for p in bills %} 
+                              <tr class="text-center"  id="tb">
+                           
+                                                
+                            
+                                <td  style="display: none;" id="tb">{{p.item_name}}</td>              
+                                <td>{{p.purchase_bill.bill_date| date:'Y-m-d'}}</td>
+                                <td>Bills</td>     
+                                
+                             
+                                <td>0</td>
+                           
+                             
+                                <td>{{p.quantity}}</td>
+                                <td>0</td>
+                                <td>0</td>
+                        
+                              </tr>  
+                                {% endfor %} 
+  
+                                {% for p in recubills %} 
+                                <tr class="text-center"  id="tb">
+                             
+                                                  
+                              
+                                  <td  style="display: none;" id="tb">{{p.item}}</td>              
+                                  <td>{{p.recur_bills.start_date| date:'Y-m-d'}}</td>
+                                  <td>Recurring_Bills</td>     
+                                  
+                               
+                                  <td>0</td>
+                             
+                               
+                                  <td>{{p.quantity}}</td>
+                                  <td>0</td>
+                                  <td>0</td>
+                          
+                                </tr>  
+                                  {% endfor %} 
+                                  {% for p in vendorbill %} 
+                                  <tr class="text-center"  id="tb">
+                               
+                                                    
+                                
+                                    <td  style="display: none;" id="tb">{{p.item}}</td>              
+                                    <td>{{p.recur_bills.vendor_date| date:'Y-m-d'}}</td>
+                                    <td>Vendor_Credits_Bills</td>     
+                                    
+                                 
+                                    <td>0</td>
+                               
+                                 
+                                    <td>{{p.quantity}}</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                            
+                                  </tr>  
+                                    {% endfor %}
+                      </tbody>
+                </table>
+           
+
+            </div>
+          
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function exportAsExcel() {
+        const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'Inventory Details.xlsx');
+    }
+</script>
+<script>
+    $(document).ready(function ($) {
+
+        $(document).on('click', '.btn_print', function (event) {
+            console.log('print1');
+            event.preventDefault();
+
+
+            const pdfCard = document.getElementById('pdf-card').cloneNode(true);
+
+            // Create a new window for printing
+            const printWindow = window.open('', '');
+            // pdfCard.style.color = 'black';
+            // pdfCard.style.backgroundColor = '#243e54';
+            var name = document.getElementById("headline").innerHTML;
+            const pageTitle = printWindow.document.createElement('h1');
+            pageTitle.textContent = name; // Replace 'Page Title' with your desired title text
+            pageTitle.style.textAlign = 'center';
+            pageTitle.style.color = 'black';
+
+            // Append the <h1> element to the new window's body
+            printWindow.document.body.appendChild(pageTitle);
+
+            // Append the cloned 'pdf-card' div to the new window
+            printWindow.document.body.appendChild(pdfCard);
+
+            // Ensure the styles are preserved by copying CSS from the original document
+            const stylesheets = document.styleSheets;
+            for (let i = 0; i < stylesheets.length; i++) {
+                const stylesheet = stylesheets[i];
+                if (stylesheet.href) {
+                    const link = printWindow.document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = stylesheet.href;
+                    printWindow.document.head.appendChild(link);
+                }
+            }
+
+            // Trigger the print dialog for the new window
+            printWindow.print();
+
+            // Close the new window after printing
+            printWindow.close();
+
+
+        });
+
+    });
+    $(document).ready(function ($) {
+
+
+        $(document).on('click', '.btn_pdf', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var name = document.getElementById("headline").innerHTML;
+            var div2 = document.getElementById("div2");
+            var element = document.getElementById('pdf-card');
+            element.style.color = 'black';
+            element.style.backgroundColor = 'rgb(27, 27, 29)';
+            var opt =
+            {
+                margin: 1,
+                filename: name + '.pdf',
+                image: { type: 'png', quality: 0.98},
+                html2canvas: { scale: 3, useCORS: true, backgroundColor: null },
+                jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+
+        });
+
+    });
+    function selectParty() {
+        document.getElementById("pin").addEventListener("input", function () {
+            var filterValue = this.value.toLowerCase();
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+
+            
+            if (document.getElementById("in1").value == '' && document.getElementById("in2").value == '') {
+                for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header row
+                    
+                    var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+
+                    if (firstColumnValue.indexOf(filterValue) > -1) {
+
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+
+                }
+
+            }
+            else {
+                var startDate = new Date(document.getElementById("in1").value);
+            var endDate = new Date(document.getElementById("in2").value);
+                for (var i = 1; i < rows.length; i++) {
+                    var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+                    var row = rows[i];
+                    var dateCell = row.cells[1];
+                    var rowDate = new Date(dateCell.textContent);
+
+                    if (rowDate >= startDate && rowDate <= endDate ) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+
+                }
+            }
+
+
+
+
+        });
+    }
+    selectParty();
+    const inputElement = document.querySelector('input[name="party"]');
+    const headlineElement = document.getElementById('headline');
+    inputElement.addEventListener('input', function () {
+
+        const selectedValue = inputElement.value;
+        if (selectedValue == '') {
+            head = 'INVENTORY DETAILS'
+        }
+        else {
+            head = selectedValue + ' DETAILS';
+        }
+        headlineElement.textContent = head.toUpperCase();
+
+    });
+
+
+    // calctot(4, 'balance');
+</script>
+<script>
+    function setDate() {
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+        var rows = table.getElementsByTagName("tr")
+       
+
+        for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            
+
+            var dateCell = row.cells[1];
+            var rowDate = new Date(dateCell.textContent);
+
+            if (rowDate >= startDate && rowDate <= endDate) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+
+        }
+    }
+    var table = document.getElementById("myTable");
+
+    var fromDate;
+    $('#in1').on('change', function () {
+        fromDate = $(this).val();
+        $('#in2').prop('min', function () {
+            return fromDate
+        })
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+        var rows = table.getElementsByTagName("tr")
+        var filterValue= document.getElementById("pin").value.toLowerCase()
+
+        for (var i = 1; i < rows.length; i++) {
+            var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+            var row = rows[i];
+            var dateCell = row.cells[1];
+            var rowDate = new Date(dateCell.textContent);
+
+            if (rowDate >= startDate) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+
+        }
+        selectParty();
+        var tdate = new Date(fromDate)
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById("d1").innerHTML = tdate.toLocaleDateString(undefined, options);
+
+    })
+    var toDate;
+    $('#in2').on('change', function () {
+        toDate = $(this).val();
+        $('#in1').prop('max', function () {
+            return toDate
+        })
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+        var rows = table.getElementsByTagName("tr");
+        var filterValue= document.getElementById("pin").value.toLowerCase()
+        for (var i = 1; i < rows.length; i++) {
+            var firstColumnValue = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+            var row = rows[i];
+            var dateCell = row.cells[1];
+            var rowDate = new Date(dateCell.textContent);
+
+            if (rowDate >= startDate && rowDate <= endDate ) {
+                row.style.display = "";
+                console.log("display");
+            } else {
+                row.style.display = "none";
+
+            }
+        }
+        selectParty();
+        var tdate = new Date(toDate)
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById("d2").innerHTML = "  To  " + tdate.toLocaleDateString(undefined, options);
+
+    })
+
+</script>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        padding-left: 4vw;
+        height: 5vh;
+    }
+</style>
+
+
+<div class="page-content">
+    <div class="card radius-15">
+        <div class="card-title" id="div2">
+            <center>
+                <h6 style="padding-top: 20px;">{{cmp1.cname}}</h6>
+                <h2 class="my-4 text-uppercase" id="headline">{{pk}} SALE REPORT</h2>
+            </center>
+            <hr>
+        </div>
+        <div class="card-body">
+            <div class="bar">
+                <div class="right"></div>
+                <div class="right">
+                    <a class="btn btn-outline-info" href="{% url 'productsalereport'%}" ><i class="fa fa-close"style="color:rgb(218, 164, 48);outline-color:rgb(218, 164, 48) ;"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card radius-15">
+
+        <div class="card-body">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var grandTotalsByMonthString = localStorage.getItem('grandtotalBymonth');
+    if (grandTotalsByMonthString) {
+        // Parse the string back into a JavaScript object
+        var grandTotalsByMonth = JSON.parse(grandTotalsByMonthString);
+        console.log(grandTotalsByMonth);
+    }
+    var salesData = Object.values(grandTotalsByMonth);
+
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Sales by Month',
+                data: salesData,
+                backgroundColor: 'rgb(218, 164, 48)',
+                borderColor: 'rgb(218, 164, 48)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    color: 'white'
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        // This more specific font property overrides the global property
+                        font: {
+                            color: 'white'
+                        }
+                    }
+                }
+            }
+        }
+
+    });
+
+</script>
+
+
+
+
+{% endblock %}

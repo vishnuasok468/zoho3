@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<style>
+  select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  #customer_sel option:hover {
+    background-color: rgb(210, 132, 30);
+  }
+
+  .element-below-fixed {
+    padding-top: 100px;
+  }
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+</style>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+
+  function cancelDialog() {
+
+    var frm = document.getElementById("forms");
+    let customMsg = "Are you sure you want to cancel?";
+
+    if (confirm(customMsg)) {
+      alert("adjustment cancelled!")
+    }
+  }
+
+
+
+
+</script>
+
+
+
+<section>
+  <div style="top: 7rem;">
+    <div class="row  ml-2">
+      <div class="col-md-3 "><a class="text-white" style="font-size: 1.8rem;">Edit Godown</a></div>
+
+    </div>
+    <div></div>
+    <form method="POST" action="{% url 'edit_savegodown' e.id %}" class="p-5" enctype="multipart/form-data" id="forms"
+      onreset="return confirm('Are you sure you want to cancel the data?');">
+      {% csrf_token %}
+
+
+      <div class="row mb-4 border-top pt-5">
+        <div class="col-sm-2"><label for="date">Date</label></div>
+        <div class="col-sm-6">
+          <input type="date" id="date" name="date" class="form-control text-dark" style="height: 35px;" value="{{e.date|date:'Y-m-d'}}" required>
+        </div>
+      </div>
+
+      <div class="row mb-4 ">
+        <div class="col-sm-2"><label for="items">Item</label></div>
+        <div class="col-sm-6">
+
+          <select class="form-control text-black" id="items" name="item">
+            <option value="{{e.additem.id}}">{{e.additem.Name}}</option>
+            {% for a in item %}
+            <option value="{{a.id}}">{{a.Name}}</option>
+            {% endfor %}
+            
+          </select>
+        </div>
+      </div>
+
+
+      {% comment %} <div class="col-sm-4">
+        <a href="" data-toggle="modal" data-target="#newgodown"><i class="fa-solid  fa fa-plus p-2 rounded"
+            style="color: white; background-color: rgb(214, 141, 5); height: 34px;"></i></a>
+      </div>
+  </div> {% endcomment %}
+
+  <div class="row mb-4" id="hsn_row" >
+    <div class="col-sm-2"><label for="hsn">HSN</label></div>
+    <div class="col-sm-6"><input type="text" id="hsn" name="hsn" class="form-control text-dark" value="{{e.hsn}}" readonly>   
+    </div>
+</div>
+
+<div class="row mb-4" id="stockhand_row" >
+  <div class="col-sm-2"><label for="stock">Stock in Hand</label></div>
+  <div class="col-sm-6"><input type="text" id="stock" name="stock" class="form-control text-dark" value="{{e.stockinhand}}" readonly>   
+  </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-sm-2"><label for="name">Godown Name</label></div>
+    <div class="col-sm-6"> <input type="text" id="name" name="name" class="form-control text-dark"
+            style="height: 35px;" value="{{e.godownname}}"></div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-sm-2"><label for="name">Address</label></div>
+  <div class="col-sm-6 ">
+    <textarea name="address" id="" cols="46.9" rows="3" style=" border:1px white solid;border-radius:5px;"
+      placeholder="&nbsp;Max 500 characters">{{e.Address}}</textarea>
+  </div>
+</div>
+
+<div class="row mb-4"  >
+  <div class="col-sm-2"><label for="stockkeeping">Stock Keeping</label></div>
+  <div class="col-sm-6"><input type="number" id="stockkeeping" name="stockkeeping" class="form-control text-dark" oninput="validateStockKeeping(this);" value="{{e.stockkeeping}}">   
+    <div id="stockError" class="text-danger"></div>
+  </div>
+</div>
+
+<div class="row mb-4" id="Kilometer" >
+<div class="col-sm-2"><label for="Kilometer">Kilometer(difference b/w company)</label></div>
+<div class="col-sm-6"><input type="number" id="Kilometer" name="Kilometer" class="form-control text-dark" value="{{e.kilometer}}">   
+</div>
+</div>
+
+
+
+  <div class="row">
+    <div class="-sm-12 col-md-6 col-lg-6">
+    
+      <input type="submit" class="btn text-white mt-5" style="background-color: rgb(214, 141, 5); "
+        name="convert_adjusted" value="Save">
+      <input type="reset" class="btn text-white mt-5" style="background-color: rgb(214, 141, 5);" value="Cancel">
+
+      <div class="-sm-12 col-md-6 col-lg-6"></div>
+    </div>
+
+    </form>
+
+    {% comment %} <script>
+      // Get references to the relevant elements
+      var hsnRow = document.getElementById('hsn_row');
+      var stockhandRow = document.getElementById('stockhand_row');
+      var itemsDropdown = document.getElementById('items');
+
+      // Add an event listener to the dropdown to listen for changes
+      itemsDropdown.addEventListener('change', function () {
+        // Check if the selected value is not empty
+        if (itemsDropdown.value !== '') {
+          // If a value is selected, show the HSN row
+          hsnRow.style.display = 'block';
+          // Show the Stock in Hand row
+          stockhandRow.style.display = 'block';
+        } else {
+          // If no value is selected, hide both rows
+          hsnRow.style.display = 'none';
+          stockhandRow.style.display = 'none';
+        }
+      });
+    </script> {% endcomment %}
+
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get references to the relevant elements
+        const itemsDropdown = document.getElementById('items');
+        const hsnInput = document.getElementById('hsn');
+        const stockhandInput = document.getElementById('stock');
+
+        // Add an event listener to the dropdown to listen for changes
+        itemsDropdown.addEventListener('change', function () {
+          const selectedItemId = itemsDropdown.value;
+
+          // Send an AJAX request to fetch HSN and Stock in Hand values
+          if (selectedItemId !== '') {
+            fetch(`/get_item_info/${selectedItemId}/`)  // Replace with your Django URL for fetching item info
+              .then(response => response.json())
+              .then(data => {
+                hsnInput.value = data.hsn;
+                stockhandInput.value = data.stock;
+              })
+              .catch(error => {
+                console.error('Error fetching item info:', error);
+              });
+          } else {
+            // Clear the inputs if no item is selected
+            hsnInput.value = '';
+            stockhandInput.value = '';
+          }
+        });
+      });
+    </script>
+
+
+  </div>
+  </div>
+  <script>
+    // reason modal
+    console.log('csrf_token')
+
+    $(document).on("click", "#reasaveButton", function () {
+      $.ajax({
+
+        type: 'POST',
+        url: "#",
+        data: {
+
+          reasonlist: $("#reasoninp").val(),
+
+
+
+        },
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+
+
+        success: function (response) {
+          document.getElementById("modalReason").reset();
+          reloadUnit();
+        },
+      });
+    });
+
+
+
+
+  </script>
+  <script>
+    function reloadItem() {
+
+      $.ajax({
+        url: "#",
+        type: "GET",
+        dataType: "json",
+        data: $(this).serialize(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+
+        success: function (data) {
+          var dropdown = $('#items');
+          dropdown.empty();
+          $.each(data, function (key, value) {
+            // dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + ' ' + value[1]));
+            dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
+          });
+        },
+        error: function (xhr, status, error) {
+          console.error(xhr.responseText);
+        }
+      });
+    }
+
+    $(document).ready(function () {
+      $('#items').change(function () {
+
+        var name = $("#items").val();
+        var na = name.split(' ')[0];
+        var table = document.getElementById("retainer-table");
+        $.ajax({
+
+          url: "{% url 'get_itemsdet' %}",
+
+          data: {
+            id: na,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+
+          type: 'POST',
+
+          success: function (data) {
+
+            $("#hsn_row").removeClass('d-none');
+            $("#hsn_row").addClass('d-flex');
+
+
+            $('#hsn').val(' ' + data.hsn);
+            // $('#cus_place').val(data.cust_place_supply);
+            $('#items_id').val(data.cust_id);
+            var x = document.getElementById("cus_place").value
+
+            var y = document.getElementById("state").value
+
+
+
+          }
+
+        });
+      });
+    });
+  </script>
+
+  <script>
+    function reloadItem() {
+
+      $.ajax({
+        url: "#",
+        type: "GET",
+        dataType: "json",
+        data: $(this).serialize(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+
+        success: function (data) {
+          var dropdown = $('#items');
+          dropdown.empty();
+          $.each(data, function (key, value) {
+            // dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + ' ' + value[1]));
+            dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
+          });
+        },
+        error: function (xhr, status, error) {
+          console.error(xhr.responseText);
+        }
+      });
+    }
+
+    $(document).ready(function () {
+      $('#items').change(function () {
+
+        var name = $("#items").val();
+        var na = name.split(' ')[0];
+        var table = document.getElementById("retainer-table");
+        $.ajax({
+
+          url: "#",
+
+          data: {
+            id: na,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+
+          type: 'POST',
+
+          success: function (data) {
+
+            $("#stockhand_row").removeClass('d-none');
+            $("#stockhand_row").addClass('d-flex');
+
+
+            $('#stockhand').val(' ' + data.hsn);
+            // $('#cus_place').val(data.cust_place_supply);
+            $('#items_id').val(data.cust_id);
+            var x = document.getElementById("cus_place").value
+
+            var y = document.getElementById("state").value
+
+
+
+          }
+
+        });
+      });
+    });
+  </script>
+
+
+</section>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+  crossorigin="anonymous"></script>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+<script>
+  function validateStockKeeping(input) {
+    var stockInput = document.getElementById('stock');
+    var stockError = document.getElementById('stockError');
+
+    var stockKeepingValue = parseInt(input.value);
+    var stockValue = parseInt(stockInput.value);
+
+    if (stockKeepingValue > stockValue) {
+      stockError.textContent = 'Stock Keeping cannot be greater than Stock in Hand.';
+      stockError.style.display = 'block';
+    } else {
+      stockError.textContent = ''; // Clear the error message
+      stockError.style.display = 'none';
+    }
+  }
+</script>
+
+
+
+{% comment %}
+<script>
+  function resetForm() {
+    document.getElementById("Form").reset();
+  }
+</script>
+
+<div class="form-popup" id="myForm">
+  <form onsubmit="event.preventDefault(); addUnit();" class="form-container" id="unitForm">
+    {% csrf_token %}
+    <span class="close" onclick="closeForm()">&times;</span><br>
+    <h1 class="text-dark">Add Unit</h1>
+
+    <label class="text-dark" for="unit"><b>Unit</b></label>
+    <input type="text" placeholder="Enter unit" id="unitName" name="unit_name" required>
+    <p class="text-dark">eg:KL,PCS,BOX,LTR</p>
+
+    <button type="submit" class="btn add-button">Add</button>
+  </form>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function addUnit() {
+    // Get the form and form data
+    let unitForm = document.getElementById("unitForm");
+    let formData = new FormData(unitForm);
+
+    // Send the form data through AJAX
+    $.ajax({
+      url: "{% url 'add_unitmodal' %}",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        const unitName = response.unit_name;
+        const unitId = response.unit_id; // Assume the server returns the unit ID
+
+        // Handle the success response
+        console.log(response);
+
+        // Get the dropdown element
+        const dropdown = document.getElementById("unit");
+
+        // Create and add the new unit option
+        const newUnitOption = document.createElement("option");
+        newUnitOption.value = unitId;
+        newUnitOption.text = unitName;
+
+        // Add the new unit option to the dropdown
+        dropdown.add(newUnitOption);
+
+        // Select the newly added unit option to display it as the current selection
+        newUnitOption.selected = true;
+
+        // Close the form and perform any other actions
+        closeForm();
+      },
+      error: function (error) {
+        // Handle the error response
+        console.log(error);
+      }
+    });
+  }
+
+  function openForm() {
+    let formContainer = document.getElementById("myForm");
+    formContainer.style.display = "block";
+  }
+
+  function closeForm() {
+    let formContainer = document.getElementById("myForm");
+    formContainer.style.display = "none";
+  }
+</script> {% endcomment %}
+
+
+
+
+{% endblock %}

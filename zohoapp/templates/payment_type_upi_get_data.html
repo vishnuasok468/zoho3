@@ -1,0 +1,30 @@
+<table class="table table-bordered">
+    <thead style="background-color: transparent;">
+        <th id="paynum_" style="color: rgb(230, 173, 68);" class="fw-bold print__text">DATE</th>
+        <th id="name_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">TYPE</th>
+        <th id="date_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">UPI ID</th>
+        <th id="refnum_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">AMOUNT</th>
+    </thead>
+    <tbody>
+                        
+        {% for i in sales %}
+        <tr>
+            <td class="text-light">{{ i.sales_date }}</td>
+            <td class="text-light">{{ i.pay_method }}</td>
+            <td class="text-light">{{ i.upi_id }}</td>
+            <td class="text-light">{{ i.grandtotal }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td id="print_left_edge" class="fw-bold text-start text-warning print__text" style="border: none;">TOTAL UPI AMOUNT</td>
+            <td style="border: transparent" class="text-light"></td>
+            <td style="border: transparent" class="text-light"></td>
+            {% if total_upi_amount %}
+            <td class="text-light fw-bold">{{ total_upi_amount }}</td>
+            {% else %}
+            <td class="text-light fw-bold">0</td>
+        {% endif %}
+        </tr>
+    
+    </tbody>
+</table>

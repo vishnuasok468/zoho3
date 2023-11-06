@@ -1,0 +1,1496 @@
+<!-- RIJIN -->
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+<style>
+    .text-uppercase{
+        font-family: "Gill Sans", sans-serif;
+            color: Black;
+    }
+    .lo {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000;
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+</style>
+
+<style>
+   
+    .containerprof {
+        min-height: 450px;
+        background-size: contain;
+        display: flex;
+    }
+
+    #details-list {
+        float: left;
+        width: 30%;
+        flex: 1;
+        height: 100%;
+        overflow: auto;
+    }
+
+    #quick-template {
+        float: left;
+        width: 70%;
+        border-left: 0.5px solid;
+        color: dimgray;
+        background-color: rgb(25, 26, 27);
+        
+    }
+
+    @media (max-width: 650px) {
+        #details-list {
+            /* float: left; */
+            width: 100%;
+            /* flex: 1; */
+            height: 100%;
+            overflow: auto;
+            display: none;
+        }
+
+        #quick-template {
+            /* float: left; */
+            width: 100%;
+            border-left: 0.5px solid;
+            color: dimgray;
+            background-color: rgb(25, 26, 27);
+        }
+    }
+
+    a {
+        list-style: none;
+        color: azure;
+    }
+
+    a:hover {
+        color: rgb(218, 164, 48);
+        text-decoration: none;
+    }
+
+    .card {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: auto;
+        background-color: transparent;
+
+    }
+
+    .tab {
+        overflow: hidden;
+        /* border: 1px solid ; */
+        background-color: transparent;
+        width: 300px;
+    }
+
+    .tab a {
+
+        font-family: inherit;
+        /* background-color: inherit; */
+        float: left;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 5px;
+        transition: 0.3s;
+        /* color: azure; */
+        border: none;
+    }
+
+    
+    .tab a.active {
+        background-color: #ccc;
+        color: rgb(56, 54, 54);
+
+    }
+
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border-top: none;
+    }
+
+    .page {
+        background: azure;
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    }
+
+    
+
+    td {
+        color: #ffffff;
+    }
+
+    .card-registration .select-input.form-control[readonly]{
+        font-size: 1rem;
+        /* line-height: 2.15; */
+        color: azure;
+        /* padding-left: .75em;
+        padding-right: .75em; */
+    }
+
+    .card-registration .select-arrow {
+        top: 13px;
+    }
+
+    .bg-grey {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    @media (min-width: 992px) {
+        .card-registration-2 .bg-grey {
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .card-registration-2 .bg-grey {
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+    }
+
+    .amnt {
+        border: none;
+        color: #fff;
+        text-align: left;
+        font-size: 20px;
+        background-color: rgba(0, 0, 0, 0.001);
+        /* background-color: darkgrey; */
+    }
+
+    .tx {
+        border: none;
+        width: 21px;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: left;
+        background-color: rgba(0, 0, 0, 0.01);
+    }
+
+    ::-webkit-scrollbar {
+        width: 0.5px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .print-only {
+        display: none;
+        height: auto;
+        width: auto;
+        overflow-y: auto;
+        border: none;
+        box-shadow: 5px 2px 5px 2px  grey;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        header {
+            display: none;
+        }
+
+        .print-only * {
+            visibility: visible;
+        }
+
+        .print-only {
+            /* position: absolute; */
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: auto;
+            page-break-before: always;
+            page-break-inside: avoid;
+        }
+
+        @page {
+            size:100%;
+            margin: 0;
+            height: auto;
+        }
+    }
+
+    .modal{
+      z-index: 9999;
+      overflow: scroll;
+    }
+    .print-only p{
+        color: black;
+        font-weight:700;
+        font-family:Georgia, 'Times New Roman', Times, serif
+    }
+    .print-only h5{
+        color: black;
+        font-weight:700;
+        font-family:Georgia, 'Times New Roman', Times, serif
+    }
+    .print-only thead td{
+        color: black;
+        font-weight:700;
+        /* font-family:Georgia, 'Times New Roman', Times, serif; */
+        font-style: italic;
+    }
+    .print-only tbody td {
+        color: black;
+    }
+    .print-only tfoot td{
+        color: black;
+        font-size: 17px;
+
+    }
+    .btns{
+        background-color: rgb(230, 171, 45);
+        /* font-size:20px; */
+        border-radius: 5px;
+        
+    }
+    .btns:hover{
+        color: rgb(230, 171, 45);
+        background-color: #555;
+    }
+
+    
+    .table-container {
+        display: inline-block;
+        overflow-x: auto; 
+        max-width: 100%; 
+    }
+    
+    
+    .truncate-text {
+        max-width: 350px; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+    #mytable tr {
+        display: table-row;
+    }
+    * {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+ .horin:hover {
+        background-color: rgb(19, 19, 19);
+    }
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000;
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+
+
+    
+.table-container {
+    display: inline-block;
+    overflow-x: auto; 
+    max-width: 100%; 
+}
+
+
+.truncate-text {
+    max-width: 350px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+#mytable tr {
+    display: table-row;
+}
+
+.actoinacto .dropdown-item:hover {
+    background-color: #0baef4;
+}
+    
+</style>
+<section>
+    <div class="row p-3">
+        <div class="list col-4 col-lg-4 col-md-3  col-sm-2 py-3">
+            <div class="header">
+                <h5>ALL EMPLOYEES LOAN LIST</h5>
+            </div>
+            <div class="searchbar">
+                <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
+                    onkeyup="searchFunction()"
+                    style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
+                <a class="btn btn-outline-primary mx-1" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button">
+                    <i class="fa fa-filter"></i>
+                </a>
+                <div class="dropdown-menu actoinacto">
+                    <a class="dropdown-item filter-link" data-status="all" href="#" style="font-size: 14px;">All</a>
+                    <a class="dropdown-item filter-link" data-status="active" href="#" style="font-size: 14px;">Active</a>
+                    <a class="dropdown-item filter-link" data-status="inactive" href="#" style="font-size: 14px;">Inactive</a>
+                </div>
+                
+                <a class="btn btn-outline-primary mr-1" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i></a>
+            </div>
+            <hr>
+            <table class="table table-borderless " id="mytable">
+                <tr></tr>
+                {% for l in l %}
+                <tr class='clickable-row horin' data-href="{% url 'employee_loan_template' l.payroll_id %}"  data-status="{{ l.active }}">
+                    <td class="pt-2">
+                        <p class="bold lo">{{ l.payroll.first_name }} {{ l.payroll.last_name }}</p>
+                        <p class="lo">{{ l.date_issue }}</p>
+                    </td>
+                    <td class="pt-2 lo"><p>{{ l.loan_amount }}</p></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const filterLinks = document.querySelectorAll(".filter-link");
+                    const tableRows = document.querySelectorAll(".clickable-row");
+            
+                    filterLinks.forEach(function (link) {
+                        link.addEventListener("click", function (event) {
+                            event.preventDefault();
+            
+                            const status = link.getAttribute("data-status");
+            
+                            tableRows.forEach(function (row) {
+                                if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                                    row.style.display = "table-row";
+                                } else {
+                                    row.style.display = "none";
+                                }
+                            });
+                        });
+                    });
+                });
+            </script>
+        </div>
+        <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
+            <div id="overview">
+                <div class="p-name">
+                    <h3 class="px-2 pb-2" id="id1">{{p.first_name}} {{p.last_name}}</h3>
+                </div>
+
+                <div class="bar pt-3">
+                    <div class="left">
+                        {% for loan in loans %}
+                        <a class="btn mx-1 fa fa-file-word" href="{% url 'employee_loan_template' payroll_id=loan.payroll.id %}">Template</a>
+
+
+                    
+                        <a class="btn mx-1, fa fa-eye"  href="{% url 'employee_loan_details' payroll_id=p.id %}">Overview</a>
+                    </div>
+                    {% endfor %}
+                    <div class="right">
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'edit_loan' loan_id=loan.id %}" data-toggle="tooltip" title="Edit"><i
+                                class="fas fa-edit"></i></a>
+                                {% endfor %}
+                                <a href=" " class=" toPDF  btn btn_print ml-1" id="toPDF"
+                                data-toggle="tooltip" title="PDF"><i class="mdi mdi-file-pdf"></i></a>
+                            <a href="" class=" fa fa-print btn"   data-toggle="tooltip"
+                            title="PRINT" onclick="window.print()"> </a>
+                        <!-- onclick="generatePDF()" -->
+                        
+                        <script type="text/javascript">
+                            $(document).ready(function ($) {
+                                console.log('print');
+
+                                $(document).on('click', '.btn_print', function (event) {
+                                    console.log('print1');
+                                    event.preventDefault();
+                                    var element = document.getElementById('div-to-pdf');
+                                    var opt =
+                                    {
+                                        margin: 1,
+                                        filename: 'employee loan' + '.pdf',
+                                        image: { type: 'jpeg', quality: 0.98 },
+                                        html2canvas: { scale: 2 },
+                                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                                    };
+                                    html2pdf().set(opt).from(element).save();
+
+                                });
+
+                            });
+                        </script>
+                        
+                        <a class="btn ml-1" href="" id="dd1" data-bs-toggle="dropdown" aria-haspopup="true"
+                            data-toggle="tooltip" title="Download Attachments" aria-expanded="false" role="button">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            {% if attach %}
+                            <div class="table-container">
+                            <table class="table table-borderless" >
+                                {% for a in attach %}
+                                {% for loan in loans %}
+                                <tr>
+                                    <td>{{forloop.counter}}.</td>
+                                    <td><a href="{% url 'download_loan_attach' payroll_id=loan.payroll.id attachment_id=a.id  %}"><div class="truncate-text">{{ a.attach.name }}</div></a></td>
+                                    <td><a href="{% url 'delete_loan_attach_template' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                            {% else %}
+                            <div class="text-center">No Attachment found</div>
+                            {% endif %}
+                        </div>
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
+
+                            title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
+                            
+                        <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
+                            data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
+
+
+                            <form  class="btn ml-1" method="post" action="{% url 'add_loan_attach_template' payroll_id=loan.payroll.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="file-input"  data-toggle="tooltip" title="Upload Attachments">
+                                    <i class="fas fa-paperclip"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+                                <input type="hidden" id="payroll-id" value="{{ loan.payroll.id }}">
+                            </form>
+                            {% endfor %}
+                            
+
+                    <script>    
+                        function uploadFile() {
+                            const fileInput = document.getElementById("file-input");
+                            const file = fileInput.files[0];
+                            const csrfToken = getCookie('csrftoken');
+                            const payrollId = document.getElementById("payroll-id").value;
+                            
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            
+                            fetch(`/add_loan_attach_template/${payrollId}/`, {
+                                method: "POST",
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response from the server (if needed)
+                                const messageDiv = document.getElementById("upload-message");
+        if (data.message) {
+            // Display the success message
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "green";
+        }
+        messageDiv.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+                        
+                    </script>                    
+                    
+                    </div>
+                    
+                </div>
+                
+                
+            </div>
+            <div id="upload-message" style="display:none;"></div>
+                <hr>
+                
+
+                <div id="Template" class=" print-only page tabcontent p-5 m-3" style="display: block; background-color:azure">
+                    <div class="row pt-0 m-0 text-center">
+                        <div class="col-4 "></div>
+                        <div class="col-4 ">
+                            <h4 class="text-uppercase text-dark" >Employee Loan Details</h4>
+                        </div>
+                        <div class="col-4 "></div>
+                    </div>
+                    <div class="row extra-info pt-2 mt-3">
+                        <div class="col-1 "></div>
+                        <div class="col-5 ">
+                            <h3 class="text-uppercase" style="color: black;"><b style="color: black;">{{ company.company_name }}</b></h3>
+
+                            <p class="address mx-2 p-2"> {{company.address}}<br>
+                                {{company.city}} <br>
+                                {{company.state}}<br>
+                                {{company.pincode}}<br>
+                            </p>                    
+                        </div>
+                        <div class="col-1 "></div>
+                        <div class="col-5">
+                            
+                            <section class="d-flex justify-content-between">
+                                <div class="top-right">
+                                    <div class="graphic-path text-center">
+                                        
+                                        
+                                        
+                                        <h5 class="text-capitalize"  >{{p.first_name}} {{p.last_name}}</h5>
+                                        
+    
+                                    </div>
+                                    <div class="position-relative">
+                                        
+                                        <p>Designation : &nbsp <span style="color: black;">{{p.designation}}</span></p>
+                                        <p>Employee ID : &nbsp <span style="color: black;">{{p.emp_number}}</span></p>
+                                        
+                                        <p>Email : &nbsp <span style="color: black;">{{p.email}}</span></p> 
+                                        <p>Phone : &nbsp <span style="color: black;">{{p.Phone}}</span></p> 
+                                    </div>
+                                </div>
+                               
+                            </section>
+    
+                        </div>
+                    </div>
+    
+    
+                    <section class="store-user mt-2">
+                        <div class="col-12">
+                            
+    
+                        </div>
+                    </section>
+    
+                    <section class="product-area mt-0">
+                        <table class="table ">
+                            <thead style="background-color:burlywood; color: black;">
+                                <tr>
+                                    <td>Particulars</td>
+                                    <td>Loan Amount</td>
+                                    <td>Loan Issue Date</td>
+                                    
+                                    <td>Monthly Cutting Amount</td>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody >
+    
+                                {% for b in loans %}
+                                <tr >
+                                    <td><h7 style="color: black;">Loan Issue</h7></td>
+                                    <td>{{b.loan_amount}}</td>
+                                    <td>{{b.date_issue}} </td>
+                                    
+                                    <td>{{b.monthly_cutting_amount}}</td>
+                                    
+                                </tr>
+                                {% endfor %}
+    
+                            </tbody>
+                        </table>
+                    </section>
+    
+                    <section class="balance-info p-5">
+                       
+                        </div>
+                    </section>
+    
+                </div>
+    
+    
+                <!-- overview -->
+                <div id="Overview" class="tabcontent mt-0 border-0 p-4 mx-0" style="overflow-x: hidden; border-top: #ccc double 2px; background-color: burlywood ;border-radius: 5px;">
+    
+                    <h3 class="mb-0 mx-5 text-muted" style="color: rgb(161, 195, 226);">{{ company.company_name }}</h3>
+                    <center>
+                        <h2 class="mb-4" style=" color: #434141;">RECURRING BILLS</h2>
+                    </center>
+    
+                    <div class="row g-0">
+                        <div class="col-md-7">
+                            <div class="p-5">
+                                <p class="text-grey">Bill Amount</p>
+                                <div class="d-flex justify-content-between align-items-center mb-5">
+                                    <b>
+                                        <span style=" color: #434141;">
+                                            ₹ <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }}"
+                                                class="amnt text-dark" style="font-size: 18px; color: #434141;">
+                                        </span>
+                                    </b>
+                                </div>
+                                <hr class="my-4">
+    
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey ">Profile Name :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 " style="font-size: 18px; color: #434141;">{{ recur_bill.profile_name }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey " >Repeat Every :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.repeat_every }}</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Start Date :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.start_date |date:'d-m-Y' }}</p>
+                                    </div>
+    
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+    
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">End Date :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.end_date |date:'d-m-Y' }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Payment Terms:</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0" style="font-size: 18px; color: #434141;"> NET {{ recur_bill.payment_terms }}</p>
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Tax :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <span style="font-size: 18px; color: #434141;">{{ gst_or_igst }} - </span>
+                                        {% for bi in tax %}
+                                            <input type="text" value="{{ bi|floatformat:2 }}" style="font-size: 18px; color: #434141; width: 55px;" class="tax 1 tx">
+                                        <span class="text-muted">%</span><br><span style="margin-left: 55px;"></span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Source of Supply :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.source_supply }}</p>
+                                    </div>
+    
+                                </div>
+                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 class="mb-0 text-grey">Note :</h6>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ recur_bill.note }}</p>
+                                    </div>
+    
+                                </div>
+                                <!-- <hr class="my-4"> -->
+                            </div>
+                        </div>
+                        <div class="col-md-5  " style="background-color:#8b3131; border-radius: 5px;" >
+                            <div class="p-5">
+                                <div class="d-block justify-content-between mb-5">
+                                    <div class="col-md-12 mt-3">
+                                        <h5 style="color: #ccc;">Vendor :</h5>
+                                    </div><br>
+                                    <div class="col-md-12 my-0 mx-5">
+                                        <h6 class="text-capitalize" style="color: azure;">{{ vendor_name }}</h6>
+                                    </div>
+                                </div>
+                                <div class="d-block justify-content-between mb-5">
+                                    <div class="col-md-12 mt-3">
+                                        <h5 style="color: #ccc;">Customer :</h5>
+                                    </div><br>
+                                    <div class="col-md-12 my-0 mx-5">
+                                        <h6 class="text-capitalize " style="color: azure;">{{ customer_name }}
+                                        </h6>
+                                    </div>
+                                </div>
+    
+                                <hr class="my-4">
+    
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-5 mt-3">
+                                        <h6 style="color: #ccc;">Subtotal :</h5><br>
+                                    </div>
+                                    <div class="col-md-7 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.sub_total|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class="justify-content-between mb-5 d-none" id="igst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">IGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.igst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class=" justify-content-between mb-5 d-none" id="cgst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">CGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.cgst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class=" justify-content-between mb-5  d-none" id="sgst">
+                                    <div class="col-md-4 mt-3">
+                                        <h6 style="color: #ccc;">SGST :</h5><br>
+                                    </div>
+                                    <div class="col-md-8 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.sgst|floatformat:2 }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-8 mt-3">
+                                        <h6 style="color: #ccc;">Shipping Charge :</h5><br>
+                                    </div>
+                                    <div class="col-md-4 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.shipping_charge }} INR" class="amnt"
+                                            style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+    
+                                <div class="d-flex justify-content-between mb-5">
+                                    <div class="col-md-6 mt-3">
+                                        <h6 style="color: #ccc;">Grand Total :</h5><br>
+                                    </div>
+                                    <div class="col-md-6 mt-3 mx-3">
+                                        <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }} INR"
+                                            class="amnt " style="font-size: 16px; color: azure;" readonly>
+                                    </div>
+                                </div>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    
+        <!-- Comments Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color: #3b3b3b;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Add Comments</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                        <path d="M.646 1.646a.5.5 0 0 1 .708 0L8 7.293 15.646.646a.5.5 0 1 1 .708.708L8.707 8l7.647 7.646a.5.5 0 0 1-.708.708L8 8.707l-7.646 7.647a.5.5 0 0 1-.708-.708L7.293 8 .646 1.646a.5.5 0 0 1 0-.708z"/>
+                      </svg>
+                </button>
+            </div>
+           
+
+
+{%for loan in loans%}
+            
+            <form method="post" action="{% url 'add_loan_comment_template' payroll_id=loan.payroll.id %}">
+              
+{%endfor%}
+
+                
+                {% csrf_token %}
+                <div class="modal-body">
+                    <textarea type="text" class="form-control text-dark" name="comment"></textarea>
+                    <input type="hidden" value="{{loans.id}}" name="loans_id" >
+                    <div class="container-fluid">
+
+                        <table class="table  mt-4">
+                            <thead>
+                                <tr>
+                                    <th>sl no.</th>
+                                    <th>Comments</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in comments %}
+                                <tr class="table-row">
+                                    <td>{{forloop.counter }}</td>
+                                    <td>{{c.comment}}</td>
+                                    
+                                    <td><a class="text-danger"
+                                        href="{% url 'delete_loan_comment_template' c.id %}">Delete</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                    <button type="submit" class="btn btn-primary" id="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</section>
+        
+    
+    
+        <!-- email modal -->
+    
+        <div class="modal fade p-3" id="emails" style="width: 800px; margin-left: 350px; overflow-x: hidden;">
+            <div class="modal-dialog modal-xl m-5 p-5">
+                <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                    <div class="modal-header " style="background: rgb(32, 35, 37);">
+                        <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Send Email</h5>
+                        <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                            aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                        <div class="card p-0 m-0">
+                            <form action="" id="modalEmail">
+                                <!-- <input type="hidden" value="{{recur_bill.id}}" id="email_id"> -->
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">To : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="to" name="to" required style="width: 350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">From : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="from" name="from" required style="width: 350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">Subject : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                      <input type="text" class="form-control text-dark bg-light" id="sub" name="sub" required style="width:350px;">
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-2">
+                                    <div class="col-md-3 mt-2">
+                                      <label for="">Message : </label><br>
+                                    </div>
+                                    <div class="col-md-6 mt-2">
+                                        <textarea class="form-control text-dark bg-light" id="msg" name="msg" required
+                                        style="height: 200px; width: 350px;"> </textarea>
+                                    </div>
+                                </div>
+    
+                                <div class="row mt-5">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <button
+                                                class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
+                                                type="submit" data-dismiss="modal" id="emailSave">Send </button>
+    
+    
+                                            <button type="button"
+                                                class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
+                                                data-dismiss="modal" aria-label="Close"> Cancel</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div id="editor"></div>
+    <!-- </div> -->
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js"></script>
+     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    
+    
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+    
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+    
+            tablinks = document.getElementsByClassName("tablinks");
+    
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+    
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    
+        
+    
+    
+        $(document).ready(function () {
+            $("#commentSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    url: "{% url 'recurbill_comment' %}",
+    
+                    data: {
+                        id: $("#com_id").val(),
+                        comment: $("#comment").val(),
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalComment").reset();
+                    },
+                });
+            });
+        });
+    
+    
+        $(document).ready(function () {
+            $("#fileSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    
+    
+                    data: {
+                        id: $("#file_id").val(),
+                        file: $("#filess").val(),
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalAddfile").reset();
+                    },
+                });
+            });
+        });
+    
+    
+        $(document).ready(function () {
+            $("#emailSave").click(function () {
+    
+                $.ajax({
+    
+                    type: 'POST',
+                    
+    
+                    data: {
+                        // id: $("#email_id").val(),
+                        recipient: $("#to").val(),
+                        sender: $("#from").val(),
+                        subject : $("#sub").val(),
+                        message : $("#msg").val(),
+    
+    
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+    
+                    },
+    
+                    success: function (response) {
+                        document.getElementById("modalEmail").reset();
+                    },
+                });
+            });
+        });
+    
+        $(document).ready(function() {
+      $('#search').keyup(function() {
+        var searchText = $(this).val().toLowerCase();
+    
+        $('.bills a').each(function() {
+          var profileName = $(this).find('.pname').text().toLowerCase();
+          if (profileName.indexOf(searchText) === -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      });
+    });
+    
+    $(document).ready(function () {
+            console.log('print');
+    
+            $(document).on('click', '.toPDF', function (event) {
+                console.log('print1');
+                event.preventDefault();
+                var element = document.getElementById('Template');
+                
+                var opt =
+                {
+                    margin: 0,
+                    filename: 'Employee loan'+$("#pid").text() + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 3 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
+    
+            });
+    
+     });
+    
+    </script>
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function ($) {
+            console.log('print');
+
+            $(document).on('click', '.btn_print', function (event) {
+                console.log('print1');
+                event.preventDefault();
+                var element = document.getElementById('div-to-pdf');
+                var opt =
+                {
+                    margin: 1,
+                    filename: 'employee loan' + '.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save();
+
+            });
+
+        });
+    </script>
+
+
+
+
+
+    
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the CSRF cookie name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+
+
+</script>
+<script>
+
+    jQuery(document).ready(function ($) {
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+    });
+
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("mytable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 0; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+</script>
+<script>
+    function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+
+
+
+
+
+    function toggleLoanActiveStatus(loanId) {
+        // Send an AJAX request to toggle the active status
+        $.ajax({
+            url: `/toggle_loan_active/${loanId}/`,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                // Update the button text and style based on the response
+                const activeButton = document.getElementById('active-button');
+                if (data.active) {
+                    activeButton.textContent = 'Deactivate';
+                    activeButton.classList.remove('btn-success');
+                    activeButton.classList.add('btn-danger');
+                } else {
+                    activeButton.textContent = 'Activate';
+                    activeButton.classList.remove('btn-danger');
+                    activeButton.classList.add('btn-success');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    
+</script>
+
+<script>
+
+ <!-- onclick="generatePDF()" -->
+                        
+ $(document).ready(function () {
+    console.log('print');
+
+    $(document).on('click', '.toPDF', function (event) {
+        console.log('print1');
+        event.preventDefault();
+        var element = document.getElementById('Template');
+        
+        var opt =
+        {
+            margin: 0,
+            filename: 'employee loan_'+$("#pid").text() + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 3 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+
+    });
+
+});
+</script>
+{% endblock %}
+
+<!-- edit com attach dele active/inactive -->

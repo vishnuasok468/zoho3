@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  
+  #over:hover{
+        background-color: rgba(110, 110, 110, 0.616);
+        
+    }
+    .description-icon {
+    cursor: pointer;
+  }
+  
+  .description-icon::before {
+    content: attr(title);
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    z-index: 1;
+    white-space: nowrap;
+  }
+  
+  .description-icon:hover::before {
+    display: block;
+  }
+  @media (max-width: 768px) {
+        .flowchart {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flowchart-item {
+            width: 120px;
+        }
+        .flowchart-connector {
+            height: 50px;
+            width: 2px; 
+            margin-left: 0%; 
+            transform: translateX(-50%);
+        }
+    }
+    .btn{
+        color: rgb(218, 164, 48);
+        outline-color: azure;
+        border: 2px solid rgb(25, 91, 145);
+    }
+    .btn:hover{
+        color: darkslategray;
+        background-color: lightblue;
+        outline: none;
+        
+    }
+    a{
+        list-style: none;
+        color: azure;
+    }
+     a:hover{
+        color: rgb(218, 164, 48);
+     }
+
+     .searchbar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* padding: 1rem .8rem; */
+    }
+
+    .searchbar .left input[text] {
+
+        width: 15vw;
+    }
+  
+    
+</style>
+
+<div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3"><a class="text-white" style="font-size: 2rem;">All Projects</a>
+              
+             
+        </div>
+      </div>
+      <div class="searchbar pt-5 pb-4">
+        <div class="left" style="display: grid;grid-template-columns: 1fr 1fr;">
+          <input type="text" id="search" class="form-control bg-light text-dark" placeholder="Search Projects..." onkeyup="searchFunction()">
+          <a class="btn btn-outline-primary mx-2" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false" role="button" style="width: 8vw;">
+          <i class="fa fa-sort"></i> Sort
+      </a>
+      <div class="dropdown-menu ">
+        <a class="dropdown-item" href="">All</a>
+        <a class="dropdown-item" href="javascript:sortTable(0)">Project Name </a>
+        <a class="dropdown-item" href="javascript:sortTable(1)">Customer Name </a>
+      </div>
+        </div>
+        <div class="right">
+          
+          <a class="btn text-center px-3" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+          role="button"><i class="fa fa-filter mx-3"></i>
+          </a>
+          <div class="dropdown-menu" id="filterMenu">
+              <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="All">All</a>
+              <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="Billed">Billed</a>
+              <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="Not Billed">Not Billed</a>
+          </div>
+          <a class="btn btn-outline-primary" href="{% url 'proj' %}"><i class="fa fa-plus"></i>NEW</a>
+        </div>
+
+    </div>
+      <!-- <div class="row mt-5">
+        <div class="col-md-3">
+          <input type="text" id="vendorSearchInput" class="form-control bg-light text-dark" placeholder="Search Projects...">
+        </div>
+        
+        <div class="col-md-6 form-inline" style="margin-left: 56rem; margin-top: -2rem;">
+          <a class="btn text-center px-3 " data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        role="button"><i class="fa fa-filter mx-3"></i>
+                        </a>
+                        <div class="dropdown-menu ">
+                            <a class="dropdown-item" href="" style="color:rgb(218, 164, 48) ;">All</a>
+                            <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" id="sortCustomer">Customer</a>
+                            <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" id="sortProject">Project</a>
+
+                        </div>&nbsp;&nbsp;&nbsp;
+                        <a style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" class="btn btn-warning mr-2" href="{% url 'proj' %}">
+                           New
+                        </a>
+        </div>
+      </div> -->
+      
+    
+        
+              <table class="table text-white" id="mytable">
+                <thead>
+                  <tr>
+                    <th>PROJECT NAME</th>
+                    <th>CUSTOMER NAME</th>
+                    <th>CUSTOMER EMAIL</th>
+                    <th>BILLING METHOD</th>
+                    <th>USER NAME</th>
+                    <th>RATE</th>
+                    <th></th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for v in proj %}
+                  <tr id="over" class='clickable-row' data-href="{% url 'overview' v.id %}">
+                    <td>{{v.name}}</td>
+                    <!--<td onclick="location.href ='{% url 'detail' v.id %}' " > {{v.name}}</td> -->
+                    <td>  {{v.c_name.customerName}} </td>
+                    <td>{{v.c_name.customerEmail}}</td>
+                    <td>{{v.billing}}</td>
+                    <td>{{v.uname}}</td>
+                    <td>{{v.rate}}<td>
+                    <td>{{v.status}}</td>
+                   
+                    <!-- <td>
+                      <a style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" class="toggleButton btn btn-warning mr-2" href="#" id="actselect" data-project-id="{{ v.id }}">{{ v.active|yesno:"Active,Inactive" }}</a>
+                      
+                      
+                    </td> -->
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              
+            
+      
+
+        
+
+</div>
+
+
+<script>
+   const filterMenuLinks = document.querySelectorAll('#filterMenu a');
+        const table = document.getElementById('mytable').getElementsByTagName('tr');
+
+        for (const link of filterMenuLinks) {
+            link.addEventListener('click', filterTable);
+        }
+
+        function filterTable(event) {
+            event.preventDefault(); // Prevent the link's default behavior (page navigation).
+
+            const selectedValue = this.getAttribute('data-value');
+            // console.log(selectedValue);
+
+            for (let i = 1; i < table.length; i++) {
+                const row = table[i];
+                const status = row.getElementsByTagName('td')[7].innerText;
+
+                if (selectedValue === 'All' || status.toLowerCase() === selectedValue.toLowerCase()) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+        function exportAsExcel() {
+        const table = document.getElementById('mytable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'project summary.xlsx');
+    }
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("mytable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 1; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+</script>
+<script>
+  function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
+
+{% endblock %}

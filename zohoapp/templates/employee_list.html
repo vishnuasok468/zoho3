@@ -1,0 +1,297 @@
+<!-- RIJIN -->
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<style>
+    * {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    .searchbar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem .8rem;
+    }
+
+    .searchbar .left input[text] {
+
+        width: 15vw;
+    }
+
+    .searchbar .right .btn {
+        width: 10vw;
+        border: 2px solid rgb(0, 102, 255);
+        font-size: 1.2vw;
+        color: rgb(235, 197, 31);
+    }
+
+    .searchbar .right .btn i {
+        color: rgb(235, 197, 31);
+    }
+
+    .table tbody tr:hover {
+        font-weight: 600;
+    }
+</style>
+<style>
+    
+
+    /* Additional styles for the popup */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 1rem;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .popup h4 {
+        margin-top: 0;
+    }
+
+    .popup p {
+        color: #333; /* Match the text color to the page */
+    }
+
+    .popup-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+
+    .popup-buttons button {
+        margin-left: 1rem;
+    }
+
+
+    .actoinacto .dropdown-item:hover {
+        background-color: #0baef4;
+    }
+</style>
+
+<section>
+    <div class="containerprof p-3">
+        <!-- Your existing content -->
+
+        <div class="containerprof p-3">
+            <div class="head text-light p-3">
+                <h4>ALL EMPLOYEE LOAN</h4>
+            </div>
+            <!-- <span class="text-danger" id="no-data"></span> -->
+            <!-- <input type="text" id="no-data" style="color: rgb(255, 255, 255);background: transparent;"> -->
+            <div class="searchbar">
+                <div class="left">
+                    <input class="form-control" type="text" placeholder="Search..." name="search" id="search"
+                        onkeyup="searchFunction()" style="color: rgb(255, 255, 255);background: transparent;">
+                </div>
+                <div class="right">
+                    <a class="btn btn-outline-primary" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    role="button"><i class="fa fa-filter"></i>
+                    </a>
+                    <div class="dropdown-menu actoinacto">
+                        <a class="dropdown-item filter-link" data-status="all" href="#" style="font-size: 14px;">All</a>
+                        <a class="dropdown-item filter-link" data-status="active" href="#" style="font-size: 14px;">Active</a>
+                        <a class="dropdown-item filter-link" data-status="inactive" href="#" style="font-size: 14px;">Inactive</a>
+                    </div>
+                    <a class="btn btn-outline-primary" href="{% url 'create_loan' %}"><i class="fa fa-plus"></i>NEW</a>
+                </div>
+    
+            </div>
+
+        <table class="table" id="mytable">
+            <thead>
+                <tr id="ckeck_th">
+                    <th scope="col">DATE</th>
+                    <th scope="col">NAME</th>
+                    <th scope="col">EMAIL</th>
+                    <th scope="col">EMPLOYEE NUMBER</th>
+                    <th scope="col">LOAN AMOUNT</th>
+                    <th scope="col">EXPIRY DATE</th>
+                    <th scope="col">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr class="clickable-row" data-href="{% url 'employee_loan_details' employee.id %}" data-status="{{employee.loan_info.active }}">
+                    <td class="pt-3">{{ employee.joindate }}</td>
+                    <td class="pt-3">{{ employee.first_name }} {{ employee.last_name }}</td>
+                    <td class="pt-3">{{ employee.email }}</td>
+                    <td class="pt-3">{{ employee.emp_number }}</td>
+                    <td class="pt-3">{{ employee.loan_info.loan_amount }}</td>
+                    <td class="pt-3">{{ employee.loan_info.date_expiry }}</td>
+                    <td class="pt-3">
+                        <a href="#" onclick="return confirm('Do you want to Delete this Employee loan details?');" class="delete-link" data-id="{{ employee.loan_info.id }}">
+                            <i class="fa fa-trash text-danger" style="font-size: large;"></i>
+                        </a>
+                    </td>
+                </tr>
+                
+                {% endfor %}
+            </tbody>
+            
+            
+        </table>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const filterLinks = document.querySelectorAll(".filter-link");
+                const tableRows = document.querySelectorAll(".clickable-row");
+        
+                filterLinks.forEach(function (link) {
+                    link.addEventListener("click", function (event) {
+                        event.preventDefault();
+        
+                        const status = link.getAttribute("data-status");
+        
+                        tableRows.forEach(function (row) {
+                            if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                                row.style.display = "table-row";
+                            } else {
+                                row.style.display = "none";
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+    </div>
+</section>
+<!-- Popup for delete confirmation -->
+
+
+<style>
+    /* Existing styles for the popup */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: black; /* Change background color to black */
+        padding: 1rem;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Additional styles for the popup content */
+    .popup-title {
+        color: white; /* Set text color to white */
+        margin-top: 0;
+    }
+
+    .popup-text {
+        color: white !important; /* Set text color to white */
+        margin-bottom: 1rem;
+    }
+
+    .popup-buttons {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+
+    .popup-button {
+        background-color: white;
+        color: black;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .popup-button.delete-button {
+        background-color: red; /* Change background color for delete button */
+        color: white; /* Set text color for delete button */
+    }
+
+    .popup-button.cancel-button:hover,
+    .popup-button.delete-button:hover {
+        background-color: lightgray;
+    }
+</style>
+
+
+<script>
+    $(document).ready(function() {
+        // Handle row clicks
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+        });
+
+        // Handle delete button clicks
+        $(".delete-link").click(function(event) {
+            event.preventDefault();
+            var loanId = $(this).data("id");
+            var csrfToken = "{{ csrf_token }}";
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'delete_loan' 0 %}".replace('0', loanId),
+                data: {
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function(response) {
+                    // Reload the page content
+                    refreshPageContent();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert("An error occurred while deleting the loan.");
+                }
+            });
+        });
+
+        // Function to refresh page content
+        function refreshPageContent() {
+            // Reload the current page
+            location.reload();
+        }
+    });
+
+
+
+
+
+
+
+
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("mytable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 1; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                  if (td[j]) {
+                      txtValue = td[j].textContent || td[j].innerText;
+                      if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                          rowVisible = true;
+                          break;
+                      }
+                  }
+              }
+  
+              // Show/hide the row based on the search results
+              tr[i].style.display = rowVisible ? "" : "none";
+          }
+      }
+</script>
+
+
+
+    
+
+
+{% endblock %}
+

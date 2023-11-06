@@ -2,107 +2,418 @@
 {% block content %}
 {% load static %}
 
-<div class="container p-5" style="background-color: rgba(80, 93, 108, 0.7); width: 800px; border-radius: 5px;">
+<style>
 
-    <h2 class="text-center mt-5 p-2 text-uppercase font-weight-bold mb-5" style="background-color : rgba(80, 93, 108); color: azure;"> 
-      Edit Profile</h2>
-  
-            
-                  <form class="was-validated 100vw" action="{% url 'edit_profile' company.id  %}" method="post" enctype="multipart/form-data">
-  
-                      {% csrf_token %}
-                      
-                      <span class="input-group" >
-                          <div class="mb-3 mt-3" id ='fname'>
-                            <p style="color:azure ; margin-bottom: 0px;">First Name:</p>
-                            <input type="text" class="form-control " name="f_name"  
-                            style="width: 345px; text-transform: capitalize;" value="{{ user1.first_name }}"> 
-                          </div>
-                          
-                          <div class="mb-3 mt-3" >
-                            <p style=" color:azure ;margin-left: 12px; margin-bottom: 0px;">Last Name:</p>
-  
-                              <input type="text" class="form-control " name="l_name"  
-                              style="width: 345px; margin-left :12px ; text-transform: capitalize;" value="{{ user1.last_name }}"> 
-                            </div>
-                          </span>
-              
-                          
-                          <span class="input-group" >
-                              <div class="mb-3 mt-3 p-0" id="adrs">
-                                <p style="color:azure ; margin-bottom: 0px;">Username:</p>
-  
-                                  <input type="text" class="form-control " name="uname" value="{{ user1.username }}" style="width: 345px;">
-                                </div>
-                          <div class="mb-3 mt-3" id="adrs">
-                            <p style=" color:azure ;margin-left: 12px; margin-bottom: 0px;">Address:</p>
-  
-                              <input type="text" class="form-control" name="address" value="{{ pat.address }}" style="width: 345px; margin-left :12px ;">
-                            </div>
-                          </span>
-                          
-                          <span class="input-group" >
-                            <span class="input-group mb-3 mt-3" style="width: 380px; ">
-  
+    .save_btn{
+        background-color: rgb(218, 164, 48);
+        color: azure; 
+        padding: 3; 
+        margin-left: 250px; 
+        width: 200px;
+        border-radius: 20px;
+        justify-content: center;
+        /* z-index: 1 !important; */
+    }
+.section-title {
+  font-size: 32px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  position: relative;
+  color: rgb(218, 164, 48);
+}
+.inputContainer {
+  position: relative;
+  height: 45px;
+  width: 90%;
+  margin-bottom: 17px;
+}
+/* Style the inputs */
+
+.input {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  border: 1px solid #DADCE0;
+  border-radius: 7px;
+  font-size: 16px;
+  padding: 0 20px;
+  outline: none;
+  background: none;
+  z-index: 1;
+    color: #c7cfd4;
+}
+
+/* Hide the placeholder texts (a) */
+
+::placeholder {
+  color: transparent;
+}
+.label {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 0 4px;
+ 
+  color: #c7cfd4;
+  font-size: 16px;
+  transition: 0.5s;
+  z-index: 0;
+}
+.submitBtn {
+  display: block;
+  margin-left: auto;
+  padding: 15px 30px;
+  border: none;
+  background-color:  #47b2e4;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 30px;
+}
+
+.submitBtn:hover {
+  background-color: rgb(51, 105, 131);
+  transform: translateY(-2px);
+}
+.input:focus + .label {
+  top: -7px;
+  left: 3px;
+  z-index: 10;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(211, 213, 219);
+}
+.input:focus {
+  border: 2px solid rgb(218, 164, 48);
+}
+.input:not(:placeholder-shown)+ .label {
+  top: -7px;
+  left: 3px;
+  z-index: 10;
+  font-size: 14px;
+  font-weight: 600;
+}
+/* Full-width inputs */
+input[type=text], input[type=password] ,input[type=email] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 2px solid #d4d1d1;;
+  box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+button {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Add a hover effect for buttons */
+button:hover {
+  opacity: 0.8;
+}
+
+@media (min-width: 400px)and ( max-width:900px) {
+    .containereditprof{
+        width: 390px; 
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+    }
+    .row{
+        width:100%
+    }
+    .btn{
+        padding: 1; 
+        margin-left: 25%; 
+        width: 100px;
+        justify-content: center;
+        height: auto;
+    }
+    h3{
+        margin-left: 25%;
+    }
+    .profimg{
+        margin-left: 25%;
+    }
+    .panel-body{
+      justify-content: center;
+      margin-left: 0px;
+      width: 300px;
+    }
+    .profile_table{
+      width: fit-content;
+    }
+}
+
+</style>
+
+
+
+<!-- <div class="container-fluid p-5 mt-5 " > -->
+
+ 
+            <div class="card-title">
+     
+                <center>
+                    <h3 class="mb-0" style="font-weight: bolder;color: rgb(218, 164, 48);">MY PROFILE</h3>
+                    {% if company.profile_pic %}
+                    <img src="{{ company.profile_pic.url }}" class="img img-fluid m-3"
+                    style="width: 150px; height: 150px; border-radius: 50%">
+                    {% else %}
+                    <img src="{% static 'images/default.png' %}"  class="img img-fluid m-3"
+                    style="width: 150px; height: 150px; border-radius: 50%" >
+                    {% endif %}
+                 
+                </center>
+             
+                <form method="post" action="{% url 'edit_profile' company.id  %}" enctype="multipart/form-data"
+                      class="needs-validation mb-5" novalidate>
+                    {% csrf_token %}
+                    <section style="padding-left: 220px;">
+                <table class="table-responsive profile_table">
+                  <tbody class="p-2 m-2">
+                      <tr class="personal">
+                          <td>
+                             <h4 class="m-4" style="color: rgb(218, 164, 48);"><u>Personal Details</u></h4>
                            
-                              <label for="gender" class="form-label m-0" style="color: azure ;font-size: medium;margin-left: 0px; "><b>Gender:</b></label>
-                              <input type="radio" id="male" name="gender" {% if pat.gender == 'Male' %} checked {% endif %} value="Male"
-                               class="radio form-control col-sm-1" style="width: 15px;height: 15px;">
-                              <label for="male" class="form-label " style="color: azure ;font-size: medium;margin-left: 0px;">Male</label>
-                
-                              <input type="radio" id="female" name="gender" {% if pat.gender == 'Female' %} checked {% endif %} value="Female" 
-                              class="radio form-control col-sm-1" style="width: 15px;height: 15px;">
-                              <label for="female" class="form-label " style="color: azure ;font-size: medium;margin-left: 0px;">Female</label>
-                
-                              <input type="radio" id="other" name="gender" {% if pat.gender == 'Others' %} checked {% endif %} value="Others"
-                               class="radio form-control  col-sm-1" style="width: 15px;height: 15px;">
-                              <label for="other" class="form-label " style="color: azure ;font-size: medium;margin-left: 0px;">Others</label>
-                            
-                            </span>
-                            <div class="mb-3 mt-3" id="age">
-                              <p style=" color:azure ;margin-left: 20px; margin-bottom: 0px;">Age:</p>
-  
-                              <input type="text" class="form-control" name="age" value="{{ pat.age }}"  style="width: 250px; margin-left :20px ;">
+                       
+                          </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="mb-3 mt-3 p-0" id ='fname'>
+                            <p style="color:azure ; margin-bottom: 0px;">First Name:</p>
+                            <div class="inputContainer" class="col-md-6">  
+                              <input type="text" class="input" name="f_name"  
+                              style="width: 280px; text-transform: capitalize;" value="{{ user1.first_name }}"> 
+                          </div>
+                        </td>
+
+                        <td>
+                          <div class="mb-3 mt-3 p-0" >
+                          <p style=" color:azure ;margin-left: 12px; margin-bottom: 0px;">Last Name:</p>
+                          <div class="inputContainer">
+                            <input type="text"   class="input" name="l_name"  
+                            style="width: 280px; margin-left :12px ; text-transform: capitalize;" value="{{ user1.last_name }}"> 
+                          </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                          <div class="mb-3 mt-3 p-0">
+                            <p style=" color:azure ; margin-bottom: 0px;">Email:</p>
+                            <div class="inputContainer">
+                              <input type="text"  class="input" name = 'email' value="{{ user1.email }}" 
+                              style="width: 280px;">
+                          </div>
+                        </td>
+
+                        <td>
+                          <div class="mb-3 mt-3 p-0">
+                            <p style=" color:azure ;margin-left: 12px; margin-bottom: 0px;">Contact Number:</p>
+                            <div class="inputContainer">
+                              <input type="text"  class="input" name="cnum" value="{{ company.contact_number }}" 
+                              style="width: 280px; margin-left :12px ;">
+                        </div>
+                        </td>
+                    </tr>
+                           
+                  <tr class="companydet"> 
+                      <td>
+                      <h4  class="m-4" style="color: rgb(218, 164, 48);"><u>
+                      Company  Details </u>
+                      </h4>
+                      </td>
+                  </tr>
+                      <tr>
+                          <td>
+                            <div class="mb-3 mt-3 p-0">
+                              <p style=" color:azure ; margin-bottom: 0px;">Company Name:</p>
+                              <div class="inputContainer">
+                                <input type="text" class="input" name = 'comp_name' value="{{ company.company_name }}" 
+                                style="width: 280px;">
                             </div>
-                          </span>
-              
-              
-                         <span class="input-group">
-                            
-                              <div class="mb-3 mt-3">
-                                <p style=" color:azure ; margin-bottom: 0px;">Email:</p>
-  
-                                  <input type="email" class="form-control" name = 'email' value="{{ company.email }}" 
-                                  style="width: 345px;">
-                                </div>
-                                <div class="mb-3 mt-3">
-                                  <p style=" color:azure ;margin-left: 12px; margin-bottom: 0px;">Contact Number:</p>
-  
-                                  <input type="number" class="form-control" name="cnum" value="{{ compnay.contact_number }}" 
-                                  style="width: 345px; margin-left :12px ;">
-                              </div>
-                            
-                          </span>
-                                      
-                                                                
-                            <div class="mb-3">
-                              {% if company.profile_pic %}
-  
-                              <img src="{{ company.profile_pic.url }}" style=" width :50px;height: 50px;">
-                          
-                              {% endif %}
-                              <input type="file" name = 'file' class="form-control" >
+                          </td>
+                          <td>
+                            <div class="mb-3 mt-3 p-0">
+                              <p style=" color:azure ; margin-bottom: 0px;">Company Email:</p>
+                              <div class="inputContainer">
+                                <input type="text" class="input" name = 'comp_email' value="{{ company.company_email }}" 
+                                style="width: 280px;">
                             </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                            <div class="mb-3 mt-3 p-0">
+                              <p style=" color:#ccc ; margin-bottom: 0px;">Address:</p>
+                              <div class="inputContainer">
+                                <input type="text" class="input" name = 'ards' value="{{ company.address }}" 
+                                style="width: 280px;">
+                            </div>
+                          </td>
+                          <td>
+                            <div class="mb-3 mt-3 p-0">
+                              <p style=" color:#ccc; margin-bottom: 0px;">City:</p>
+                              <div class="inputContainer">
+                                <input type="text" class="input" name = 'city' value="{{ company.city }}" 
+                                style="width: 280px;">
+                            </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td><div class="mb-3 mt-3 p-0">
+                            <p style=" color:azure ; margin-bottom: 0px;">State:</p>
+                            <div class="inputContainer">
+                            <select type="text"   class="input" name = 'state' value="{{ company.state }}" 
+                              style="width: 280px; ">
+                              <option value="" disabled selected style="background-color:  rgb(29, 25, 25);">{{ company.state }}  </option>
+                              <option value="Andaman and Nicobar Islads" style="background-color: rgb(29, 25, 25);">Andaman and Nicobar Islads
+                              </option>
+                              <option value="Andhra Predhesh"style="background-color:  rgb(29, 25, 25);">Andhra Predhesh</option>
+                              <option value="Arunachal Predesh"style="background-color: rgb(29, 25, 25);">Arunachal Predesh</option>
+                              <option value="Assam"style="background-color:  rgb(29, 25, 25);">Assam</option>
+                              <option value="Bihar"style="background-color: rgb(29, 25, 25);">Bihar</option>
+                              <option value="Chandigarh"style="background-color: rgb(29, 25, 25);">Chandigarh</option>
+                              <option value="Chhattisgarh"style="background-color:  rgb(29, 25, 25);">Chhattisgarh</option>
+                              <option value="Dadra and Nagar Haveli"style="background-color: rgb(29, 25, 25);">Dadra and Nagar Haveli</option>
+                              <option value="Damn anad Diu"style="background-color: rgb(29, 25, 25);">Damn anad Diu</option>
+                              <option value="Delhi"style="background-color: rgb(29, 25, 25);">Delhi</option>
+                              <option value="Goa"style="background-color: rgb(29, 25, 25);">Goa</option>
+                              <option value="Gujarat"style="background-color: rgb(29, 25, 25);">Gujarat</option>
+                              <option value="Haryana"style="background-color: rgb(29, 25, 25);">Haryana</option>
+                              <option value="Himachal Predesh"style="background-color: rgb(29, 25, 25);">Himachal Predesh</option>
+                              <option value="Jammu and Kashmir"style="background-color:  rgb(29, 25, 25);">Jammu and Kashmir</option>
+                              <option value="Jharkhand"style="background-color:  rgb(29, 25, 25);">Jharkhand</option>
+                              <option value="Karnataka"style="background-color:  rgb(29, 25, 25);">Karnataka</option>
+                              <option value="Kerala"style="background-color: rgb(29, 25, 25);">Kerala</option>
+                              <option value="Ladakh"style="background-color:  rgb(29, 25, 25);">Ladakh</option>
+                              <option value="Lakshadweep"style="background-color: rgb(29, 25, 25);">Lakshadweep</option>
+                              <option value="Madhya Predesh"style="background-color: rgb(29, 25, 25);">Madhya Predesh</option>
+                              <option value="Maharashtra"style="background-color:  rgb(29, 25, 25);">Maharashtra</option>
+                              <option value="Manipur"style="background-color:  rgb(29, 25, 25);">Manipur</option>
+                              <option value="Meghalaya"style="background-color: rgb(29, 25, 25);">Meghalaya</option>
+                              <option value="Mizoram"style="background-color: rgb(29, 25, 25);">Mizoram</option>
+                              <option value="Nagaland"style="background-color: rgb(29, 25, 25);">Nagaland</option>
+                              <option value="Odisha"style="background-color: rgb(29, 25, 25);">Odisha</option>
+                              <option value="Puducherry"style="background-color: rgb(29, 25, 25);">Puducherry</option>
+                              <option value="Punjab"style="background-color: rgb(29, 25, 25);">Punjab</option>
+                              <option value="Rajasthan"style="background-color: rgb(29, 25, 25);">Rajasthan</option>
+                              <option value="Sikkim"style="background-color: rgb(29, 25, 25);">Sikkim</option>
+                              <option value="Tamil Nadu"style="background-color: rgb(29, 25, 25);">Tamil Nadu</option>
+                              <option value="Telangana"style="background-color: rgb(29, 25, 25);">Telangana</option>
+                              <option value="Tripura"style="background-color: rgb(29, 25, 25);">Tripura</option>
+                              <option value="Uttar Predesh"style="background-color: rgb(29, 25, 25);">Uttar Predesh</option>
+                              <option value="Uttarakhand"style="background-color: rgb(29, 25, 25);">Uttarakhand</option>
+                              <option value="West Bengal"style="background-color: rgb(29, 25, 25);">West Bengal</option>
+                              <option value="Other Territory"style="background-color: rgb(29, 25, 25);">Other Territory</option>
+                          </select>
+                          <div class="invalid-feedback"style="background-color: rgb(29, 25, 25);">Please provide a valid State</div>
+                      </div>
+                  </div>
+              </div>
+                          </div></td>
+                          <td>
+                            <div class="mb-3 mt-3 p-0 ">
+                            <p style=" color:azure ; margin-bottom: 0px;">Country:</p>
+                            <div class="inputContainer">
+                              <input type="text" class="input" name = 'country' value='{{ company.country }}'
+                              style="width: 280px;">
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <!-- <td><div class="mb-3 mt-3 p-0">
+                          <p style=" color:azure ; margin-bottom: 0px;">State:</p>
+                          <input type="text" class="form-control" name = 'state' value="{{ company.state }}" 
+                            style="width: 280px;">
+                        </div></td> -->
+                        <td>
+                          <div class="mb-3 mt-3 p-0 ">
+                          <p style=" color:azure ; margin-bottom: 0px;">Pincode:</p>
+                          <div class="inputContainer">
+                            <input type="text" class="input" name = 'pinc' {% if company.pincode  == "NULL" %} value=0 {% else %} value='{{ company.pincode }}' {% endif %} 
+                            style="width: 280px;">
+                        </div>
+                      </td>
+                      <td><div class="mb-3 mt-3 p-0">
+                        <p style=" color:azure ; margin-bottom: 0px;">Business Name:</p>
+                        <div class="inputContainer">
+                          <input type="text" class="input" name = 'bname' value="{{ company.business_name }}" 
+                          style="width: 280px;">
+                      </div></td>
+                    </tr>
+                    <tr>
+                      <td><div class="mb-3 mt-3 p-0">
+                        <p style=" color:azure ; margin-bottom: 0px;">GST Number:</p>
+                        <div class="inputContainer">
+                          <input type="text" class="input" name = 'gst' value="{{ company.gst_num }}" 
+                          style="width: 280px;">
+                      </div></td>
+                      <td>
+                        <div class="mb-3 mt-3 p-0 ">
+                        <p style=" color:azure ; margin-bottom: 0px;">Pan Number:</p>
+                        <div class="inputContainer">
+                          <input type="text" class="input" name = 'pan' value='{{ company.pan_num }}'
+                          style="width: 280px;">
+                      </div>
+                    </td>
+                  </tr>
+                      <tr>
+                          <td><div class="mb-3 mt-3 p-0">
+                            <p style=" color:azure ; margin-bottom: 0px;">Industry Type:</p>
+                            <div class="inputContainer">
+                              <input type="text" class="input" name = 'indu_type' value="{{company.industry_type }}" 
+                              style="width: 280px;">
+                          </div></td>
+                          <td><div class="mb-3 mt-3 p-0">
+                            <p style=" color:azure ; margin-bottom: 0px;">Company Type:</p>
+                       <div class="inputContainer">
+                              <input type="text" class="input" name = 'comp_type' value="{{ company.company_type }}" 
+                              style="width: 280px;">
+                          </div></td>
+                      </tr>
+                      
+                      <tr>
+                        <td>
+                          <div class="mb-3">
                           
-                          <button type="submit" class="btn  text-align-center font-weight-bold mt-2" 
-                          style="width: 200px;  margin-left: 250px; background-color:rgba(80, 93, 108); 
-                          color: aliceblue;"> SAVE CHANGES</button>
-              
-                  </form>
-                  
-                  
+                         <h4 class="m-4"   style="color: rgb(218, 164, 48);"><u >Change profile_pic</u></h4>
+                    
+                            <input type="file" name = 'file' >
+                          </div>
+                        </td>
+                      </tr>
+                  </tbody>
+                </table>
+                <button type="submit"class="save_btn"> SAVE CHANGES</button>
+                       
+            </form>
+                
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+              </form>
               </div>
           </div>
-  
+      </div>
+  </div>
+<!-- </div> -->
 
+   </section>
 {% endblock %}

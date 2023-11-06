@@ -1,0 +1,803 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<style>
+    #over:hover {
+        background-color: rgba(110, 110, 110, 0.616);
+        font-weight: bold;
+    }
+
+    .image-upload>input {
+        display: none;
+    }
+
+    /* Style for the modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        /* Set a high z-index to bring the modal to the front */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Semi-transparent background */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        /* Opaque background for the content */
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 60%;
+    }
+
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #000;
+    }
+
+    /* Style for the text area */
+    textarea {
+        width: 100%;
+        resize: vertical;
+        margin-bottom: 10px;
+    }
+
+
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .right .btn {
+        background-color: rgb(243, 188, 9);
+    }
+
+    .searchbar .btn:hover {
+        background-color: rgba(219, 170, 7, 0.493);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+
+    .vertical-line {
+        border-left: 1px solid #ffffff;
+        /* Adjust the color and width as needed */
+        height: 100px;
+    }
+
+    label,
+    .card label {
+        font-size: 0.75rem;
+    }
+
+    .bold,
+    .card .bold {
+        font-size: 1rem;
+    }
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+</style>
+
+
+<div class="row  p-3">
+    <div class="col-sm-12 col-md-4 col-lg-4">
+        <div class="header pb-4">
+            <h5>ALL PROJECTS</h5>
+        </div>
+        <div class="searchbar pb-1">
+
+            <input class="form-control text-dark" type="text" placeholder="Search Project" name="search" id="search"
+                onkeyup="searchFunction()">
+                <a class="btn btn-outline-warning mx-1" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false" role="button">
+                <i class="fa fa-sort"></i>
+            </a>
+            <div class="dropdown-menu ">
+                <a class="dropdown-item" href="">All</a>
+                <a class="dropdown-item" href="javascript:sortTable(0)">Project Name</a>
+                
+            </div>
+            <a class="btn btn-outline-warning mx-1" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                <i class="fa fa-filter"></i></a>
+                <div class="dropdown-menu" id="filterMenu">
+                    <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="All">All</a>
+                    <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="Billed">Billed</a>
+                    <a class="dropdown-item" href="#" style="color:rgb(218, 164, 48) ;" data-value="Not Billed">Not Billed</a>
+                </div>
+            <a class="btn btn-outline-warning" href="{% url 'proj' %}"><i class="fa fa-plus"></i></a>
+        </div>
+        <hr>
+        <div style="height:60vh;overflow-y: scroll;overflow-x: hidden; ">
+            <table class="table  text-white" id="myTable">
+
+                <tbody>
+                    {% for v in proje %}
+                    <tr id="over" class='clickable-row' data-href="{% url 'overview' v.id %}">
+                        <td style="display: none;"><a  style="color: rgb(255, 255, 255);">{{v.billable}}</a></td>
+
+                        <td class="text-center"><a style="color: rgb(255, 255, 255);">{{v.name}}</a></td>
+                        <td class="text-center"><a style="color: rgb(255, 255, 255);">
+                                {% if v.billing == "Fixed cost for project" or v.billing == "Based on project hours" %}
+                                {{v.rateperhour}}
+                                {% else %}
+                                Per hour
+                                {% endif %}
+                            </a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-8 col-lg-8">
+
+        <div class="row"  style="background-color: #11111196;">
+            <div class="header pb-1 pt-3" >
+                <h4 style="text-transform: uppercase;">{{ project.name }}</h4>
+            </div>
+            <div class="searchbar pb-4">
+                <div class="left">
+                    <button style="background-color: white;color: rgb(243, 188, 9);" class="btn"
+                        id="o-btn">Overview</button>
+                    {% if taskz.billable == 'Billed' %}
+                    <button class="btn" style="background-color: rgb(243, 188, 9);color: white;"
+                        id="t-btn">Template</button>
+                    {% endif %}
+                </div>
+                <div class="right align-items-end" id="over-btns">
+                    <a class="btn " href="{% url 'editproj' project.id %}" data-toggle="tooltip" title="Edit"><i
+                            class="fas fa-edit"></i></a>
+                    <a class="btn" href="{% url 'delproj' project.id %}" data-toggle="tooltip" title="Delete"><i
+                            class="fas fa-trash"></i></a>
+                    <a class="btn" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip"
+                        title="comment"><i class="far fa-comment"></i></a>
+                    <!-- <label for="file-input" class="btn ml-1 border-0" data-toggle="tooltip" title="Upload Attachments">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()"> -->
+                    <a class="btn ml-1" href="" id="dd1" data-bs-toggle="dropdown" aria-haspopup="true"
+                            data-toggle="tooltip" title="Download Attachments" aria-expanded="false" role="button">
+                            <i class="fas fa-paperclip"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            {% if attach %}
+                            <table class="table table-borderless">
+                                {% for a in attach %}
+                                <tr>
+                                    <td>{{forloop.counter}}.</td>
+                                    <td><a href="{% url 'projfile_download' a.id %}">{{a.attachment.name}}</a></td>
+                                    <td><a href="{% url 'projdeletefile' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                                
+                            </table>
+                            {% else %}
+                            <div class="text-center">No Attachment found</div>
+                            {% endif %}
+                            <div class="row mx-2">
+                                <label for="file-input" class="btn ml-1 border-0" >
+                                    Upload Files <i class="fas fa-upload"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
+                            
+                            </div>
+                        </div>
+                        <a class="btn ml-1" href="{% url 'project_active' project.id %}" id="sts">{{project.mode}}</a>
+                </div>
+
+                <div class="right align-items-end" id="temp-btns" style="display: none;">
+                    <a class="btn btn_pdf ml-1" href="" id="convertToPDFButton" data-toggle="tooltip" title="Pdf"><i
+                        class="mdi mdi-file-pdf"></i></a>
+                <a class="btn btn_print ml-1" href="" data-toggle="tooltip" title="Print"><i class="mdi mdi-printer"></i></a>
+               
+                    <a class="btn " href="{% url 'editproj' project.id %}" data-toggle="tooltip" title="Edit"><i
+                        class="fas fa-edit"></i></a>
+                <a class="btn" href="{% url 'delproj' project.id %}" data-toggle="tooltip" title="Delete"><i
+                        class="fas fa-trash"></i></a>
+                <a class="btn" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip"
+                    title="comment"><i class="far fa-comment"></i></a>
+               <a class="btn ml-1" href="" id="dd1" data-bs-toggle="dropdown" aria-haspopup="true"
+                        data-toggle="tooltip" title="Download Attachments" aria-expanded="false" role="button">
+                        <i class="fas fa-paperclip"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        {% if attach %}
+                        <table class="table table-borderless">
+                            {% for a in attach %}
+                            <tr>
+                                <td>{{forloop.counter}}.</td>
+                                <td><a href="{% url 'projfile_download' a.id %}">{{a.attachment.name}}</a></td>
+                                <td><a href="{% url 'projdeletefile' a.id %}"><i class="fas fa-trash"></i></a></td>
+                            </tr>
+                            {% endfor %}
+                            
+                        </table>
+                        {% else %}
+                        <div class="text-center">No Attachment found</div>
+                        {% endif %}
+                        <div class="row mx-2">
+                            <label for="file-input" class="btn ml-1 border-0" >
+                                Upload Files <i class="fas fa-upload"></i>
+                            </label>
+                            <input id="file-input" type="file" name="file" style="display:none;" onchange="uploadFile()">
+                        
+                        </div>
+                    </div>
+                     <a class="btn ml-1" href="{% url 'project_active' project.id %}" id="sts">{{project.mode}}</a>
+                </div>
+            </div>
+            <!-- <hr> -->
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function ($) {
+                console.log('print');
+
+                $(document).on('click', '.btn_pdf', function (event) {
+                    console.log('print1');
+                    event.preventDefault();
+                    var element = document.getElementById('div-to-pdf');
+                    var opt =
+                    {
+                        margin: 0,
+                        filename: 'project' + '.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(element).save();
+
+                });
+
+
+
+                $(document).on('click', '.btn_print', function (event) {
+                    event.preventDefault();
+
+
+                    const pdfCard = document.getElementById('div-to-pdf').cloneNode(true);
+
+                    // Create a new window for printing
+                    const printWindow = window.open('', '');
+
+                    printWindow.document.body.appendChild(pdfCard);
+
+
+                    printWindow.print();
+
+                    // Close the new window after printing
+                    printWindow.close();
+                    
+
+
+                });
+
+            });
+
+
+        </script>
+        <div id="overview">
+            <div class=" row" style="background-color: burlywood;color: #000;">
+                <div class="searchbar pt-2 pb-4" style="font-size: .8rem;width: 100%;font-weight:600;">
+                    <div>Start Date: <p class="bold d-inline-block"> {{project.start}}</p>
+                    </div>
+                    <div>End Date: <p class="bold d-inline-block"> {{project.end}}</p>
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <h3 style="color: #000000;">PROJECT DETAILS
+                        
+                    </h3>
+                    <h6 style="color: #000000;">{{project.mode}}
+                    </h6><hr>
+                </div>
+                <div class="gen-info col-6 " style="padding-left: 3rem;">
+                    <div class="row my-4">
+                        <div class="col-4"><label for="">Status :</label></div>
+                        <div class="col-8">
+                            <h3 class="text-uppercase">{{taskz.billable}}</h3>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row  mt-5">
+                        <div class="col-5"><label for="">Project :</label></div><br>
+                        <div class="col-7 ">
+                            <h4>{{project.name}}</h4>
+
+                        </div>
+                    </div>
+                    <div class="row  mt-4">
+                        <div class="col-5"><label for="">Description :</label></div><br>
+                        <div class="col-7 ">
+                            <p class="bold" style="max-width: 10rem;word-wrap: break-word;">{{project.desc}}</p>
+                        </div>
+                    </div>
+                    <div class="row  mt-4">
+                        <div class="col-5"><label for="">Customer Name :</label></div><br>
+                        <div class="col-7 ">
+                            <p class="bold">{{project.c_name.customerName}}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-5"><label for="">Customer Email :</label></div>
+                        <div class="col-7">
+                            <p class="bold">{{project.c_name.customerEmail}}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-5"><label for="">GST Treatments :</label></div>
+                        <div class="col-7">
+                            <p class="bold">{{project.c_name.GSTTreatment}}</p>
+                        </div>
+                    </div>
+                    {% if project.c_name.GSTTreatment != 'Unregistered Business-not Registered under GST' %}
+                    <div class="row mt-4">
+                        <div class="col-5"><label for="">GSTIN :</label></div>
+                        <div class="col-7">
+                            <p class="bold">{{project.c_name.GSTIN}}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-5"><label for="">Billing Method :</label></div>
+                        <div class="col-7">
+                            <p class="bold">
+                                {{project.billing}}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-5"><label for="">Budjet Type :</label></div>
+                        <div class="col-7">
+                            <p class="bold">{{project.budget}}</p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="p-info col-6 my-2">
+                    <div class="column" style="background-color: rgb(110, 61, 46); padding:1rem;color: #ffffff;">
+
+                        <div class="mt-4">
+                            <h4>User Information</h4>
+                            <hr>
+
+                            {% for i in usern %}
+                            <div class="row mt-4">
+                                <div class="col-4"><label for="">User name:</label></div>
+                                <div class="col-7">
+                                    <p class="bold">{{i.name}}</p>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-4"><label for="">Email:</label></div>
+                                <div class="col-8 text-left">
+                                    <p class="">{{i.emailz}}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="card-title h4 mt-4">Task Information
+                                <hr>
+                            </div>
+                            <div class="row  mt-4">
+                                <div class="col-5"><label for="">Task :</label></div><br>
+                                <div class="col-7 ">
+                                    <p class="bold">{{taskz.taskname}}</p>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-5"><label for="">Description :</label></div>
+                                <div class="col-7">
+                                    <p class="bold" style="max-width: 10rem;word-wrap: break-word;">{{taskz.taskdes}}
+                                    </p>
+                                </div>
+                            </div>
+                            {% if project.billing == "Based on staff hours" %}
+                            <div class="row mt-4">
+                                <div class="col-5"><label for="">Rate per hour :</label></div>
+                                <div class="col-7">
+                                    <p class="bold">{{taskz.taskrph}}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="row mt-4">
+                                <div class="col-5"><label for="">Rate per hour :</label></div>
+                                <div class="col-7">
+                                    <p class="bold">{{project.rateperhour}}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if taskz.billable == 'Billed' %}
+                            <div class="row mt-4">
+                                <div class="col-5"><label for="">Billed Date :</label></div>
+                                <div class="col-7">
+                                    <p class="bold">{{taskz.billdate}}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div style="display: none;" id="template">
+            <div id="div-to-pdf" class="mx-2 my-4 p-4 ">
+                <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
+                    style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
+                    <!-- <div class="header text-dark">
+                            <h5>Bill</h5>
+                            <hr>
+                        </div> -->
+                    <div class="row ">
+                        <div class="col-md-6 pt-4">
+                            <h4 class="text-dark">{{company.company_name}}</h4>
+                            <p class="text-dark">Customer :</p>
+                            <h4 class="text-dark" style="text-transform: uppercase;font-weight: bold;">
+                                {{project.c_name.customerName}}</h4>
+                            <h6 class="text-dark" style="font-weight: bold">{{project.c_name.customerEmail}}</h6>
+
+                            </h6>
+                            <div class="mt-4">
+                                <p class="d-inline-block text-dark">Date :</p><h5 class="d-inline-block text-dark">{{project.start}}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-right ">
+                            
+                            <h1 class="text-dark text-uppercase mt-3" style="font-size: 2.5rem; ">{{project.name}}</h1>
+                            <h6 class="text-dark" style="font-weight: bold;max-width: 15rem;word-wrap: break-word;">
+                                {{project.desc}}
+                            </h6>
+                            <h6 class="text-dark" style="font-weight: bold;">Status : {{taskz.billable}}
+                            </h6>
+                        </div>
+                    </div>
+                    <hr>
+                    
+
+
+
+
+
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="row mt-3 mx-2 text-dark">
+                                <div class="col-6">Bill date:</div>
+                                <div class="col-6" style="text-align: end;font-weight: bold;">{{taskz.billdate}}</div>
+                            </div>
+                            
+                            <div class="row mt-3 mx-2 text-dark">
+                                <div class="col-6">Amount:</div>
+                                <div class="col-6" style="text-align: end;font-weight: bold;">{{taskz.taskrph}} INR</div>
+                            </div>
+                            {% for i in usern %}
+                            <div class="row mt-3 mx-2 text-dark">
+                                <div class="col-6">Particular:</div>
+                                <div class="col-6" style="text-align: end;font-weight: bold;">{{i.name}}</div>
+                            </div>
+                            {% endfor %}
+                            <div class="row mt-3 mx-2 text-dark">
+                                <div class="col-6">Task:</div>
+                                <div class="col-6" style="text-align: end;font-weight: bold;">{{taskz.taskname}}</div>
+                            </div>
+                            <div class="row mt-3 mx-2 text-dark">
+                                <div class="col-6">Description:</div>
+                                <div class="col-6" style="text-align: end;font-weight: bold;">{{taskz.taskdes}}</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color: #3b3b3b;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Add Comments</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form action="{% url 'add_projectcomment' project.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <textarea type="text" class="form-control text-dark" name="comments" id="cmt"
+                        placeholder="comment here"></textarea>
+                    <textarea type="text" class="form-control text-dark" name="comment" id="ecmt"
+                        style="display: none;"></textarea>
+                    <div class="container-fluid">
+
+                        <table class="table  mt-4">
+                            <thead>
+                                <tr>
+                                    <th>sl no.</th>
+                                    <th>Comments</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in cmt %}
+                                <tr class="table-row text-light">
+                                    <td>{{forloop.counter }}</td>
+                                    <td>{{c.comment}}</td>
+                                    <td style="font-size: 1.2rem;">
+                                        <a class="text-danger" href="{% url 'delete_projectcomment' c.id  %}"><i
+                                                class="fa fa-trash" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                    <button type="submit" class="btn btn-primary" id="save">Save</button>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- modal end -->
+
+<!-- Modal -->
+<!-- <div id="commentModal" class="modal">
+    <div class="modal-content bg-dark">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <form method="post" action="{% url 'projcommentdb' project.id %}">
+            {% csrf_token %}
+            <textarea id="commentTextArea" name="comment" rows="8" placeholder="Enter your comment..."
+                class="form-control bg-dark" style="height: 200px;width: 100%;"></textarea>
+            <textarea id="hiddenComments" style="display: none;">{{ project.comment }}</textarea>
+
+            <button type="submit" class="btn btn-warning">Save</button>
+            <button type="button" class="btn btn-warning mt-1" onclick="viewComment()">View</button>
+            <button type="button" class="btn btn-warning mt-1" onclick="clearTextArea()">Clear</button>
+        </form>
+    </div>
+</div> -->
+<script>
+    $(document).ready(function () {
+        $("#o-btn").click(function () {
+            $("#overview").show();
+            $("#over-btns").show();
+            $("#template").hide();
+            $("#temp-btns").hide();
+            $(this).css("background-color", "white").css("color", "rgb(243, 188, 9)");
+            $("#t-btn").css("background-color", "rgb(243, 188, 9)").css("color", "white");
+        });
+
+        $("#t-btn").click(function () {
+            $("#overview").hide();
+            $("#over-btns").hide();
+            $("#template").show();
+            $("#temp-btns").show();
+            $(this).css("background-color", "white").css("color", "rgb(243, 188, 9)");
+            $("#o-btn").css("background-color", "rgb(243, 188, 9)").css("color", "white");
+
+        });
+    });
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the CSRF cookie name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function uploadFile() {
+        const fileInput = document.getElementById("file-input");
+        console.log("entered======================");
+        const file = fileInput.files[0];
+        const csrfToken = getCookie('csrftoken')
+        location.reload();
+        const formData = new FormData();
+        formData.append("file", file);
+        console.log("entered======================");
+
+        fetch("/project_file/{{project.id}}", {
+            method: "POST",
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server (if needed)
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+
+    }
+
+</script>
+<script>
+    const filterMenuLinks = document.querySelectorAll('#filterMenu a');
+        const table = document.getElementById('myTable').getElementsByTagName('tr');
+
+        for (const link of filterMenuLinks) {
+            link.addEventListener('click', filterTable);
+        }
+
+        function filterTable(event) {
+            event.preventDefault(); // Prevent the link's default behavior (page navigation).
+
+            const selectedValue = this.getAttribute('data-value');
+            // console.log(selectedValue);
+
+            for (let i = 0; i < table.length; i++) {
+                const row = table[i];
+                const status = row.getElementsByTagName('td')[0].innerText;
+
+                if (selectedValue === 'All' || status.toLowerCase() === selectedValue.toLowerCase()) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+    function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("myTable");
+        const rows = Array.from(table.rows).slice(0); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("myTable");
+        const rows = Array.from(table.rows).slice(0); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 0; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+    // ... Your existing JavaScript code ...
+
+    jQuery(document).ready(function ($) {
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+
+    });
+
+
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,67 +1,254 @@
-{% extends 'nav.html' %}
-{% load static %}
+{% extends 'base.html' %}
 {% block content %}
-    
-<section>
-  <div class="row fixed-top ml-4 " style="top: 7rem;">
-   <div class="col-md-2" style="border-right: 1px solid white;height: 100vh;">
-     <h6 class="mb-4"><a class="active  " href="{% url 'base' %}"><i class="fa fa-fw fa-home mr-2 "></i> Home</a> </h6>
-     <h6 class="mb-4"><a class="active  " href="{% url 'itemview' %}"><i class="fa-solid fa-sitemap mr-3 "></i>Items</a> <a class="ml-5 active" href="{% url 'additem' %}"><i class="fa-solid fa-plus "></i></a></h6>
-     <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-building-columns mr-3"></i>Banking</a></h6>
-     <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-cart-shopping mr-3"></i>Sales</a></h6>
-     <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-basket-shopping mr-3"></i>Purchases</a></h6>
-     <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-business-time mr-3 "></i>Time Tracking</a></h6>
-      <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-user mr-3 "></i>Accountant</a></h6>
-      <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-calendar-week mr-3"></i>Reports</a></h6>
-      <h6 class="mb-4"><a class="active  " href="#"><i class="fa-solid fa-file mr-3"></i>Documents</a></h6>
-       <h6 class="mb43"><a class="active  " href="#"><i class="fa-solid fa-money-bill mr-3 "></i>Payroll</a></h6>
-   </div>
-   <div class="col-md-10">
-     <div class="row">
-       <div class="col-md-3"><a class="text-white" style="font-size: 2rem;">All Items</a></div>
-       <div class="col-md-6 form-inline" style="margin-left: 55rem;margin-top: -2rem;"><a style="color: #ccc;" class="btn btn-success mr-2" href="{% url 'additem' %}"><i class="fa-solid fa-plus "></i>New</a>
-         <a style="color: #ccc;"href="#3">      
-           <form action="">
-             <select name="" class="form-control">
-               <option value="">...</option>
-               <option value="active" >Mark as active</option>
-               <option value="inactive" >Mark as Inactive</option>
-           </select>
-           </form> </a>
-       </div>
-     </div>
-     <table class="table  text-white">
-       <thead>
-         <tr>
-           <th>Name</th>
-           <th>description</th>
-           <th>Rate</th>
-           <th>usage unit</th>
-         </tr>
-       </thead>
-       <tbody>
-         {% for v in view %}
+{% load static %}
 
-         <tr>
+<style>
+  #over:hover{
+    background-color: rgba(110, 110, 110, 0.616);
+  }
 
-          <td onclick="location.href ='{% url 'detail' v.id %}' " > {{v.Name}}</td>
-           <td>{{v.s_desc}}</td>
-           <td>{{v.s_price}}</td>
-           <td>{{v.unit.unit}}</td>
+  .dropdown-item:hover{
+    color: chocolate;
+  }
+
+  #myTable tbody{
+    cursor: pointer;
+  }
+  .buttonDiv {
+    margin-left: 36rem;
+  }
+
+ 
+</style>
+
+<div class="container-fluid">
+  <div class="fixed-top" style="top: 7rem; margin-left: 18rem;">
+    <div style="height: 600px;overflow-y: scroll;">
+
+      <div class="row container-fluid">
+          <div class="col-md-3"><a class="text-white" style="font-size: 2rem;">All Items</a></div>
+      </div>    
+
+      <div class="row container-fluid mb-3">
+        <div class="col-md-3">
+          <input type="text" id="searchInput" class="form-control bg-light text-dark" placeholder="Search.." autocomplete="off">
+        </div>
+        
+        <div class="col-md-2">
+          <div class="btn-group " role="group"  style="display:inline-flex;width:5.1rem;height:2.4rem;">
+            <button id="btnGroupDrop1" type="button" class="btn btn-outline-warning"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i  class="fas fa-sort m-1"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item text-white" href="#"  data-sort="all">All</a>
+              <a class="dropdown-item text-white" href="#"  data-sort="name">Name</a>
+              <a class="dropdown-item text-white" href="#"  data-sort="HSN">HSN/SAC</a>
+              <a class="dropdown-item text-white" href="#"  data-sort="usage">Usage Unit</a>
+              {% comment %} <a class="dropdown-item text-white" href="#" id="sortByName">Name</a>
+              <a class="dropdown-item text-white" href="#" id="sortByHSN">HSN</a>
+              <a class="dropdown-item text-white" href="#" id="sortByUsageUnit">Usage Unit</a> {% endcomment %}
+            </div>
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-3">
+
+           <div class="btn-group buttonDiv" role="group"  style="margin-top:-3.7rem;display:inline-flex;height:2.9rem;">
+            <button id="btnGroupDrop1" type="button" class="btn btn-outline-warning" style="border-radius: 5px;width: 60px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-filter mt-1"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item text-white" href="#" id="filterAllButton">All</a>
+              <a class="dropdown-item text-white" href="#" id="filterActiveButton">Active</a>
+              <a class="dropdown-item text-white" href="#" id="filterInactiveButton">Inactive</a>
+            </div>
+            <a style="border: 1px solid; border-radius: 5px; height: 2.9rem; display: flex; align-items: center;margin-left: 20px;" class="btn btn-outline-warning" href="{% url 'additem' %}">
+              <i class="fa fa-plus" style="font-size: large;"></i>
+              <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">New</span>
+          </a>
+          </div>
+        </div>
+      </div>
           
-         </tr>
-         {% endfor %}
-       </tbody>
-     </table>
-   </div>
-  
+      <div class="row container-fluid">
+        <div class="col-sm-12 col-md-11 col-lg-11">
+          <table class="table  text-white" id="myTable">
+            <thead>
+              <tr>
+                <th style="text-align: center;">NAME</th>
+                <th style="text-align: center;">DESCRIPTION</th>
+                <th style="text-align: center;">SALES RATE</th>
+                <th style="text-align: center;">PURCHASE RATE</th>
+                <th style="text-align: center;">HSN/SAC</th>
+                <th style="text-align: center;">STOCK ON INVENTORY</th>
+                <th style="text-align: center;">USAGE UNIT</th>
+                <th style="text-align: center;">STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in view %}
+                <tr id="over" class='clickable-row' data-href="detail/{{ v.id }}" data-status="{{ v.satus }}">
+                  <td style="text-align: center;">{{ v.Name }}</td>
+                  <!-- <td style="text-align: center;" onclick="location.href ='' " > {{v.Name}}</td> -->
+                  <td style="text-align: center;">{{ v.s_desc }}</td>
+                  <td style="text-align: center;">{{ v.s_price }}</td>
+                  <td style="text-align: center;">{{ v.p_price }}</td>
+                  <td style="text-align: center;">{{ v.hsn }}</td>
+                  <td style="text-align: center;">{{ v.stock }}</td>
+                  <td style="text-align: center;">{{ v.unit.unit }}</td>
+                  <td style="text-align: center;">{{ v.satus }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
- 
-</section>
+</div>
 
-   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
- 
+<script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href");
+    });
+  });
+</script>
+
+
+
+<script>
+  $(document).ready(function() {
+    var originalTable = $('#myTable').clone();
+
+    // Function to sort items by name
+    function sortByName() {
+      var rows = $('#myTable tbody tr').get();
+      rows.sort(function(a, b) {
+        var keyA = $(a).children('td').eq(0).text().toUpperCase();
+        var keyB = $(b).children('td').eq(0).text().toUpperCase();
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+      });
+      $.each(rows, function(index, row) {
+        $('#myTable').children('tbody').append(row);
+      });
+    }
+
+    // Function to sort items by HSN/SAC
+    function sortByHSN() {
+      var rows = $('#myTable tbody tr').get();
+      rows.sort(function(a, b) {
+        var keyA = $(a).children('td').eq(4).text();
+        var keyB = $(b).children('td').eq(4).text();
+        return keyA.localeCompare(keyB);
+      });
+      $.each(rows, function(index, row) {
+        $('#myTable').children('tbody').append(row);
+      });
+    }
+
+    // Function to sort items by Usage Unit
+    function sortByUsageUnit() {
+      var rows = $('#myTable tbody tr').get();
+      rows.sort(function(a, b) {
+        var keyA = $(a).children('td').eq(6).text(); // Adjust the column index for Usage Unit
+        var keyB = $(b).children('td').eq(6).text(); // Adjust the column index for Usage Unit
+        return keyA.localeCompare(keyB);
+      });
+      $.each(rows, function(index, row) {
+        $('#myTable').children('tbody').append(row);
+      });
+    }
+
+    // Function to restore the table to its original state
+    function restoreOriginalTable() {
+      $('#myTable').replaceWith(originalTable.clone()); // Replace the current table with the original table clone
+    }
+
+    // Handle sorting based on data-sort attribute
+    $('[data-sort]').on('click', function() {
+      var sortType = $(this).data('sort');
+      if (sortType === 'name') {
+        sortByName();
+      } else if (sortType === 'HSN') {
+        sortByHSN();
+      } else if (sortType === 'usage') {
+        sortByUsageUnit();
+      } else if (sortType === 'all') {
+        restoreOriginalTable();
+      }
+    });
+  });
+</script>
+
+
+<script>
+function filterItems(status) {
+if (status === 'Active') {
+  $('tbody tr').hide();
+  $('tbody tr[data-status*="Active"]').show();
+} else if (status === 'Inactive') {
+  $('tbody tr').hide();
+  $('tbody tr[data-status*="Inactive"]').show();
+} else {
+  $('tbody tr').show();
+}
+}
+
+// Attach the filter function to the filter buttons
+$('#filterActiveButton').on('click', function() {
+filterItems('Active');
+});
+
+$('#filterInactiveButton').on('click', function() {
+filterItems('Inactive');
+});
+
+$('#filterAllButton').on('click', function() {
+filterItems('all');
+});
+
+</script>
+
+<script>
+  function searchTable() {
+    let input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+  
+    // Loop through all table rows (excluding the first row, which contains the column headers)
+    for (i = 1; i < tr.length; i++) {
+      let rowVisible = false;
+      td = tr[i].getElementsByTagName("td");
+  
+      // Loop through all table cells (columns) in each row
+      for (j = 0; j < td.length; j++) {
+        if (td[j]) {
+          txtValue = td[j].textContent || td[j].innerText;
+          if (txtValue.toLowerCase().indexOf(filter) > -1) {
+            rowVisible = true;
+            break;
+          }
+        }
+      }
+  
+      // Show/hide the row based on the search results
+      tr[i].style.display = rowVisible ? "" : "none";
+    }
+  }
+  
+  // Attach the search function to the input field's "input" event
+  document.getElementById("searchInput").addEventListener("input", searchTable);
+  </script>
+  
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> 
+
+
 {% endblock %}

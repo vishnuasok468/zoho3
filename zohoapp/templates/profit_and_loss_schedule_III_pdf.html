@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Webpage with Export to PDF</title>
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            font-family: Arial, sans-serif;
+            font-size: medium;
+
+        }
+    </style>
+</head>
+<body>
+<div class="printable-wrapper" id="container-to-print">
+
+    <div class="printable-content" >
+        
+        <center>
+        <h2 class="text" style="color: black;">{{company.company_name}}</h2>
+        <h4 class="text" style="color: black;">Profit and Loss Schedule III</h4>
+        <h5 class="text" style="color:black;">Basis: Cash</h5>
+        <p class="text" style="color: black;" id="date-range-display">From September11,2023 To October10,2023</p>
+    </center>
+    <div class="table-container">
+        <table class="table table-bordered table-striped mt-4 custom-table">
+            <thead>
+                <tr>
+                    <th>Particulars</th>
+                    <th>Note.No</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                   
+                    <td style="color: black;"><b>I. Revenue from operations</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                
+                    <td style="color: black;"><b>II. Other Income</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+
+                <tr>
+                   
+                    <td style="color: black;"><b>III. Total Revenue</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;"><b>IV. Expenses</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Cost of materials consumed</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Purchases of stock in trade</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Changes in Inventories of finished goods work-in-progress and Stock-in-trade</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Employee benefits expense</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Finance Costs</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Depreciation And Amortization Expense</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;">&emsp;Other Expenses</td>
+                    <td style="color: black;">1</td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                   
+                    <td style="color: black;"><b>V. Profit before exceptional and extraordinary items and tax (III - IV)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>VI. Exceptional Items</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>VII. Profit before extraordinary items and tax (V-VI)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                
+                <tr>
+                    <td style="color: black;"><b>VII. Extraordinary Items</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                
+                <tr>
+                    <td style="color: black;"><b>IX. Profit before tax (VII - VIII)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>X. Tax Expense</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;">&emsp;(1) Current tax</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                
+                <tr>
+                    <td style="color: black;">&emsp;(2) Deferred tax</td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>XI. Profit (Loss) for the period from continuing operations (IX - X)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>XII. Profit (Loss) from discountinuing operations</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>XIII. Tax expense of discontinuing operations</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>XIV. Profit (Loss) from Discontinuing operations (after tax) (XII - XIII)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+
+                <tr>
+                    <td style="color: black;"><b>XV. Profit (Loss) for the period (XI + XIV)</b></td>
+                    <td style="color: black;"></td>
+                    <td style="color: black;">0.00</td>
+                    <td style="color: black;">0.00</td>
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+</body>
+</html>

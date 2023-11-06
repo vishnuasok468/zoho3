@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+    .modal{
+        z-index: 9999;
+
+    }
+</style>
+
+<div class="container-fluid">
+    <div>
+        <center>
+            
+            <h6>{{company.company_name}}</h6>
+            <h2 class="mt-4" id="headline">HOLIDAYS</h2>
+            <div class="display">
+                
+            </div>
+
+        </center>
+    </div>
+    <div  style="justify-content: space-between;display: flex;align-items: center;">
+    
+        <div> 
+            <input type="text" id="search" class="form-control bg-light text-dark" name="search"
+                placeholder="Search Here..." style="width: 20vw;"  onkeyup="searchFunction()">
+        </div>
+        <div>
+            <button class="btn btn-warning " style="font-size: 1rem; width: 12rem;" data-toggle="modal"
+            data-target="#commentModal"><i class="fa fa-plus" aria-hidden="true"></i> Add
+            Holiday</button>
+        </div>
+        
+    </div>
+    <script>
+       function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 1; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+    </script>
+    <table class="table mt-3" style="background-color: rgba(0, 0, 0, 0.568);" id="myTable">
+        <thead>
+            <th class="text-center">Sl no.</th>
+            <th class="text-center">Month</th>
+            <th class="text-center">Holidays</th>
+            <th class="text-center">Remove</th>
+        </thead>
+        {% for key, value in event_counts_json.items %}
+        <tr class="text-light mt-2 pt-1">
+            <td class="text-center">{{forloop.counter }}</td>
+            <td class="text-center" id="mnth-{{forloop.counter}}">{{ key }}</td>
+            <td class="text-center">{{ value }}</td>
+            
+            <td class="text-center text-danger"><a href="{% url 'holidays' key %}">view</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<!-- modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="exampleModalLabel">Add Holidays</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <form action="{% url 'add_holiday' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body mx-1">
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label for=""> Title</label>
+                        <input type="text" class="text-dark form-control" name="title">
+                    </div>
+
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label for="">Start Date</label>
+                        <input type="date" class="text-dark form-control" name="start">
+                    </div>
+                    <div class="col-6">
+                        <label for="">End Date</label>
+                        <input type="date" class="text-dark form-control" name="end">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                <button type="submit" class="btn btn-primary" id="save">Save</button>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+</div>
+
+<!-- modal end -->
+<script>
+    const monthNumberToName = {
+    1: 'January',
+    2: 'February',
+    3: 'March',
+    4: 'April',
+    5: 'May',
+    6: 'June',
+    7: 'July',
+    8: 'August',
+    9: 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December'
+};
+$('#mnth').text();
+    const monthNameToNumber = {
+        'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12
+    };
+    // var monthYearCounts = '{{event_counts_json}}';
+    var monthYearCounts = JSON.parse($('#eventCounts').text());
+
+    const currentDate = new Date();
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next ',
+            center: 'title',
+            right: 'today '
+        },
+        initialView: 'dayGridMonth',
+        defaultDate: currentDate,
+        // navLinks: true,
+        eventLimit: true,
+
+        events: '/all_events',
+
+
+        // eventColor: '#378006',
+        eventDisplay: 'list-item',
+
+        viewRender: function (view, element) {
+            var displayedTitle = view.title;
+
+            // Update the content of a <div> with the current title
+            var parts = displayedTitle.split(' '); // Split into ['Month', 'Year']
+            console.log(parts[0]);
+            var year = parts[1]
+            var monthNumber = monthNameToNumber[parts[0]];
+            var formattedMonth = ('0' + monthNumber).slice(-2);
+            var tot = new Date(year, monthNumber, 0).getDate();
+
+            var monthYear = year + '-' + formattedMonth;
+
+            $('#currentmonthyear').text(monthYear);
+            // Check if the displayedTitle exists as a key in the dictionary
+            if (monthYearCounts.hasOwnProperty(monthYear)) {
+                // If it exists, get the corresponding value and display it
+                var count = monthYearCounts[monthYear];
+                var wrk = tot - count
+                $('#idd2').text(wrk);
+                $('#idd').text(count);
+
+
+            }
+            else {
+                // If it doesn't exist, display a message indicating no count found
+                $('#idd').text('0');
+                $('#idd2').text(tot);
+
+            }
+        }
+
+
+    });
+   
+</script>
+
+
+{% endblock %}

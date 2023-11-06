@@ -1,0 +1,655 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }}
+/* heading*/
+        .sticky-header {
+            position:absolute;
+            z-index: 999; /* Adjust the z-index as needed */
+            background-color: black;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Add some padding to the body to account for the fixed header */
+        body {
+            padding-top: 50px; /* Adjust this value to match the header's height */
+        }
+
+        /* Add some styles for the menu icon */
+        .menu-icon {
+            cursor: pointer;
+            padding: 5px 10px;
+            color: white;
+            background-color: #010101;
+        }
+
+        #dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color:#0e0d0d98;
+            color: #990909;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #bf0c0c;
+        }
+
+          /* CSS for close button of menu icon drop down lit*/
+          .close-button {
+            float: right;
+            font-size: 20px;
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: red; /* Change the color on hover */
+        }
+
+
+/* item list*/
+
+        .item-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            margin-top: 10px;
+        }
+        
+        .add,
+        .remove {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        
+        
+            .custom-container {
+                background-color: black;
+                color: white;
+            }
+        
+            .custom-list-group .custom-list-item {
+                color: white;
+                border: none;
+                margin-bottom: 10px;
+                cursor: pointer;
+                /* Add cursor style for links */
+            }
+            
+            .custom-list-group .list-group-item.active {
+                background-color: #343a40;
+            }
+        
+            .custom-content {
+                padding: 20px;
+            }
+
+            /* Custom styles for left column */
+            .left-column {
+                background-color: rgba(rgb(235, 221, 221));
+                color: white;
+                padding: 20px;
+                height: 50vh;
+                overflow-y: auto;
+                /* Add scroll if needed */
+                width: 250px; 
+                 /* Set the width of the left column */
+            } 
+
+            /* Style the custom list items */
+            .custom-list-item {
+                color: #333; /* Set the default text color */
+                text-decoration: none; /* Remove underline */
+                transition: color 0.3s; /* Add a smooth transition effect for color */
+            }
+
+            /* Hover effect for custom list items */
+            .custom-list-item:hover {
+            
+                font-weight: bold; /* Apply bold font on hover */
+            }
+
+            /* Active class for custom list items */
+            .custom-list-item.active {
+                color: #0800ff; /* Set the active text color */
+            }
+            
+            /* Custom styles for right column */
+            .right-column {
+                padding: 20px;
+                flex: 1;
+                /* Take the remaining width */
+            }
+        
+            /* Flexbox layout for row */
+            .row-container {
+                display: flex;
+            }
+
+
+            .table-container {
+                flex: 1;
+                padding: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ccc;
+                padding: 8px;
+                text-align: center;
+            }
+            .hidden {
+                display: none;
+            }
+
+
+
+
+            .search-input {
+                padding: 8px 10px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                width: 100%;
+                margin-right: 10px;
+              }
+              
+              .search-icon {
+                position: absolute;
+                top: 50%;
+                right: 15px;
+                transform: translateY(-50%);
+                cursor: pointer;
+              }
+              
+              .item-list {
+                list-style: none;
+                margin-top: 10px;
+              }
+              
+              .items {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5px 0;
+                border-bottom: 1px solid #eee;
+              }
+              
+              .items:last-child {
+                border-bottom: none;
+              }
+              
+              .add,
+              .remove {
+                color: rgba(238, 231, 231, 0.768);
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                display: none;
+              }
+              
+              .items:hover .add,
+              .items:hover .remove {
+                display: inline-block;
+              }
+
+
+              /* Style for the button container */
+        .button-container {
+            text-align: center; /* Center the text horizontally */
+            margin: 20px; /* Add some space around the buttons */
+        }
+              
+    </style>
+
+    <div class="sticky-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex">
+           <!-- Menu icon -->
+           <div class="mr-3 menu-icon" id="menu-icon">
+            <i class="fa fa-bars"></i>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu">
+        <button class="close-button" onclick="closeDropdownMenu()">&times;</button>
+                           
+            <input type="text" id="myInput" class="dropdown-toggle form-control bg-light text-dark" onkeyup="filterFunction()"  data-bs-toggle="dropdown" aria-expanded="false" placeholder="search reports" style="width: 100%;" >
+            <ul class="dropdown-menu dropdown-menu-dark"  style="overflow-y: scroll;height: 370px;width: 100%; background-color: #07060698"> 
+              <li class="dropdown-header "> <span style="color: aliceblue;font-weight: bold;font-size: larger;">Business Overview</span>                       
+                    <a class="dropdown-item" href="{% url 'profit_and_loss' %}" style="font-size:small;color: aliceblue;font-weight:500;">Profit and Loss <span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="{% url 'profit_and_loss_schedule_III' %}" style="font-size: small;color: aliceblue;font-weight:500;">Profit and Loss (schedule lll)<span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="#" style="font-size: small;color:aliceblue;font-weight:500;">Horizontal Profit and Loss<span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="#" style="font-size: small;color: aliceblue;font-weight:500;">Cash Flow Statement<span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="#" style="font-size: small;color: aliceblue;font-weight:500;">Balance Sheet<span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="#" style="font-size: small;color: aliceblue;font-weight:500;">Horizontal Balance Sheet<span style="display: none;">bussiness</span></a>
+                    <a class="dropdown-item" href="#" style="font-size: small;color: aliceblue;font-weight:500;">Balance Sheet (schedule lll)<span style="display: none;">bussiness</span></a>
+              </li>
+        
+        
+        
+            
+            <li class="dropdown-header"><span style="color:aliceblue;font-weight: bold;font-size: larger;">Sales</span> 
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Sales by Sales Person</a>
+                <a class="dropdown-item " href="{% url 'salesby_customer' %}" style="font-size: small;color: aliceblue;font-weight:500;">Sales by Coustomer</a>
+                <a class="dropdown-item " href="{% url 'salesby_item' %}" style="font-size: small;color: aliceblue;font-weight:500;">Sales by Item</a>
+            </li>
+            <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Inventory</span> 
+        
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Inventory Summary</a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Inventory Valuation Summary</a>
+                <a class="dropdown-item " href="{% url 'fifo_cost' %}" style="font-size: small;color:aliceblue;font-weight:500;">FIFO Cost Lot Tracking<span style="color: rgba(158, 156, 156, 0.932);display: none;">inventory</span></a>
+                <a class="dropdown-item " href="{% url 'product_sales_report' %}" style="font-size: small;color:aliceblue;font-weight:500;">Product Sales Report<span style="color: rgba(158, 156, 156, 0.932);display: none;">inventory</span></a>
+        
+        
+            </li>
+            <li class="dropdown-header"><span style="color:aliceblue;font-weight: bold;font-size: larger;">Receivables</span> 
+        
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Customer Balences <span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Aging Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Aging Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Invoice Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Retainer Invoice Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Sales Order Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Delivery Cahallan Details <span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Estimate Details <span style="color: rgba(158, 156, 156, 0.932);display: none;">receivables</span></a>
+        
+        
+        
+            </li>
+            <li class="dropdown-header"> <span style="color:aliceblue;font-weight: bold;font-size: larger;">Payment Received</span>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Payment Received<span style="color: rgba(158, 156, 156, 0.932);display: none;">payment received</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Time to Get Paid<span style="color: rgba(158, 156, 156, 0.932);display: none;">payment received</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Credit Note Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">payment received</span></a>
+                <a class="dropdown-item " href="#" style="font-size: small;color:aliceblue;font-weight:500;">Refund History<span style="color: rgba(158, 156, 156, 0.932);display: none;">payment received</span></a>
+        
+        
+              </li> 
+              <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Recurring Invoices</span> 
+                <a class="dropdown-item " href="{% url 'report_recurring_invoice' %}" style="font-size: small;color: rgb(26, 25, 25);font-weight:500;">Recurring Invoice Details</a>
+        
+              
+                </li>
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Payables</span>
+                        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Vendor Balences<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Aging Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Aging Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Bills Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Vendor Credits Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Payments Made<span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Refund History <span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Purchase Order Details <span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Purchase Orders by Vendor <span style="color: rgba(158, 156, 156, 0.932);display: none;">payables</span></a>
+        
+        
+                </li>
+                
+                    <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;" >Purchases & Expences</span>
+                            <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Purchases by Vendor<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Purchases by Item<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Expense Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Expenses by Category<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Expenses by Customer<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Expenses by Project<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+                         <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Expenses by Employee<span style="color: rgba(158, 156, 156, 0.932);display: none;">purchases and expenses</span></a>
+         
+                        
+                     </li>
+        
+        
+        
+                 <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Taxes</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Tax Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">TDS Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">GSTR-3B Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Summary of Outward Supplies<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Summary of Inward Supplies<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Self Invoice Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Annual Summary(GSTR-9)<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Overseas Digital Tax Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">taxes</span></a>
+        
+                
+                </li>
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Projects & Timesheet</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color:aliceblue;font-weight:500;">Project Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">projects and timesheet</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Project Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">projects and timesheet</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Timesheet Details<span style="color: rgba(158, 156, 156, 0.932);display: none;">projects and timesheet</span></a>
+        
+        
+                </li>
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Accountant</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Account Transactions<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Account Type Summary<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Account Type Transactions<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Day Book<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">General Ledger<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Detailed General Ledger<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Journel Report<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Trial Balance<span style="color: rgba(158, 156, 156, 0.932);display: none;">accountant</span></a>
+        
+                    
+                </li>
+        
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Activity</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">System Mails<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Activity Logs<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Exception Report<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Portal Activities<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color:aliceblue;font-weight:500;">Client Reviews<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">API Usage<span style="color: rgba(158, 156, 156, 0.932);display: none;">activity</span></a>
+        
+                    
+                </li>
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Currency</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color:aliceblue;font-weight:500;">Realized Gain or Loss<span style="color: rgba(158, 156, 156, 0.932);display: none;">currency</span></a>
+        <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Unrealized Gain or Loss<span style="color: rgba(158, 156, 156, 0.932);display: none;">currency</span></a>
+        
+                    
+                </li>
+                <li class="dropdown-header"><span style="color: aliceblue;font-weight: bold;font-size: larger;">Budgets</span>
+                    <a class="dropdown-item " href="#" style="font-size: small;color: aliceblue;font-weight:500;">Budget vs Actuals</a>                          
+                </li>
+            </ul>
+            
+        </div>
+        <h3>Customize Report</h3>
+        
+            </div>
+        
+            <div style="width: 900px;"></div>
+        
+            <div class="d-flex">
+                <div style="width: 3px;"></div>           
+                    <a href="{% url 'profit_and_loss' %}" class="btn btn-light" style="float: right;color: white; background-color: #010101;margin-right: 10px;">
+                        <i class="fa fa-times-circle"></i>
+                    </a>
+                </div>
+            </div>
+            </div>
+
+            <div class="container main-content">
+                <div class="row row-container">
+                    <div class="col-md-3 left-column"><br/><br/><br/>
+                        <div class="custom-list-group">
+                            <a href="{% url 'profit_and_loss_customize_report' %}" class="custom-list-item" data-target="general">
+                                General
+                            </a>
+                            <br>
+                            <br>
+                            <a href="{% url 'prft_and_ls_custmz_rprt_shw_hide' %}" class="custom-list-item active" data-target="columns">
+                                Show/Hide Columns
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-9 right-column">
+                        <div id="general" class="custom-content"><br/><br/>
+
+                            
+                                    <!-- Show/Hide Columns section -->
+                                    <div class="row">
+                                        <div class="col-md-6" id="originalColumn"
+                                            style="height: 70vh; width:25vw; overflow-y:auto; border: 1px solid #ccc; position: relative; padding-right: 15px;">
+                                            <h2 style="color: white; position: sticky; top: 0; background-color: #000000;">Available Column</h2>
+                                            <div class="search-bar" style="position: sticky; top: 40px;">
+                                                <input type="text" id="searchInput" class="search-input" placeholder="Search items" oninput="filterItems()">
+                                                <span class="search-icon">&#128269;</span>
+                                            </div>
+                                            <ul id="itemList" class="item-list" style="color: #eeebeb;">
+                                                <li class="items" data-text="Year to Date"><span class="item-text">Year to Date</span> <span class="add add-remove-buttons">+</span></li> 
+                                                <li class="items" data-text="Sales"><span class="item-text">Sales</span> <span class="add add-remove-buttons">+</span></li> 
+                                            </ul>
+                                        </div>
+                                       
+                                       <div class="col-md-6" id="addedColumn" style="height: 70vh; width:25vw; overflow-y:auto; border: 1px solid #ccc; position: relative; padding-right: 15px;">
+                                            
+                                            <h2 style="color: white;position: sticky; top: 0; background-color: #000000;">Selected Column</h2>
+                                            <ul  id="itemList" class="item-list" style="color: #eeebeb;">
+                                                <li class="items" data-text="Accounts(Report)"><span class="item-text ">Accounts(Reports)</span><span class="remove">-</span>
+                                                    <li class="items" data-text="Account Code(Reports)"><span class="item-text">Account Code(Reports)</span><span class="remove">-</span>
+                                                        <li class="items" data-text="Total(Reports)"><span class="item-text">Total(Reports)</span><span class="remove">-</span>              
+                                            </ul>
+                                       
+                                    </div>
+                                    </div>
+                                    <!-- End Show/Hide Columns section -->
+                                </div>
+                            </div>
+
+
+                        
+                            <div class="button-container">
+                                <a href="{% url 'profit_and_loss' %}" type="button" class="btn btn-primary">Run Report</a>&nbsp;&nbsp;&nbsp;
+                                <a href="{% url 'prft_and_ls_custmz_rprt_shw_hide' %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    
+
+
+
+
+
+
+            <script>
+                
+                    // Get references to the menu-icon and dropdown-menu elements
+                const menuIcon = document.getElementById("menu-icon");
+                const dropdownMenu = document.getElementById("dropdown-menu");
+            
+                // Add a click event listener to the menu-icon
+                menuIcon.addEventListener("click", function () {
+                    // Toggle the display of the dropdown menu
+                    if (dropdownMenu.style.display === "block") {
+                        dropdownMenu.style.display = "none";
+                    } else {
+                        dropdownMenu.style.display = "block";
+                    }
+                });
+            
+            </script>
+
+            <script>//filtering at the menu icon
+                function filterFunction() {
+                   var input, filter, ul, li, a, i,b,j;
+                   input = document.getElementById("myInput");
+                   filter = input.value.toUpperCase();
+                   div = document.getElementById("myDropdown");
+                   a = div.getElementsByTagName('li');
+                   b = div.getElementsByTagName('a');
+                
+                   for (i = 0; i < a.length; i++) {
+                     txtValue = a[i].textContent||a[i].innerText;
+                     if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                       a[i].style.display = "";
+                     } 
+                     else {
+                       a[i].style.display = "none";
+                     }     
+                   }  
+                   for (j = 0; j < b.length; j++) {
+                         txtValue = b[j].textContent || b[j].innerText;
+                         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                           b[j].style.display = "";
+                          } 
+                          else {
+                            b[j].style.display = "none";
+                          }
+                    }
+                       
+                 }
+                 </script>
+            
+                 <script>//close drop down 
+                    function closeDropdownMenu() {
+                        var dropdownMenu = document.getElementById("dropdown-menu");
+                        dropdownMenu.style.display = "none";
+                    }
+                 </script>
+
+                 <script>
+                    const table1 = document.getElementById('table1');
+                    const table2 = document.getElementById('table2');
+                    
+                    table1.addEventListener('click', toggleTableColumns);
+                    table2.addEventListener('click', toggleTableColumns);
+
+                    function toggleTableColumns(event) {
+                        const target = event.target;
+                        if (target.classList.contains('toggle')) {
+                            target.classList.toggle('hidden');
+                            if (event.currentTarget === table1) {
+                                table2.rows[1].cells[0].classList.toggle('hidden');
+                            } else {
+                                table1.rows[1].cells[0].classList.toggle('hidden');
+                            }
+                        }
+                    }
+                </script>
+
+                   <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                          const originalAvailableItems = document.querySelectorAll("#originalColumn .items");
+                          const originalAddButtons = document.querySelectorAll("#originalColumn .add");
+                          const selectedItems = document.querySelector("#addedColumn .item-list");
+                          const addedRemoveButtons = document.querySelectorAll("#addedColumn .remove");
+                          //const searchInput = document.getElementById("searchInput");
+                         // const searchIcon = document.querySelector(".search-icon");
+                        
+                          const itemIds = {}; // Map of item text to unique identifier
+                        
+                          originalAddButtons.forEach((button, index) => {
+                            button.addEventListener("click", () => {
+                              const itemText = originalAvailableItems[index].querySelector(".item-text").textContent;
+                              const itemId = `selected-${itemText}`; // Unique identifier
+                              itemIds[itemText] = itemId;
+                              const listItem = document.createElement("li");
+                              listItem.className = "items";
+                              listItem.innerHTML = `<span class="item-text">${itemText}</span> <span class="remove">-</span>`;
+                              //listItem.setAttribute("data-item-id", itemId); // Set the unique identifier
+                              selectedItems.appendChild(listItem);
+                              originalAvailableItems[index].style.display = "none";
+                              const removeButton = listItem.querySelector(".remove");
+                              removeButton.addEventListener("click", () => {
+                                selectedItems.removeChild(listItem);
+                                originalAvailableItems[index].style.display = "flex";
+                              });
+                            });
+                          });
+                        
+                          addedRemoveButtons.forEach((button) => {
+                            button.addEventListener("click", () => {
+                              const selectedItem = button.parentNode;
+                              const itemText = selectedItem.querySelector(".item-text").textContent;
+                              const itemId = itemIds[itemText]; // Get the unique identifier
+                          
+                              // Create a new list item for the available column
+                              const listItem = document.createElement("li");
+                              listItem.className = "items";
+                              listItem.setAttribute("data-text", itemText);
+                              listItem.innerHTML = `<span class="item-text">${itemText}</span> <span class="add">+</span>`;
+                              listItem.setAttribute("data-item-id", itemId); // Set the unique identifier
+                              
+                              // Insert the new item at the beginning of the available items
+                              originalAvailableItems[0].parentNode.insertBefore(listItem, originalAvailableItems[0]);
+                              
+                              // Remove the selected item from the selected column
+                              selectedItems.removeChild(selectedItem);
+                          
+                              const addButton = listItem.querySelector(".add");
+                              addButton.addEventListener("click", () => {
+                                // Logic when adding an item back to the selected column
+                                // ...
+                                
+                                // Remove the item from the available column and show it in the selected column
+                                listItem.parentNode.removeChild(listItem);
+                                selectedItems.appendChild(selectedItem);
+                              });
+                            });
+                          });
+                        
+                          /*searchIcon.addEventListener("click", () => {
+                            const searchTerm = searchInput.value.toLowerCase();
+                            originalAvailableItems.forEach(item => {
+                              const itemText = item.querySelector(".item-text").textContent.toLowerCase();
+                              if (itemText.includes(searchTerm)) {
+                                item.style.display = "flex";
+                                if (searchTerm !== "") {
+                                  item.classList.add("highlight");
+                                } else {
+                                  item.classList.remove("highlight");
+                                }
+                              } else {
+                                item.style.display = "none";
+                                item.classList.remove("highlight");
+                              }
+                            });
+                        
+                            selectedItems.querySelectorAll(".items").forEach(item => {
+                              const itemText = item.querySelector(".item-text").textContent.toLowerCase();
+                              if (itemText.includes(searchTerm)) {
+                                item.style.display = "flex";
+                                if (searchTerm !== "") {
+                                  item.classList.add("highlight");
+                                } else {
+                                  item.classList.remove("highlight");
+                                }
+                              } else {
+                                item.style.display = "none";
+                                item.classList.remove("highlight");
+                              }
+                            });
+                          });*/
+
+
+                        });    
+                      </script>
+
+<script>
+    function filterItems() {
+        // Get the input value
+        var input = document.getElementById("searchInput").value.toLowerCase();
+        
+        // Get the list items
+        var itemList = document.getElementById("itemList");
+        var items = itemList.getElementsByClassName("items");
+        console.log(items);
+        // Loop through the list items and hide/show based on the input
+        for (var i = 0; i < items.length; i++) {
+            var itemText = items[i].getAttribute("data-text").toLowerCase();
+            console.log(itemText);
+            if (itemText.includes(input)) {
+                items[i].style.display = "block"; // Show the item
+            } else {
+                items[i].style.display = "none";  // Hide the item
+            }
+        }
+    }
+</script>
+                     
+
+{% endblock %}  

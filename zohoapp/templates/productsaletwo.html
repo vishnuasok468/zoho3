@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js"></script>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        height: 5vh;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media print {
+        .print-contents table tbody {
+            color: black;
+        }
+
+        #pdf-card {
+            background-color: white;
+        }
+    }
+</style>
+<div class="page-content">
+   
+        <div class="card-body">
+            <div class="card-title" id="div2">
+                <center>
+                    <center><h2 class="mb-0" style="font-size: 35px;color: rgb(218, 164, 48);">{{ company.company_name  }}</h2></center><br>
+                    <h2 class="my-4 text-uppercase" id="headline"style="font-size: 40px;color: rgb(218, 164, 48);">PRODUCT SALE REPORT </h2>
+                    <div class="display">
+                        <div id="d1" style="display: inline-block;"></div>
+                        <div id="d2" style="display: inline-block;"></div>
+                    </div>
+
+                </center>
+                <hr>
+            </div>
+
+            <div class="bar">
+                <div class=" left">
+                    <div class="px-2">
+                        <label style="text-align:left ">From</label>
+                        <input name="FromDate" class="inputdate" type="date" id="in1" style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);">
+                    </div>
+
+                    <div class="px-2">
+                        <label style="text-align:left ">To</label>
+                        <input name="ToDate" type="date" class="inputdate" id="in2" style="width: 70%; border-radius: 8px;padding: 5px; border: 3px solid rgb(200, 166, 104);">
+                    </div>   
+              
+                </div>
+                <div class="right">
+                    <a href="{% url 'product_graphview' %}" class="btn btn-outline-info"  style="background: white; color: rgb(218, 164, 48);outline-color:rgb(218, 164, 48) ;"><i class="fa fa-line-chart" ></i></a>
+                    <button class="btn btn_pdf btn-outline-info" style="background: white; color: rgb(218, 164, 48);outline-color:rgb(218, 164, 48) ;"><i class="fa fa-file-pdf"></i> </button>
+                    <button class="btn btn_print btn-outline-info" id="printButton" onclick="display()"  style="background: white; color: rgb(218, 164, 48);"><i class="fa fa-print"></i></button>
+                    <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()"  style="background: white; color: rgb(218, 164, 48);"> <i class="fa fa-file-excel"></i> </button>
+                    <button class=" btn btn-outline-info"  style="background: white; color: rgb(218, 164, 48);"> <a  href="{% url 'report_inventory_view' %}" class="fa fa-close" style="color:rgb(218, 164, 48);"></a> </button>
+                </div>
+            </div><br>
+            <div class="px-2 dropdown">
+                    
+                <input type="text" id="searchInput" placeholder="Search..."
+                    class="dropdown-toggle form-control " autocomplete="off" data-toggle="dropdown" style="color: rgb(255, 255, 255);background: transparent;width: 20vw;">
+                <div class="dropdown-menu" >
+                    <a id="d-item" class="dropdown-item" href="#"
+                        >All</a>
+                        {% for i in item %}
+                        <a id="d-item" class="dropdown-item" href="#"
+                           >{{i.Name}}
+
+                        {% endfor %}</a>
+
+
+              
+
+            </div>
+            </div>
+        </div>
+    </div>
+    <div  id="pdf-card">
+        <div class="card-body">
+            <div class="container-fluid">
+
+                <table class="table table-bordered table-striped mt-4"
+                    id="myTable">
+                    <thead>
+                        <tr>
+                            <th style=" color: rgb(218, 164, 48);display: none;" >DATE</th>
+                            <th style=" color: rgb(218, 164, 48);">ITEM NAME</th>
+                            <th style=" color: rgb(218, 164, 48);display: none;">TYPE</th>
+                            <th style=" color: rgb(218, 164, 48);">QUANTITY</th>
+                            <th style=" color: rgb(218, 164, 48);">SALES</th>
+                            <th style=" color: rgb(218, 164, 48);">SALES WITH TAX</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in inv %}
+                                        <tr class="tr">
+                                            <td class="center text-white" style="display: none;">{{ i.inv.inv_date | date:'d-m-Y'}}</td> 
+                                            <td class="center text-white">{{ i.product}}</td>
+                                            <td class="center text-white"style="display: none;">invoice</td> 
+                                            <td class="center text-white">{{i.quantity}}</td> 
+                                            
+                                            <td class="center text-white">{{i.inv.subtotal}}</td>         
+                                            <td class="center text-white">{{i.inv.grandtotal}}</td>   
+                                                
+                                        </tr></a>
+                                    {% endfor %}
+                                  
+                                    {% for r in pdebit %}
+                                        <tr class="tr">
+                                            <td class="center text-white" style="display: none;" >{{ r.ri.start| date:'d-m-Y'}}</td> 
+                                            <td class="center text-white">{{ r.iname}}</td>  
+                                            <td class="center text-white" style="display: none;" >reccuring invoice</td> 
+                                            <td class="center text-white">{{ r.quantity}}</a></td>
+                                            <td class="center text-white">{{r.ri.sub_total }}</td>         
+                                            <td class="center text-white">{{r.ri.total}}</td>          
+                                             
+                                        </tr></a>
+                                    {% endfor %}
+                                    
+
+                    </tbody>
+                </table>
+
+
+
+            </div>
+            <div class="row p-4">
+                <div class="col-10">
+                    
+                    <div class="row mb-2">
+                        <div class="col-4 "style="display: none;">Invoice Sale: <p id="sales" style="font-size: 19px;">₹<span
+                                    id="totalInvoice"></span></p>
+                        </div>
+                        <div class="col-4"style="display: none;">Reccuring Invoice Sale: <p id="purchase" style="font-size: 19px;">₹<span
+                                    id="totalReccuringinvoice"></span>
+                            </p>
+                        </div>
+                        <div class="col-4"style="display: none;">Credit Note: <p id="expense" style="font-size: 19px;">₹<span
+                                    id="totalCreditnote"></span></p>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4 "style="display: none;">Total Sale: <p id="sales" style="font-size: 19px;">₹<span
+                                    id="totalSale"></span></p>
+                        </div>
+                        <div class="col-4"style=" color: rgb(218, 164, 48);">Total Sales Without Tax:<p id="expense" style="font-size: 19px;">
+                                ₹<span id="totalSalewithoutCreditnotes"></span></p>
+                        </div>
+                        <div class="col-4"style=" color: rgb(218, 164, 48);">Total Sales With Tax :<p id="purchase" style="font-size: 19px;">₹<span
+                                    id="grantTotal"></span>
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-2 text-center">
+                    <h5 style="padding-top: 100px;color: rgb(218, 164, 48);">Grand Total</h5>
+                    <h4 id="totvalue"style=" color: rgb(218, 164, 48);"><span id="superTotal"></span></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var $tableRows = $("#myTable tbody tr");
+        var originalRows = Array.from($tableRows);
+
+        var filteredRows = originalRows.slice();
+        var totalgrantTotal = 0;
+        var totalCreditnotegranttotal = 0;
+        var totalInvoiceSubtotal = 0;
+        var totalRecinvoiceSubtotal = 0;
+        var totalCreditnoteSubtotal = 0;
+
+        document.getElementById("in1").addEventListener("change", filterByDate);
+        document.getElementById("in2").addEventListener("change", filterByDate);
+
+        function filterByDate() {
+            var startDate = moment(document.getElementById("in1").value, "YYYY-MM-DD");
+            var startDatevalue = document.getElementById("in1").value;
+            var endDateInput = document.getElementById("in2");
+
+            endDateInput.min = startDatevalue;
+            var endDate = moment(endDateInput.value, "YYYY-MM-DD");
+
+            if (!moment(document.getElementById("in1").value).isValid()) {
+                $tableRows.show();
+                filteredRows = originalRows.slice();
+                document.getElementById("d1").textContent = "";
+                document.getElementById("d2").textContent = "";
+                return;
+            }
+
+            if (!moment(endDateInput.value, "YYYY-MM-DD").isValid()) {
+                $tableRows.show();
+                filteredRows = originalRows.slice();
+                document.getElementById("d1").textContent = "";
+                document.getElementById("d2").textContent = "";
+                return;
+            }
+
+            document.getElementById("d1").textContent = "Start Date: " + startDate.format("YYYY-MM-DD");
+            document.getElementById("d2").textContent = "End Date: " + endDate.format("YYYY-MM-DD");
+
+
+
+            var head = document.getElementById('headline');
+            head.textContent = "sales by items";
+
+            filteredRows = originalRows.filter(function (row) {
+                var dateCell = row.querySelector("td:first-child");
+                var rowDateString = dateCell.textContent;
+                var rowDate = moment(rowDateString, "DD/MM/YYYY");
+
+                return rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate);
+            });
+
+            $tableRows.hide();
+            $(filteredRows).show();
+            calculateTotals(filteredRows);
+            calculateGranttotal(filteredRows);
+
+            calculateGrantTotalByMonth(filteredRows);
+            return filteredRows; // Return filtered rows
+        }
+      
+
+ 
+
+        // Code for filtering rows based on search input
+        
+        $rows = $('.dropdown-menu #d-item');
+        $('#searchInput').keyup(function () {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            $rows.show().filter(function () {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return !~text.indexOf(val);
+            }).hide();
+        });
+
+        // Click event handler for dropdown menu items
+        $rows.click(function () {
+            var itemName = $(this).text().trim();
+            var head = document.getElementById('headline');
+            head.textContent = itemName +"SALE REPORT ";
+
+            var dRows = $(filteredRows).show().filter(function () {
+                return $(this).text().indexOf(itemName) === -1;
+            }).hide();
+
+            var remainingRows = $(filteredRows).not(dRows);
+            calculateTotals(remainingRows);
+            calculateGranttotal(remainingRows);
+            calculateGrantTotalByMonth(remainingRows);
+        });
+
+        localStorage.setItem('filteredRows', JSON.stringify(originalRows));
+
+        function calculateGranttotal(rows) {
+            totalgrantTotal = 0;
+            totalCreditnotegranttotal = 0;
+
+            for (let row of rows) {
+                let grantTotalCell = row.children[5];
+                let grantTotal = parseFloat(grantTotalCell.textContent);
+                totalgrantTotal += grantTotal;
+
+                let typeCell = row.children[2];
+
+                if (typeCell.textContent.trim() === "Credit Notes") {
+                    let creditgranttotalCell = row.children[5];
+                    let creditgranttotal = parseFloat(creditgranttotalCell.textContent);
+                    totalCreditnotegranttotal += creditgranttotal;
+                }
+            }
+
+            var superTotal = document.getElementById('superTotal');
+            var roundedNumber = totalgrantTotal - totalCreditnotegranttotal;
+            superTotal.textContent = roundedNumber.toFixed(2);
+
+            var gtTag = document.getElementById('grantTotal');
+            gtTag.textContent = totalgrantTotal.toFixed(2);
+        }
+        calculateGranttotal(originalRows);
+
+        function calculateTotals(rows) {
+            totalInvoiceSubtotal = 0;
+            totalRecinvoiceSubtotal = 0;
+            totalCreditnoteSubtotal = 0;
+
+            for (let row of rows) {
+                let typeCell = row.children[2];
+
+                if (typeCell.textContent.trim() === "invoice") {
+                    let subtotalCell = row.children[4];
+                    let subtotal = parseFloat(subtotalCell.textContent);
+                    totalInvoiceSubtotal += subtotal;
+                }
+
+                if (typeCell.textContent.trim() === "reccuring invoice") {
+                    let subtotalCell = row.children[4];
+                    let subtotal = parseFloat(subtotalCell.textContent);
+                    totalRecinvoiceSubtotal += subtotal;
+                }
+
+                if (typeCell.textContent.trim() === "Credit Notes") {
+                    let subtotalCell = row.children[4];
+                    let subtotal = parseFloat(subtotalCell.textContent);
+                    totalCreditnoteSubtotal += subtotal;
+                }
+            }
+
+            var TITag = document.getElementById('totalInvoice');
+            TITag.textContent = totalInvoiceSubtotal;
+
+            var RITag = document.getElementById('totalReccuringinvoice');
+            RITag.textContent = totalRecinvoiceSubtotal;
+
+            var cnTag = document.getElementById('totalCreditnote');
+            cnTag.textContent = totalCreditnoteSubtotal;
+
+            var tsTag = document.getElementById('totalSale');
+            tsTag.textContent = totalInvoiceSubtotal + totalRecinvoiceSubtotal + totalCreditnoteSubtotal;
+
+            var tswcnTag = document.getElementById('totalSalewithoutCreditnotes');
+            tswcnTag.textContent = totalInvoiceSubtotal + totalRecinvoiceSubtotal;
+        }
+
+        // Call calculateTotals initially to calculate totals for all rows
+        calculateTotals(originalRows);
+
+        function calculateGrantTotalByMonth(rows) {
+            var grandTotalsByMonth = {};
+
+            // Initialize grandTotalsByMonth with all months
+            for (let month = 0; month < 12; month++) {
+                grandTotalsByMonth[month] = 0;
+            }
+
+            for (let row of rows) {
+                let typeCell = row.children[2];
+                if (typeCell.textContent.trim() === "reccuring invoice" || typeCell.textContent.trim() === "invoice") {
+                    let dateCell = row.children[0];
+                    let dateString = dateCell.textContent;
+                    let date = moment(dateString, 'YYYY-MM-DD');
+                    let month = date.month(); // Subtract 1 from the month value
+
+
+                    if (!grandTotalsByMonth.hasOwnProperty(month)) {
+                        grandTotalsByMonth[month] = 0;
+                    }
+
+                    let grantTotalCell = row.children[5];
+                    let grantTotal = parseFloat(grantTotalCell.textContent);
+
+                    grandTotalsByMonth[month] += grantTotal;
+                }
+            }
+
+            localStorage.setItem('grandtotalBymonth', JSON.stringify(grandTotalsByMonth));
+        }
+
+        calculateGrantTotalByMonth(originalRows);
+
+    });
+
+</script>
+
+
+<script type="text/javascript">
+    function exportAsExcel() {
+        const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'patystatement.xlsx');
+    }
+</script>
+<script>
+    function display() {
+        var printContents = document.getElementById("pdf-card").innerHTML;
+        var div2Contents = document.getElementById('div2').innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = div2Contents + printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload();
+
+    }
+
+
+    $(document).ready(function ($) {
+        $(document).on('click', '.btn_pdf', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var name = document.getElementById("headline").innerHTML;
+            var div2 = document.getElementById("div2");
+            var element = document.createElement('div');
+            element.appendChild(div2.cloneNode(true));
+            element.appendChild(document.getElementById('pdf-card').cloneNode(true));
+            element.style.color = 'white';
+            element.style.backgroundColor = '#243e54';
+            var opt = {
+                margin: 1,
+                filename: name + '.pdf',
+                image: { type: 'png', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait', backgroundColor: '#243e54' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+    });
+
+
+
+</script>
+
+
+
+
+{% endblock %}

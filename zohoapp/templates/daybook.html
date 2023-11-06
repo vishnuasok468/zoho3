@@ -1,0 +1,600 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<style>
+
+  
+  .col {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+  }
+  
+  @media print {
+    table, th, td, tr {
+      border: 1px solid black;
+      padding: 10px; /* Ensure black borders when printing */
+     
+    }
+    table {
+    margin: 0 auto; /* Center the table horizontally */
+  }
+
+  }
+  @media (max-width: 768px) {
+  
+      #d1,
+      #d2,
+      #search-box {
+          width: 30%;
+      }
+
+
+  }
+
+  .daterangepicker {
+      background-color: #f0f0f0;
+      color: #000;
+  }
+
+ 
+</style>
+
+
+
+<div class="d-flex justify-content-between align-items-center" style="margin-top: 40px;">
+  <div class="d-flex">
+      <div class="col">
+          <form action="" method="post" id="date-form">
+              {% csrf_token %}
+              From <input type="date" id="d1" name="d1" required>
+              To <input type="date" id="d2" name="d2" required>
+              <span id="date-error" style="color: red;"></span>
+              
+          </form>
+      </div>
+      <!-- <a href="{% url 'customize_report' %}" style="margin-left: 30px;">Customize report <i class="fa fa-cog"></i></a> -->
+  </div>
+  
+  <div class="d-flex">
+     
+      <!-- <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp; -->  
+      <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp;
+      <button class="btn btn-light mr-2" id="pdf" onclick="exportAsPDF()"><i class="fa fa-file-pdf-o"></i>PDF</button>
+    
+      <div style="width: 3px;"></div>
+      <div class="dropdown">
+          <button class="btn btn-light mr-3 dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              Export
+          </button>
+          <div class="dropdown-menu" aria-labelledby="exportDropdown">
+           
+              <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+          </div>
+          <a href="{% url 'reports' %}" class="btn btn-light" style=" color: rgb(1, 1, 1);">
+              <i class="fa fa-times-circle"></i>
+          </a>
+      </div>
+      
+  </div>
+  
+</div>
+<div class="dropdown ml-auto" style="margin-top: 10px;">
+  <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" id="filterDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fas fa-filter"></i> 
+  </button>
+  <div class="dropdown-menu" aria-labelledby="filterDropdown">
+    <a class="dropdown-item" href="#" data-sort="type">Type</a>
+    <a class="dropdown-item" href="#" data-sort="customer">Party's Name</a>
+    <a class="dropdown-item" href="#" data-sort="amount">Total Amount</a>
+</div>
+</div>
+
+<div class="input-group input-group-sm ml-auto" style="width: 150px; margin: 10px; margin-top: -35px; margin-left: 80px;">
+  <input type="text" id="searchInput" class="form-control" style="color: black !important;" placeholder="Search..." onkeyup="searchTable()">
+  &nbsp;&nbsp;
+    <div class="input-group-sm">
+       
+           
+       
+    </div>
+</div>
+
+<!-- <hr style="color: #999; background-color: #999; height: 1px; border: none;"> -->
+
+<div class="container-fluid" id="container-to-print"> 
+  <div class="row pt-5">
+      <center>
+          {% if company.company_name != None %}
+          <a class="text" style="font-size: 1rem; color: rgb(237, 234, 234);">{{ company.company_name }}</a><br>
+          {% else %}
+          <a class="text" style="font-size: 1rem; color: white;">Add Company</a><br>
+        {% endif %}
+          <h4 class="text" style="color: white;">Day Book</h4>
+          <h5 class="text" style="color:white;">Basis:</h5>
+          <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
+          
+      </center>
+      <div class="table-responsive"> 
+      <table class="table table-bordered table-striped mt-4" id="data-table">
+          <thead>
+              <tr>
+                  <th style="color: white;">Date</th>
+                  <th style="color: white;">Type</th>
+                  <th style="color: white;">Party's Name</th>
+                  <th style="color: white;">Reference No.</th>
+                  <th style="color: white;">Total Amount</th>
+              </tr>
+          </thead>
+          <tbody id="tableBody">
+
+            {% for item in item %}
+            <tr>
+              <td style="color: white;">{{item.date|date:"M. j, Y"}}</td>
+              <td style="color: white;">Items</td>
+              <td style="color: white;">{{item.Name}}</td>
+              <td style="color: white;"></td>
+              <td style="color: white;">{{item.rate}}</td>
+            </tr>
+            {%endfor%}
+
+            {% for price in price %}
+            <tr>
+              <td style="color: white;">{{price.itemtable.date|date:"M. j, Y"}}</td>
+              <td style="color: white;">Price List</td>
+              <td style="color: white;">{{price.name}}</td>
+              <td style="color: white;"></td>
+              <td style="color: white;">{{price.itemtable.rate}}</td>
+            </tr>
+            {%endfor%}
+
+            {% for offbank in offbank %} 
+            <tr>
+                <td style="color: white;">{{offbank.payroll.joindate}}</td>
+                <td style="color: white;">Offline Bank</td>
+                <td style="color: white;">{{offbank.bank_name}}</td>
+                <td style="color: white;"></td>
+                <td style="color: white;">{{offbank.payroll.salary}}</td>
+    
+               
+            </tr> 
+            {%endfor%}
+      
+            {% for bdetails in bdetails  %} 
+            <tr>
+                <td style="color: white;">{{bdetails.date}}</td>
+                <td style="color: white;"> Bank</td>
+                <td style="color: white;">{{bdetails.name}}</td>
+                <td style="color: white;"></td>
+                <td style="color: white;">{{bdetails.opn_bal}}</td>
+    
+               
+            </tr> 
+            {%endfor%}
+      
+        {% for es in esti %} 
+        <tr>
+            <td style="color: white;">{{es.estimate_date}}</td>
+            <td style="color: white;">Estimates</td>
+            <td style="color: white;">{{es.customer_name}}</td>
+            <td style="color: white;">{{es.reference}}</td>
+            <td style="color: white;">{{es.sub_total}}</td>
+
+           
+        </tr> 
+        {%endfor%}
+
+        {% for re in retain %}
+        <tr>
+            <td style="color: white;">{{re.retainer_invoice_date}}</td>
+            <td style="color: white;">Retainer Invoices</td>
+            <td style="color: white;">{{re.customer_name.customerName}}</td>
+            <td style="color: white;">{{re.refrences}}</td>
+            <td style="color: white;">{{re.total_amount}}</td>
+        </tr>
+        {%endfor%}
+        
+
+        {% for sa in sales %}
+         <tr>
+            <td style="color: white;">{{sa.sales_date}}</td>
+            <td style="color: white;">Sales Orders</td>
+            <td style="color: white;">{{sa.customer.customerName}}</td>
+            <td style="color: white;">{{sa.reference}}</td>
+            <td style="color: white;">{{sa.grandtotal}}</td>
+        </tr>
+        {%endfor%}
+        
+        {% for d in dc %}
+        <tr>
+            <td style="color: white;">{{d.chellan_date}}</td>
+            <td style="color: white;">Dellivery Challans</td>
+            <td style="color: white;">{{d.customer_name}}</td>
+            <td style="color: white;">{{d.reference}}</td>
+            <td style="color: white;">{{d.total}}</td>
+        </tr>
+        {%endfor%}
+
+        {% for inv in inv %}
+        <tr>
+            <td style="color: white;">{{inv.inv_date}}</td>
+            <td style="color: white;">Invoices</td>
+            <td style="color: white;">{{inv.customer.customerName}}</td>
+            <td style="color: white;"></td>
+            <td style="color: white;">{{inv.grandtotal}}</td>
+        </tr>
+        {%endfor%}
+
+
+         {% for c in cred %}
+        <tr>
+
+            <td style="color: white;"> {{c.creditnote_date}}</td>
+            <td style="color: white;">Credit Notes</td>
+            <td style="color: white;">{{c.customer.customerName}}</td>
+            <td style="color: white;">{{c.reference}}</td>
+            <td style="color: white;">{{c.total}}</td> 
+        </tr>
+        {%endfor%}
+
+
+        {% for pay in payment %}
+        <tr>
+            <td style="color: white;">{{pay.date}}</td>
+            <td style="color: white;">Payment_made</td>
+            <td style="color: white;">{{pay.vendor.first_name}}</td>
+            <td style="color: white;">{{pay.reference}}</td>
+            <td style="color: white;">{{pay.amount}}</td>
+            {%endfor%}
+        </tr> 
+       
+        {% for bill in recbill %}
+        <tr>
+            <td style="color: white;">{{bill.start_date}}</td>
+            <td style="color: white;">Recurring Bill</td>
+            <td style="color: white;">{{bill.vendor_name}}</td>
+            <td style="color: white;"></td>
+            <td style="color: white;">{{bill.grand_total}}</td>
+        </tr> 
+        {%endfor%}
+
+        {% for ex in exp %}
+       <tr>
+            <td style="color: white;">{{ex.start_date}}</td>
+            <td style="color: white;">Expenses</td>
+            <td style="color: white;">{{ex.vendor.first_name}}</td>
+            <td></td>
+            <td style="color: white;">{{ex.amount}}</td>
+        </tr>
+        {% endfor %}
+
+        {% for pu in purchase %} 
+        <tr>
+          <td style="color: white;">{{pu.Ord_date}}</td>
+          <td style="color: white;">Purchase Orders</td>
+          <td style="color: white;">{{pu.vendor_name}}</td>
+          <td style="color: white;">{{pu.ref}}</td>
+          <td style="color: white;">{{pu.grand_total}}</td>
+        </tr>
+         {% endfor %}
+
+
+        {% for pb  in pbill %}
+        <tr>
+          <td style="color: white;">{{pb.bill_date}}</td>
+          <td style="color: white;">Bills</td>
+          <td style="color: white;">{{pb.vendor_name}}</td>
+          <td style="color: white;"></td>
+          <td style="color: white;">{{pb.total}}</td>
+        </tr>
+        {%endfor%}
+
+
+        {% for eb in ebill %}
+        <tr>
+          <td style="color: white;">{{eb.date}}</td>
+          <td style="color: white;">Eway Bills</td>
+          <td style="color: white;">{{eb.cust.customerName}}</td>
+          <td style="color: white;"></td>
+          <td style="color: white;">{{eb.grand_total}}</td>
+        </tr>
+        {% endfor %}
+
+        {% for em in emp %}
+        <tr>
+          <td style="color: white;">{{em.joindate}}</td>
+          <td style="color: white;">Employees</td>
+          <td style="color: white;">{{em.first_name}}</td>
+          <td style="color: white;"></td>
+          <td style="color: white;">{{em.salary}}</td>
+        </tr>
+        {% endfor %}
+
+
+        {% for loan in loan %}
+        <tr>
+          <td style="color: white;">{{loan.date_issue}}</td>
+          <td style="color: white;">Employee's Loan</td>
+          <td style="color: white;">{{loan.payroll.first_name}}</td>
+          <td style="color: white;"></td>
+          <td style="color: white;">{{loan.loan_amount}}</td>
+        </tr>
+        {%endfor%}
+
+        
+          </tbody>
+      </table>
+  </div>
+</div>
+</div>
+<div class="printable-content mt-3">
+  
+</div>
+
+<script>
+
+function exportAsPDF() {
+  const container = document.getElementById('container-to-print');
+  const printableWrapper = document.getElementById('printable-content-wrapper'); 
+  
+  // Clone the container element
+  const clonedContainer = container.cloneNode(true);
+
+  // Save the original background color of the container
+  const originalBackgroundColor = clonedContainer.style.backgroundColor;
+  
+  // Set the cloned container's background color to white
+  clonedContainer.style.backgroundColor = 'white';
+  
+  // Apply styling changes to the cloned container's content
+  const textWhiteElements = clonedContainer.querySelectorAll('.text');
+  textWhiteElements.forEach(element => {
+    element.style.color = 'black'; // Set text color to black
+  });
+
+  const tableElements = clonedContainer.querySelectorAll('table');
+  const tableCells = clonedContainer.querySelectorAll('td,th');
+  const tableRows = clonedContainer.querySelectorAll('tr');
+  
+  tableElements.forEach(table => {
+    table.style.backgroundColor = '#ffffff'; // Set background color to white
+    table.style.color = '#000000'; // Set text color to black
+    table.style.width = '60%';
+    table.style.margin = '0 auto';
+  });
+
+  tableCells.forEach(cell => {
+    cell.style.backgroundColor = '#ffffff'; // Set background color to white
+    cell.style.color = '#000000'; // Set text color to black
+    cell.style.border = '1px solid black'; // Add a black border
+  });
+  
+ 
+  
+  const pdfOptions = {
+    margin: 10, // Apply marginTop
+    filename: '{{company_data.company_name}}Day Book.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, // Change orientation to portrait
+  };
+  
+  // Generate PDF from the cloned container
+  html2pdf().from(clonedContainer).set(pdfOptions).save().then(() => {
+    // Restore the original background color of the original container
+    container.style.backgroundColor = originalBackgroundColor;
+
+    textWhiteElements.forEach(element => {
+      element.style.color = 'white'; // Restore original text color
+    });
+  });
+}
+
+ // Function to save Excel using XLSX
+ function exportToExcel() {
+     var table = document.querySelector('table');
+     var ws = XLSX.utils.table_to_sheet(table);
+     var wb = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+     XLSX.writeFile(wb, 'report.xlsx');
+ }
+
+ // Function to handle export based on dropdown selection
+ document.getElementById('exportDropdown').addEventListener('change', function () {
+     var selectedValue = this.value;
+     if (selectedValue === 'pdf') {
+         exportToPDF();
+     } else if (selectedValue === 'xls') {
+         exportToExcel();
+     }
+ });
+ const pdfExportLink = document.getElementById('pdf'); // This should be the link for PDF export
+pdfExportLink.addEventListener('click', function (event) {
+ event.preventDefault(); 
+ exportToPDF();
+});
+
+// function adjustTableForPrint() {
+     
+//      const table = document.querySelector('.printable-content table');
+//      const container = document.querySelector('.printable-content');
+
+    
+//      const scaleFactor = container.offsetWidth / table.offsetWidth;
+    
+     
+//      table.style.transform = `scale(${scaleFactor})`;
+//      table.style.transformOrigin = 'top left';
+     
+
+     
+//      const marginTop = (container.offsetHeight - table.offsetHeight * scaleFactor) / 2;
+//      table.style.marginTop = `${marginTop}px`;
+//  }
+
+//  //  "Print" button
+//  const printButton = document.getElementById('print');
+//  printButton.addEventListener('click', function() {
+//      adjustTableForPrint();
+//      window.print();
+//  });
+function printPageContent() {
+  const contentToPrint = document.getElementById('container-to-print');
+  const clonedContent = contentToPrint.cloneNode(true);
+
+  // Find all the elements with the class "text" within the cloned content
+  const textElements = clonedContent.querySelectorAll('.text');
+  const filterDropdowns = clonedContent.querySelectorAll('.filter-dropdown');
+
+  // Set the text color to black for each element with the class "text"
+  textElements.forEach(element => {
+    element.style.color = '#000000'; // Text color (black)
+  });
+
+  // Set the dropdown element with "none"
+  filterDropdowns.forEach(dropdown => {
+    dropdown.style.display = 'none';
+  });
+
+  // Set table styles for black text color, borders, and padding
+  const tableElements = clonedContent.querySelectorAll('table');
+  tableElements.forEach(table => {
+    // Set text color for table headers
+    const tableHeaders = table.querySelectorAll('th');
+    tableHeaders.forEach(th => {
+      th.style.color = '#000000';
+    
+    });
+   
+
+    // Set border and padding styles for table cells
+    const tableCells = table.querySelectorAll('td, th, tr');
+    tableCells.forEach(cell => {
+      cell.style.border = '1px solid black'; // Black border
+      cell.style.padding = '10px'; // Padding
+      cell.style.color = '#000000';
+      
+    });
+    table.style.margin = '0 auto';
+  });
+
+  // Print the cloned content
+  const printWindow = window.open('', '_blank');
+  printWindow.document.body.appendChild(clonedContent);
+  printWindow.print();
+  printWindow.close();
+}
+
+
+
+
+
+//date filter
+const d1 = document.getElementById('d1');
+const d2 = document.getElementById('d2');
+const dateError = document.getElementById('date-error');
+const dataTable = document.getElementById('data-table');
+const dateRangeDisplay = document.getElementById('date-range-display');
+
+d1.addEventListener('input', filterData);
+d2.addEventListener('input', filterData);
+
+function filterData() {
+  const fromDate = new Date(d1.value);
+  const toDate = new Date(d2.value);
+
+  if (isNaN(toDate)) {
+    dateError.textContent = '';
+  } else if (fromDate > toDate) {
+    dateError.textContent = 'Invalid date range';
+  } else {
+    dateError.textContent = '';
+    const rows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+      const rowDateText = rows[i].getElementsByTagName('td')[0].textContent;
+      const rowDate = new Date(rowDateText);
+
+      if (!isNaN(rowDate)) {
+        // Compare dates without considering the time component
+        const rowDateWithoutTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate());
+        const fromDateWithoutTime = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+        const toDateWithoutTime = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+        if (rowDateWithoutTime >= fromDateWithoutTime && rowDateWithoutTime <= toDateWithoutTime) {
+          rows[i].style.display = '';
+        } else {
+          rows[i].style.display = 'none';
+        }
+      }
+    }
+
+    // Update the date range display
+    dateRangeDisplay.textContent = ` from ${d1.value} to ${d2.value}`;
+  }
+}
+
+//search 
+function searchTable() {
+    let input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("tableBody");
+    tr = table.getElementsByTagName("tr");
+
+    console.log("Filter Value:", filter);
+
+    // Loop through all table rows (excluding the first row, which contains the column headers)
+    for (i = 0; i < tr.length; i++) {
+        let rowVisible = false;
+        td = tr[i].getElementsByTagName("td");
+
+        // Loop through all table cells (columns) in each row
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                console.log("Text Value:", txtValue);
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    rowVisible = true;
+                    break;
+                }
+            }
+        }
+
+        // Show/hide the row based on the search results
+        tr[i].style.display = rowVisible ? "" : "none";
+    }
+}
+
+//filter 
+$(document).ready(function() {
+            function sortTable(criteria) {
+                const rows = $("#data-table tbody tr").get();
+                rows.sort(function(rowA, rowB) {
+                    const cellA = $(rowA).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    const cellB = $(rowB).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    return cellA.localeCompare(cellB);
+                });
+                $("#data-table tbody").empty().append(rows);
+            }
+
+            // Handle click event on dropdown items
+            $(".dropdown-menu a").click(function() {
+                const sortingCriteria = $(this).data("sort");
+                if (sortingCriteria) {
+                    sortTable(sortingCriteria);
+                }
+            });
+        });
+
+  
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+
+{%endblock%}

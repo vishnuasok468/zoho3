@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<style>
+    .btn {
+        color: rgb(218, 164, 48);
+        outline-color: azure;
+        /* border: 2px solid rgb(25, 91, 145); */
+    }
+
+    .btn:hover {
+        color: darkslategray;
+        background-color: lightblue;
+        outline: none;
+
+    }
+
+    a {
+        list-style: none;
+        color: azure;
+    }
+
+    a:hover {
+        color: rgb(218, 164, 48);
+    }
+
+    .searchbar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* padding: 1rem .8rem; */
+    }
+
+    .searchbar .left input[text] {
+
+        width: 15vw;
+    }
+</style>
+
+<div class="row  p-3" style="background-color: rgba(0, 0, 0, 0.479);" id="pdf">
+    <div class="row">
+        
+        <div>
+            <center>
+                <h6>{{company.company_name}}</h6>
+                <h2 class="mt-4" id="headline">PROJECT SUMMARY</h2>
+                <div class="display">
+                    <div id="d1" style="display: inline-block;"></div>
+                    <div id="d2" style="display: inline-block;"></div>
+                </div>
+
+            </center>
+        </div>
+    </div>
+    <div class="searchbar pt-5 pb-4">
+        <div class="left" style="display: grid;grid-template-columns: 1fr 1fr;">
+            <div class="px-2">
+                <label style="text-align:left ">From</label><br>
+                <input name="FromDate" class="inputdate form-control text-dark" type="date" id="in1">
+            </div>
+            <div class="px-2">
+                <label style="text-align:left ">To</label><br>
+                <input name="ToDate" type="date" class="inputdate form-control  text-dark" id="in2">
+            </div>
+        </div>
+        <div class="right">
+            <button class="btn btn-warning btn_print text-center px-3" data-toggle="tooltip" title="Print"><i
+                    class="mdi mdi-printer"></i>Print</button>
+            <button class="btn btn-warning btn_pdf text-center px-3" data-toggle="tooltip" title="pdf"><i
+                    class="mdi mdi-file-pdf"></i>PDF</button>
+            <button class="btn btn-warning text-center px-3" data-toggle="tooltip" title="excel" onclick="exportAsExcel()"><i
+                    class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</button>
+                    <button type="button" onclick="history.go(-1);" class="btn btn-danger">&times;</button></div>
+        </div>
+
+    </div>
+    <hr>
+    <div class="pdf pt-2" style="background-color: rgb(0, 0, 0);height: 500px;padding-bottom: 25px;">
+        <div class="row  mx-2 my-3">
+            <input type="text" id="search" class="form-control bg-light text-dark" name="search"
+                placeholder="Search Projects..." style="width: 20vw;"  onkeyup="searchFunction()">
+        </div>
+
+        <!--  -->
+        <div class=" my-3 mb-5" id="div-to-pdf" >
+
+            <table class="table text-white" id="mytable">
+                <thead>
+                    <tr>
+                        <th>PROJECT NAME</th>
+                        <th>CUSTOMER NAME</th>
+                        <th>USER NAME</th>
+                        <th>Date</th>
+                        <th>TASK NAME</th>
+                        <th>ACTION</th>
+                        <th>BILL DATE</th>
+                        <th>AMOUNT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in taskz %}
+                    <tr id="over">
+                        <td>{{v.proj.name}}</td>
+                        <td> {{v.proj.c_name.customerName}} </td>
+                        <td>{{v.username}}</td>
+                        <td>{{v.proj.start}}</td>
+                        <td>{{v.taskname}}</td>
+                        <td>{{v.billable}}
+                        <td>{% if v.billable == 'Billed' %}{{v.billdate}}{% endif %}</td>
+                        <td>{{v.taskrph}}</td>
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        console.log('print');
+
+        $(document).on('click', '.btn_pdf', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var element = document.getElementById('div-to-pdf');
+            element.style.color = 'black';
+            element.style.maxheight = 'fit-content';
+            element.style.backgroundColor = 'black';
+            var opt =
+            {
+                margin: 0,
+                filename: 'projectsummary' + '.pdf',
+                image: { type: 'png', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true, backgroundColor: null },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+
+        });
+
+
+
+        $(document).on('click', '.btn_print', function (event) {
+            event.preventDefault();
+
+
+            const pdfCard = document.getElementById('div-to-pdf').cloneNode(true);
+
+            // Create a new window for printing
+            const printWindow = window.open('', '');
+
+            printWindow.document.body.appendChild(pdfCard);
+
+
+            printWindow.print();
+
+            // Close the new window after printing
+            printWindow.close();
+
+
+
+        });
+
+    });
+    function exportAsExcel() {
+        const table = document.getElementById('mytable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'project summary.xlsx');
+    }
+    function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("mytable");
+        tr = table.getElementsByTagName("tr");
+        // input.style.borderColor = "green";
+        for (i = 1; i < tr.length; i++) {
+            let rowVisible = false;
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+            }
+
+            // Show/hide the row based on the search results
+            tr[i].style.display = rowVisible ? "" : "none";
+        }
+    }
+</script>
+
+<script>
+    var table = document.getElementById("mytable");
+
+    var fromDate;
+    $('#in1').on('change', function () {
+        fromDate = $(this).val();
+        $('#in2').prop('min', function () {
+            return fromDate
+        })
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+        var rows = table.getElementsByTagName("tr");
+        if (document.getElementById("in2").value == '') {
+            for (var i = 2; i < rows.length; i++) {
+                var row = rows[i];
+                var dateCell = row.cells[4];
+                var rowDate = new Date(dateCell.textContent);
+
+                if (rowDate >= startDate) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        }
+        else{
+            for (var i = 2; i < rows.length; i++) {
+            var row = rows[i];
+            var dateCell = row.cells[4];
+            var rowDate = new Date(dateCell.textContent);
+
+            if (rowDate >= startDate && rowDate <= endDate) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
+        }
+        
+        var tdate = new Date(fromDate)
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById("d1").innerHTML = tdate.toLocaleDateString(undefined, options);
+    })
+    var toDate;
+    $('#in2').on('change', function () {
+        toDate = $(this).val();
+        $('#in1').prop('max', function () {
+            return toDate
+        })
+        var startDate = new Date(document.getElementById("in1").value);
+        var endDate = new Date(document.getElementById("in2").value);
+        var rows = table.getElementsByTagName("tr");
+        for (var i = 2; i < rows.length; i++) {
+            var row = rows[i];
+            var dateCell = row.cells[4];
+            var rowDate = new Date(dateCell.textContent);
+
+            if (rowDate <= endDate && rowDate >= startDate) {
+                row.style.display = "";
+                console.log("display");
+            } else {
+                row.style.display = "none";
+
+            }
+        }
+        var tdate = new Date(toDate)
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById("d2").innerHTML = "  To  " + tdate.toLocaleDateString(undefined, options);
+    })
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,1175 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"
+    integrity="sha512-LwZthDLbb+dritfG9jbFyY1ClYqlkF4I9foqo+783wcl6EPR+kE3uqb0OPsieHt4pFH4HVduwX6rTTDmCaC20g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://fontawesome.com/icons/pencil?f=classic&s=solid"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+<style>
+
+
+
+    .dropdown-item:hover{
+    color: rgb(226, 149, 5);
+}
+
+
+
+    .modal{
+      z-index: 9999;
+      overflow: scroll;
+    }
+
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: rgb(252, 236, 217);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    #tr_data:hover{
+    background-color: #757575;
+  }
+</style>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        console.log('print');
+
+        $(document).on('click', '.btn_print', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var element = document.getElementById('whatToPrint');
+            var opt =
+            {
+                margin: 1,
+                filename: 'estimate_' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+
+
+        });
+
+ 1
+
+    });
+</script>
+
+
+
+<script>
+
+ function printSelectedArea() 
+ {
+   var selectedArea = document.getElementById("print_slip");
+   var printWindow = window.open('','PrintWindow','height=800,width=800');
+   printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML+ '</body></html>');
+   printWindow.print();
+   printWindow.close(); 
+ }
+
+$(function() {
+    $("#slip").click(printSelectedArea); 
+});
+
+</script>
+
+
+<script>
+    
+ 
+    function printSelectedArea1() 
+    {
+      var selectedArea = document.getElementById("whatToPrint");
+      var printWindow = window.open('', 'PrintWindow', 'height=50,width=50');
+      printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+      printWindow.print();
+      printWindow.close();
+    }
+   
+   
+   
+   $(function() {
+       $("#est_print").click(printSelectedArea1); 
+   });
+   </script>
+
+
+
+<div style="top: 7rem; ">
+    <div class="row">
+        <div class="col-md-3 col-lg-3">
+            <div class="row  mx-2">
+                <div class="col-md-6 col-lg-6 py-2"><a class="text-white" style="font-size: 1.5rem;"> All  Estimates</a></div>
+                <div class="col-md-2 col-lg-2 "></div>
+                <div class="col-md-4 col-lg-4 ">
+                    
+                    <div class="dropdown ms-3 mt-5 ms-4 pt-1">
+                        <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href="" data-toggle="dropdown">
+                          <i style="color: chocolate;" class="fas fa-sort-alpha-down"></i>
+                        </a>
+                        <div class="dropdown-menu m-1">
+                            <a class="dropdown-item" href="{% url 'estimateslip' estimate.id %}">All</a>
+
+              
+                            <a class="dropdown-item" href="{% url 'est_sort_by_name_estimate_view' estimate.id %}">Name</a>
+                            <a class="dropdown-item" href="{% url 'est_sort_by_estno_estimate_view' estimate.id %}">EST No</a>
+                        </div>
+                      </div>
+                        
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <input type="text" id="search" class="form-control text-dark mb-2 mt-2" placeholder="search......">
+                    
+                </div>
+                <div class="col-sm-2 col-lg-2 col-md-2">
+                    <a  style="color: white; background-color: rgb(210, 132, 30);" class="btn ms-3 mt-2 p-2"
+                    href="{% url 'newestimate' %}"><i class="fas fa-solid fa-plus "></i></a>
+
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    
+                   
+                        <div class="dropdown ms-3 mt-1 pt-1">
+                            <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href="" data-toggle="dropdown">
+                              <i style="color: chocolate;" class="fa fa-filter"></i>
+                            </a>
+                            <div class="dropdown-menu m-1">
+                              <a class="dropdown-item" href="{% url 'estimateslip' estimate.id %}">All</a>
+                
+                              <a class="dropdown-item" href="{% url 'filter_by_draft_estimate_view' estimate.id %}">Draft</a>
+                              <a class="dropdown-item" href="{% url 'filter_by_sent_estimate_view' estimate.id %}">Sent</a>
+                            </div>
+                          </div>
+
+                        
+                    
+                </div>
+                
+                
+                
+            </div>
+            <div class="pt-3 ps-2 " style="height: 600px; overflow-y: scroll;overflow-x: hidden;">
+                <table class="text-white" style="width: 100%; ">
+                    {% for estimate in all_estimates %}
+                    <tbody id="table">
+                    <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;" data-href="{% url 'estimateslip' estimate.id %}">
+                        <td>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 style="color: rgb(218, 143, 5);">{{estimate.customer_name}}</h5>
+                                </div>
+                                <div class="col-md-6 text-right" style="color: rgb(218, 143, 5);">&#x20B9;{{estimate.total}}.00</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>{{estimate.estimate_no}}</p>
+                                </div>
+                                <div class="col-md-2 text-left">
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <p>{{estimate.status}}</p>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+
+                            </div>
+                        </td>
+                    </tr>
+                   
+                </tbody>
+
+                    {% endfor %}
+                </table>
+               
+            </div>
+        </div>
+        <div class="col-md-9 col-lg-9">
+            <div class="row  mx-2 py-3"  style="background-color: rgba(136, 136, 135, 0.5)">
+                <div class="col-md-5 text-light" style="font-size: 2.3rem;">
+                    {{estimate.estimate_no }}
+                    <button class="btn" onclick="overview_function()" style="background-color:rgb(212, 139, 3)  ;border-radius: 5px;height: 1.7rem;" title="Overview"><i class="fa fa-eye"></i></button>
+                    <button class="btn" onclick="template_function()" style="background-color:rgb(212, 139, 3)  ;border-radius: 5px;height: 1.7rem;" title="Template"><i class="fa fa-file-word"></i></button>
+                    {% if estimate.status == 'Draft' %}
+                    <a href="{% url 'estimste_status_edit' estimate.id %}" class="btn" title="save this draft" style="background-color:rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;"><i class="fas fa-save"></i></a>
+                    {% endif %}
+                </div>
+                <div class="col-md-7 text-white text-right my-auto " style="text-align: end;">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        
+                        <a href="{% url 'editestimate' estimate.id %}" class="btn btn-sm ms-1  text-white"
+                        style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" data-toggle="tooltip" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>                     
+                        </a>
+                        {% if setting_variable.pdf == 'yes' %}
+                        <a href="" class="btn btn-sm text-white ms-1 btn_print" style="background-color:  rgb(212, 139, 3);height: 1.7rem;border-radius: 5px;"
+                            data-toggle="tooltip" title="PDF" id="pdf">
+                            <i class="far fa-file-pdf"></i></a>
+                        {% else %}
+                        <a href="" class="btn btn-sm text-white ms-1 btn_print" style="display: none;background-color:  rgb(212, 139, 3);height: 1.7rem;border-radius: 5px;"
+                            data-toggle="tooltip" title="PDF" id="pdf">
+                            <i class="far fa-file-pdf"></i></a>
+                        {% endif %}
+                           
+                        {% if setting_variable.slip == 'yes' %}
+                            <div class="dropdown m-0 p-0 ms-1" title="slip" style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
+                                <a href=" " class=" fas fa-receipt dropdown-toggle  btn-sm text-white ms-1"  
+                                    data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                                </a>
+    
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i class="fas fa-eye"></i>View</a>
+                                    <a class="dropdown-item" id="slip" style="cursor: pointer;"><i class="fas fa-print"></i>&nbsp;Print</a>
+                                            
+                                </div>
+                            </div>
+                        {% else %}
+                        <div class="dropdown m-0 p-0 ms-1" title="slip" style="display: none;background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
+                            <a href=" " class=" fas fa-receipt dropdown-toggle  btn-sm text-white ms-1"  
+                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i class="fas fa-eye"></i>View</a>
+                                <a class="dropdown-item" id="slip" style="cursor: pointer;"><i class="fas fa-print"></i>&nbsp;Print</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if setting_variable.print_opt == 'yes' %}
+                        <a href="" class="btn btn-sm text-white ms-1 "  style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                            data-toggle="tooltip" title="Print" id="est_print">
+                            <i class="fas fa-print"></i></a>
+                            {% else %}
+                            <a href="" class="btn btn-sm text-white ms-1 "  style="display: none;background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                            data-toggle="tooltip" title="Print" id="est_print">
+                            <i class="fas fa-print"></i></a>
+                            {% endif %}
+
+                        <a href="{% url 'emailattachment' %}" class="btn btn-sm text-white ms-1"
+                        style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" data-toggle="tooltip" title="Email">
+                            <i class="fas fa-envelope"></i></a>
+
+
+                        <div class="dropdown m-0 p-0 ms-1" title="comments" style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
+                            <a href=" " class=" fas fa-comment-dots dropdown-toggle  btn-sm text-white ms-1"  
+                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                 data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                                <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                                        
+                            </div>
+                        </div>
+
+                        {% if estimate.attachment != ""%}
+                        <a href="{{estimate.attachment.url}}"  style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" class="btn  ms-1 text-white"
+                            data-toggle="tooltip" title="Download Attached File">
+                            <span class="mdi mdi-download"></span></a>
+                        {%endif%}
+                        
+                       
+                            {% if estimate.convert_invoice == "not_converted" and estimate.convert_sales == "not_converted" %}
+                            <div class="dropdown m-0 p-0 ms-1" title="Convert" style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
+                                <a href=" " class=" fas fa-file-invoice dropdown-toggle  btn-sm text-white ms-1"  
+                                    data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                                </a>
+        
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    {% if estimate.convert_invoice == "not_converted" %}
+                                    <a href="{% url 'converttoinvoice' estimate.id %}" class="dropdown-item" style="cursor: pointer;" onclick="return confirm('Do you want to convert this estimate to an invoice?');" >To Invoice</a>
+                                    {% else %}
+                                    <a href="{% url 'converttoinvoice' estimate.id %}" class="dropdown-item disabled" style="cursor: pointer;" onclick="return confirm('Do you want to convert this estimate to an invoice?');" >To Invoice <br>(converted)</a>
+                                    {% endif %}
+                                    {% if estimate.convert_sales == "not_converted" %}
+                                    <a href="{% url 'convert_to_salesorder' estimate.id %}" class="dropdown-item" style="cursor: pointer;" onclick="return confirm('Do you want to convert this estimate to sales order?');">To SalesOrder</a>
+                                    {% else %}  
+                                        <a href="{% url 'convert_to_salesorder' estimate.id %}" class="dropdown-item disabled" style="cursor: pointer;" onclick="return confirm('Do you want to convert this estimate to sales order?');">To SalesOrder <br>(converted)
+                                        </a>
+                                    </a>
+
+
+                                    {% endif %}   
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                    </div>
+                    
+                        <!-- <a href="" class="btn btn-sm text-white " data-toggle="tooltip" title="Convert to invoice"
+                        style="background-color: rgb(210, 132, 30);height: 1.7rem;" onclick="return confirm('Do you want to convert this estimate to an invoice?');">
+                        <i class="fas fa-file-invoice"></i></a> -->
+                    <a href="{% url 'deleteestimate' estimate.id %}" class="btn btn-sm text-white" title="Delete" style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" 
+                    onclick="return confirm('Do you want to Delete this Estimate?');"><i class="fas fa-trash-alt"></i></a>
+                </div>
+            </div>
+
+
+            <div id="div_estimate"  class="mx-2 my-4 p-4 "
+                style="background-color: rgba(124, 124, 123, 0.507);display: none;">
+                <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
+                    style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
+                    <div class="row">
+                        <div class="col-sm-2 col-lg-2 col-md-2">
+                            <!-- <div style="height: 40px;background-color: rgb(192, 128, 8);" > -->
+                                <h4 class="pt-2" style="color: rgb(192, 128, 8);">{{ estimate.status }}</h4>
+                     <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 ">
+                            <h2 class="text-dark" style="text-transform: uppercase;">{{ company.company_name }}</h2>
+                            <p class="text-dark" style="font-size: 1rem;font-weight: bold;">{{ company.address }}</p>
+                            <p class="text-dark" style="font-size: 1rem;font-weight: bold;">{{ company.city }},{{ company.state }}</p>
+                            <h1 class="text-dark" style="font-size: 3rem; margin-left: 20rem;margin-top: -15%;">ESTIMATE</h1>
+                            <h6 class="text-dark" style="margin-left: 20rem;margin-top: -1%;">Estimate Number : {{estimate.estimate_no }}</h6>
+                        </div>
+                        <!-- <div class="col-md-6 text-right">
+                            <h1 class="text-dark" style="font-size: 3rem; margin-left: 2rem;">ESTIMATE</h1>
+                            <h6 class="text-dark">Estimate Number : {{estimate.estimate_no }}</h6>
+                        </div> -->
+                    </div>
+                    <hr>
+                    <div class="row ">
+                        <div class="col-md-12 mt-auto">
+                            <h6 class="text-dark">Bill To</h6>
+                            <h6 style="color: rgb(218, 142, 3);">{{ estimate.customer_name }} <br><span class="text-dark">{{ estimate.customer.customerEmail }}</span> </h6>
+                            {% if estimate.customer.GSTIN %}
+                            <h6 class="text-dark ">GSTIN : {{ estimate.customer.GSTIN }}</h6>
+                            {% endif %}
+                            <h6 class="text-dark " style="margin-left: 20rem;margin-top: -4%;">Order Date : {{ estimate.estimate_date }}</h6>
+                            
+
+                        </div>
+                        <!-- <div class="col-md-6 text-right mt-auto">
+                            <h6 class="text-dark ">Order Date : {{ estimate.estimate_date }}</h6>
+                        </div> -->
+                    </div>
+                    <table class="table mt-2 " style="border-color: black;border-collapse: collapse;background-color: rgb(237, 237, 240);">
+                        <thead >
+                            <tr style="border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black;"> 
+                                <th style="color: black;">#</th>
+                                <th  style="width: 30rem;color: black;">Item</th>
+                                <th  style="width: 30rem;color: black;">Hsn</th>
+                                <th  style="color: black;width: 20rem;">Quantity</th>
+                                <th  style="color: black;width: 20rem;">Rate</th>
+                                <th  style="color: black;width: 20rem;">Discount</th>
+                                <th  style="color: black;width: 20rem;">Tax</th>
+                                <th  style="color: black;width: 20rem;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-left: 1px solid black;border-right: 1px solid black">
+                            {% for item in items %}
+                            <tr style="border-bottom: 1px solid black;">
+                                <td>{{ forloop.counter }}</td>
+                                <td style="text-align: center;">{{ item.item_name }}</td>
+                                <td style="text-align: center;">{{ item.hsn }}</td>
+                                <td style="text-align: center;">{{ item.quantity }}</td>
+                                <td style="text-align: center;">{{ item.rate|floatformat:1 }}</td>
+                                <td style="text-align: center;">{{ item.discount|floatformat:1 }}</td>
+                                <td style="text-align: center;">{{ item.tax_percentage }}</td>
+                                <td style="text-align: center;">{{ item.amount|floatformat:1 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <!-- <div class="col-sm-6 col-md-6 col-lg-6"></div> -->
+
+                        <div class="col-sm-11 col-md-11 col-lg-11">
+                            <table class="mt-2" style="margin-left: 70%;margin-top: 3%;">
+                                <tr>
+                                    <td class=" text-dark" style="font-weight: bold;">Sub-Total:</td>
+                                    
+                                    <td class="text-right text-dark" style="text-align: end;">{{ estimate.sub_total|floatformat:1}}</td>
+                                </tr>
+                                {% if estimate.cgst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">CGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ estimate.cgst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.sgst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">SGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ estimate.sgst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.igst != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">IGST:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ estimate.igst|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.shipping_charge != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">Shipping Charge:</td>
+                                    <td class="text-right text-dark" style="text-align: end;">{{ estimate.shipping_charge|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if estimate.adjustment != 0 %}
+                                <tr>
+                                    <td class="text-right text-dark">Adjustment:</td>
+                                    <td class="text-end text-dark" style="text-align: end;">{{ estimate.adjustment|floatformat:1}}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+        
+                                    <td class="text-right text-warning" style="font-weight: bold;">Total:</td>
+                                    <!-- <td class="text-right text-dark "></td>
+                                    <td class="text-right text-dark"></td>
+                                    <td class="text-right text-dark"></td> -->
+                                    <td class="text-right " style="font-weight: bold;text-align: end;color: rgb(233, 153, 3);">{{ estimate.total|floatformat:1}}</td>
+                                </tr>
+        
+                            </table>
+                        </div>
+                        <div class="col-sm-1 col-md-1 col-lg-1"></div>
+
+                    </div>
+
+
+                </div>
+                <!-- <button id="generate-pdf">Generate PDF</button> -->
+
+                <h4 class="text-light pt-5">More Information</h4>
+                <h6 class="text-light">Sales Person: Xyz</h6>
+            </div>
+
+           
+            
+
+
+           
+    <!-- comment modal -->
+
+    <div class="modal fade " id="cmnts"
+    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+    <div class="modal-dialog modal-xl m-5 p-5">
+        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                    aria-label="Close">&times;</button>
+
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                <div class="card p-0 m-0">
+                    <form action="{% url 'add_est_comment' estimate.id %}" method="post" class="needs-validation" novalidate autocomplete="off"
+                        id="modalComment">
+                        {% csrf_token %}
+                        <div class="row mt-2">
+                            <div class="col-md-6 mt-2">
+                                <textarea class="form-control text-dark bg-light" id="comment" name="comments" required
+                                    style="height: 200px; width: 520px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Save </button>
+                                    <button type="button"
+                                        class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                        data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">Cancel</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<fieldset id="fieldset1" class="mt-3" >
+    <div class="p-2" style="background-color: rgba(124, 124, 123, 0.507);">
+       <div class="p-2" style="background-color: rgb(223, 221, 221);border-radius: 10px;">
+        <div class="row">
+            <div class="col-sm-6 col-md-6 col-lg-6 text-dark" >
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <h2 style="text-align: center;">ESTIMATE</h2>
+                        
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for=""  style="font-weight: 500;">Customer Name:</label>
+                        
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="color: rgb(197, 129, 3);"><b>{{estimate.customer_name}}</b></label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="font-weight: 500;">Customer Mail ID:</label>
+                        
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="color: rgb(197, 129, 3);word-break: break-all"><b>{{estimate.customer_mailid}}</b></label>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="font-weight: 500;">GST Treatment:</label>
+                        
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="">{{estimate.customer.GSTTreatment}}</label>
+                    </div>
+                </div>
+                {% if estimate.customer.GSTIN %}
+                <div class="row mt-2">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="font-weight: 500;">GST Number:</label>
+                        
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for=""><b>{{estimate.customer.GSTIN}}</b></label>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="row mt-1  pb-4" >
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="" style="font-weight: 500;">Place Of Supply:</label>
+                        
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <label for="">{{estimate.customer_placesupply}}</label>
+                    </div>
+                </div> <hr>
+                
+                <div class="row mt-3">
+                    <!-- <div class="col-sm-4 col-md-4 col-lg-4">
+                        <label for="" style="font-weight: 500;">Customer Notes:</label>
+                        
+                    </div> -->
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <!-- <label for="">{{estimate.customer_notes}}</label> -->
+                        <label for="" style="font-weight: 500;">Customer Notes:</label>
+
+                        <textarea name="" id="" cols="35" rows="3" style="border: transparent;background-color: transparent;">{{estimate.customer_notes}}</textarea>
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <!-- <div class="col-sm-4 col-md-6 col-lg-6">
+                        <label for="" style="font-weight: 500;">Terms & <br>Conditions:</label>
+                        
+                    </div> -->
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <!-- <label for="">{{estimate.terms_conditions}}</label> -->
+                        <label for="" style="font-weight: 500;">Terms & Conditions:</label>
+
+                        <textarea name="" id="" cols="35" rows="3" style="border: transparent;background-color: transparent;">{{estimate.terms_conditions}}</textarea>
+
+                    </div>
+                </div>
+              
+                <hr>
+
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-6 " style="padding-top: 5%;">
+                <div class="p-2" style="width: 100%;height: 570px;background-color: rgba(46, 46, 46, 0.822);border-radius: 15px;">
+                    <div class="row mt-3">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Estimate No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for="">{{estimate.estimate_no}}</label>
+
+                        </div>
+
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for="">{{estimate.reference}}</label>
+
+                        </div>
+
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Estimate Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for="">{{estimate.estimate_date}}</label>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8 col-md-8 col-lg-8 mt-1">
+                            <label for="" style="font-weight: 500;">Expiry Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for="">{{estimate.expiry_date}}</label>
+
+                        </div>
+
+                    </div>
+                    <hr>
+
+                    <h4 style="color: rgb(233, 153, 5);text-align: center;">Item's Details</h4>
+
+                    <div class="row mt-4">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Sub Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for=""><b>{{estimate.sub_total}}</b></label>
+
+                        </div>
+                    </div>
+                    {% if estimate.igst != 0 %}
+                    <div class="row mt-2">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">IGST  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;:</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for=""><b>{{estimate.igst}}</b></label>
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if estimate.cgst != 0 %}
+                    <div class="row mt-2">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">CGST &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  :</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for=""><b>{{estimate.cgst}}</b></label>
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if estimate.sgst != 0 %}
+                    <div class="row mt-2">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">SGST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  :</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <label for=""><b>{{estimate.sgst}}</b></label>
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if estimate.shipping_charge != 0 %}
+
+                    <div class="row mt-3">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Shipping Charge &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4 ">
+                            <label for=""><b>{{estimate.shipping_charge}}</b></label>
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if estimate.adjustment != 0 %}
+                    <div class="row mt-3 pb-2 ">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for="" style="font-weight: 500;">Adjustment Charge  :</label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4 ">
+                            <label for=""><b>{{estimate.adjustment}}</b></label>
+
+                        </div>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="row mt-3">
+                        <div class="col-sm-8 col-md-8 col-lg-8 ">
+                            <label for=""><b>Total  :</b></label>
+
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4 ">
+                            <label for=""><b>{{estimate.total}}</b></label>
+
+                        </div>
+                    </div>
+                    
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row ">
+            {% for item in items %}
+            <div class="col-sm-12 col-md-4 col-lg-4 mt-1">
+
+                <div class="p-2" style="width: 100%;height: 260px;background-color: rgb(49, 49, 49);border-radius: 15px;">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                          <h6 style="text-align: center;">{{ forloop.counter }}</h6>
+
+                        </div>
+                    </div>
+                    <div class="row pt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Item :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.item_name }}</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">HSN :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.hsn }}</label> 
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Rate :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.rate|floatformat:1 }}</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Quantity :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.quantity }}</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Discount :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.discount|floatformat:1 }}</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Tax :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.tax_percentage }}%</label>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-5 col-md-5 col-lg-5">
+                            <label class="text-warning" for="" style="font-weight: 400;">Total :</label>
+
+                        </div>
+                        <div class="col-sm-7 col-md-7 col-lg-7">
+                            <label class="text-light" for="" style="font-weight: 400;">{{ item.amount|floatformat:1 }}</label>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+       </div>
+    </div>
+</fieldset>
+<!-- ............................................................................................ -->
+
+<fieldset2 id="est_slip" style="display: none;">
+<div class="p-3 mt-3" style="background-color: #8888889d;">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <div id="outer" style="width: 100%;border-radius: 15px;background-color: rgba(31, 31, 31, 0.774);">
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <div id="print_slip" class="p-1 pb-5" style="width: 100%;background-color: beige;">
+                            <div class="row">
+                                <div class="col-sm-12 col-lg-12 col-md-12">
+                                  <h6 class="text-black" style="text-align: center;">ESTIMATE</h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 col-lg-12 col-md-12">
+                                    <h6 class="text-dark mt-1" style="text-transform: uppercase;text-align: center;">{{ company.company_name }}</h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 col-lg-12 col-md-12">                            
+                                   <p class="text-dark" style="text-align: center;"> {{ company.address }} , {{ company.city }} ,{{ company.state }}  </p>                           
+                                </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <p class="text-dark" style="font-size: small;"><span class="text-black" style="font-size:medium;">Bill to :</span> <br>
+                                
+                                 {{ estimate.customer_name }} <br>{{ estimate.customer.customerEmail }} <br><span class="text-black " style="font-size: medium;">Order date:</span> <br> {{estimate.estimate_date }} </p>
+                                 <p class="text-dark" style="font-size: small;margin-left: 70%;margin-top: -20%;"><span class="text-black" style="font-size: medium;">Estimate no:</span><br>{{estimate.estimate_no }}</p>
+
+
+
+                            </div>
+                            <!-- <div class="col-sm-2 col-md-2 col-lg-2"></div>
+                            <div class="col-sm-4 col-md-4 col-lg-4">
+                            </div> -->
+                          </div>
+                          
+                          <div class="row ">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <table class="table-bordered mb-3" style="margin-top: 8%;">
+                                    <thead >
+                                        <tr>
+                                            <th style="color: black;font-size: smaller;">#</th>
+                                            <th style="width: 30rem;color: black;font-size: smaller;">Item</th>
+                                            <th style="width: 30rem;color: black;font-size: smaller;">Hsn</th>
+                                            <th class="text-right;" style="color: black;font-size: smaller;">Qty</th>
+                                            <th class="text-right;" style="width:10rem;color: black;font-size: smaller;">Rate</th>
+                                            <th class="text-right;" style="color: black;font-size: smaller;">Discount</th>
+                                            <th class="text-right;" style="color: black;font-size: smaller;">Tax</th>
+                                            <th class="text-right;" style="color: black;font-size: smaller;">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                               <tr>
+                                <td style="color: black;font-size: smaller;">{{ forloop.counter }}</td>
+                                <td style="color: black;font-size: smaller;">{{ item.item_name }}</td>
+                                <td style="color: black;font-size: smaller;">{{ item.hsn }}</td>
+                                <td class="text-right" style="color: black;font-size: smaller;">{{ item.quantity }}</td>
+                                <td class="text-right" style="color: black;font-size: smaller;">{{ item.rate|floatformat:1 }}</td>
+                                <td class="text-right" style="color: black;font-size: smaller;">{{ item.discount|floatformat:1 }}</td>
+                                <td class="text-right" style="color: black;font-size: smaller;">{{ item.tax_percentage }}</td>
+                                <td class="text-right" style="color: black;font-size: smaller;">{{ item.amount|floatformat:1 }}</td>
+                            </tr>
+                            {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                <table style="margin-left: 60%;">
+                                    <tr>
+                                        <td class=" text-dark" style="font-size: smaller;">Sub-Total:</td>                                       
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;"> {{estimate.sub_total|floatformat:1}}</td>
+                                    </tr>
+                                    {% if estimate.cgst != 0 %}
+                                    <tr>
+                                        <td class="text-right text-dark" tyle="font-size: smaller;">CGST:</td>
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.cgst|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                       
+                                    {% if estimate.sgst != 0 %}
+                                    <tr>
+                                        <td class="text-right text-dark" style="font-size: smaller;">SGST:</td>
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.sgst|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if estimate.igst != 0 %}
+                                    <tr>
+                                        <td class="text-right text-dark" style="font-size: smaller;">IGST:</td>
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.igst|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if estimate.shipping_charge != 0 %}
+                                    <tr>
+                                        <td class="text-right text-dark" style="font-size: smaller;">Shipping Charge:</td>
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.shipping_charge|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if estimate.adjustment != 0 %}
+                                    <tr>
+                                        <td class="text-right text-dark" style="font-size: smaller;">Adjustment:</td>
+                                        <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.adjustment|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+            
+                                        <td class="text-right text-dark" style="font-weight: bold;">Total:</td>
+                                        <!-- <td class="text-right text-dark "></td>
+                                        <td class="text-right text-dark"></td>
+                                        <td class="text-right text-dark"></td> -->
+                                        <td class="text-right text-dark " style="font-weight: bold;text-align: end;font-weight: bold;">{{ estimate.total|floatformat:1}}</td>
+                                    </tr>
+            
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</fieldset2>
+
+
+<!-- ....................................  comment list modal ................ -->
+
+<div class="modal fade " id="cmt_list"
+   style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+ <div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header " style="background: rgb(32, 35, 37);">
+            <h5 class="m-3 text-uppercase text-light">LIST</h5>
+            <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                aria-label="Close">&times;</button>
+
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
+            <div class="card p-0 m-0">
+
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="p-2">
+                            <table class="table table-bordered" style="table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="background-color:rgb(218, 143, 3) ;color: white;">Comments</th>
+                                    </tr>
+                                </thead>
+                                {% for comt in est_comments %}
+                                <tbody>
+                                    <tr>
+                                        <!-- <td><input type="text" value="{{ comt.comments }}" style="width: 100%;height: 20px;"></td> -->
+                                        <td><textarea name="" id="" cols="80" rows="5" style="border: none;background-color:transparent ;color: white;">{{ comt.comments }}</textarea></td>
+                                    </tr>
+                                </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    </section>
+
+
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+
+<script>
+    function overview_function()
+    {
+        document.getElementById("div_estimate").style.display="none";
+        document.getElementById("est_slip").style.display="none";
+
+        document.getElementById("fieldset1").style.display="block";
+    }
+    function template_function()
+    {
+        document.getElementById("div_estimate").style.display="block";
+        document.getElementById("fieldset1").style.display="none";
+        document.getElementById("est_slip").style.display="none";
+    }
+    function show_slip()
+    {
+        document.getElementById("est_slip").style.display="block";
+        document.getElementById("div_estimate").style.display="none";
+        document.getElementById("fieldset1").style.display="none";
+    }
+</script>
+
+
+
+<script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            // Get the URL from the "data-href" attribute
+            const url = row.getAttribute('data-href');
+            // Navigate to the URL
+            window.location.href = url;
+        });
+    });
+</script>
+
+<script>
+
+    function print() {
+        var content = document.getElementById("whatToPrint");
+        var printWindow = window.open('', 'PrintWindow');
+        printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + content + '</body></html>');
+        printWindow.print();
+        printWindow.close();
+
+
+    }
+
+
+
+
+    // function saveAsPDF() {
+    //     const element = document.getElementById("whatToPrint");
+    //     const opt = {
+    //         margin: 1,
+    //         filename: "estimate.pdf",
+    //         image: { type: "jpeg", quality: 0.98 },
+    //         html2canvas: { scale: 2 },
+    //         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    //         output: "save", // this option tells html2pdf to save the file instead of downloading it
+    //         outputParam: "D:/sumi/Altos/zoho_django (1)/zoho_django/media/image/estimate.pdf" // this is the path where the file will be saved
+    //     };
+    //     html2pdf().set(opt).from(element).save();
+    // }
+
+    // function ConvertToPDF() {
+    //     var doc = new jsPDF();
+    //     var HTMLelement = $(".convert_to_pdf").html();
+    //     doc.fromHTML(HTMLelement, 10, 10, {
+    //         'width': 190
+    //     });
+    //     doc.save('estimateslip.pdf');
+    // }
+
+
+</script>
+<script>
+    function openFilePicker() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf'; // set the file type filter to only allow PDF files
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            // send the selected file to the server via AJAX
+            const formData = new FormData();
+            formData.append('file', file);
+            $.ajax({
+                url: '/send_email/',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert('File uploaded successfully');
+                },
+                error: function (xhr, status, error) {
+                    alert('Error uploading file: ' + error);
+                }
+            });
+        });
+        input.click();
+    }
+</script>
+
+<script>
+    var $rows = $('#table tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        
+        $rows.hide().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+    });
+  
+  </script>
+  <script>
+    function comment_list()
+    {
+        document.getElementById("div_estimate").style.display="none";
+        document.getElementById("comments_fieldset1").style.display="block";
+        document.getElementById("comments_fieldset").style.display="none";
+
+    }
+    function create_comment()
+    {
+        document.getElementById("div_estimate").style.display="none";
+        document.getElementById("comments_fieldset").style.display="block";
+        document.getElementById("comments_fieldset1").style.display="none";
+    }
+  </script>
+{% endblock %}

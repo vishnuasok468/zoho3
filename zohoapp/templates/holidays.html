@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+<!-- <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> -->
+<!-- <script src="path/to/jquery.min.js"></script> -->
+<script src="path/to/bootstrap.min.js"></script>
+
+<style>
+    .modal {
+        z-index: 9999;
+    }
+
+    .addform {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .fc-button-group {
+        color: rgb(255, 196, 0);
+    }
+
+    .fc .fc-button-group .fc-button {
+        background-color: rgb(255, 196, 0);
+        color: black;
+    }
+
+    /* .fc .fc-content {
+    padding-bottom: 2px;
+    } */
+    .fc-ltr .fc-basic-view .fc-day-top .fc-day-number {
+        float: right;
+        font-size: 0.5rem;
+        color: white;
+    }
+
+    .fc-unthemed td.fc-today {
+        background: #caac57;
+    }
+
+    /* .fc table .fc-row{
+       color: red;
+    } */
+    #exTab2 .nav .active {
+        border-bottom: 3px solid rgb(255, 255, 255);
+    }
+
+    #exTab2 .nav li a {
+        text-decoration: none;
+        color: white;
+    }
+
+    a {
+        text-decoration: none;
+        color: red;
+    }
+
+    #calendar {
+        height: 700px;
+        width: 700px;
+    }
+
+</style>
+<div class="container-fluid">
+    <!-- <div class="head text-light p-3">
+        <h4>CALENDAR</h4>
+    </div> -->
+
+    <div class="card-body" id="exTab2">
+        <button id="close" type="button" onclick="history.go(-1);" class="btn btn-danger"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+
+        <ul class="nav nav-tabs row">
+            <li class="active col-6 text-center" id="list1"><a id="id1" class="btn">CALENDAR</a></li>
+            <li class="col-6 text-center" id="list2"><a id="id2" class="btn">HOLIDAYS</a>
+            </li>
+        </ul>
+
+
+        <div class="tab-content" style="border: none;padding: 0px;">
+            <div class="tab-pane active" id="1" data-title="Sale">
+                <div class="row">
+
+                    <div class="col-9" style="background-color: black;color: white;padding: 10px;">
+                        <div id="calendar"></div>
+
+
+                    </div>
+                    <div class="col-3" style="background-color: rgba(0, 0, 0, 0.603);">
+
+                        <div class="row mx-3 my-5">
+                            <button class="btn btn-warning " style="font-size: 1.2rem;" data-toggle="modal"
+                                data-target="#commentModal"><i class="fa fa-plus" aria-hidden="true"></i> Add
+                                Holiday</button>
+                        </div>
+                        <div style="display: none;" id="eventCounts">{{event_counts_json}}</div>
+
+                        <div class="mx-2 mb-0">Holidays: <p class="d-inline-block" id="idd"></p>
+                        </div>
+                        <hr>
+                        <div class="mx-3">
+                            {% for key, value in event_dict.items %}
+                            <div class="mt-4">
+                                <div class="text-center d-inline-block"
+                                    style="background-color: rgb(150, 19, 19);color: white; width: 25px;height: 25px;">
+                                    {{ key }}</div>
+                                &nbsp;&nbsp;{{ value|join:", " }}
+                            </div>
+                            <!-- <p>{{ key }} {{ value|join:", " }}</p> -->
+                            {% endfor %}
+                        </div>
+                        <hr>
+                        <div class="m-2 mt-5"><canvas id="myCanvas" width="15" height="15"
+                                style="background-color: rgb(19, 150, 74);"></canvas>&nbsp;Workingdays: <p
+                                class="d-inline-block" id="idd2"></p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- modal -->
+            <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content" style="background-color: #3b3b3b;">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="exampleModalLabel">Add Holidays</h3>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <form action="{% url 'add_holiday' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-body mx-1">
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <label for=""> Title</label>
+                                        <input type="text" class="text-dark form-control" name="title">
+                                    </div>
+
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <label for="">Start Date</label>
+                                        <input type="date" class="text-dark form-control" name="start">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="">End Date</label>
+                                        <input type="date" class="text-dark form-control" name="end">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                <button type="submit" class="btn btn-primary" id="save">Save</button>
+
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- modal end -->
+            <div class="row" id="2" style="display: none;">
+                <table class="table mt-3" style="background-color: rgba(0, 0, 0, 0.568);">
+                    {% for i in eve %}
+                    <tr class="text-light mt-2 pt-1">
+                        <td>{{forloop.counter }}</td>
+                        <td>{{i.name}}</td>
+                        <td>{{i.start | date:"M. d, Y" }}</td>
+                        <td>{{i.end | date:"M. d, Y" }}</td>
+                        <td class="text-danger" style="font-size: 1.5rem;"><a href="{% url 'remove' i.id %}"><i
+                                    class="fa fa-times"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        // var eventCountsJson =JSON.parse($('#eventCounts').text());
+
+        // for (var key in eventCountsJson) {
+        //     if (eventCountsJson.hasOwnProperty(key)) {
+        //         $('#idd').text( key);
+        //         var value = eventCountsJson[key];
+        //         console.log('Key: ' + key);
+        //         console.log('Value: ' + value);
+        //     }
+        // }
+
+
+        $("#id1").click(function () {
+            $("#1").show();
+            $("#2").hide();//: 3px solid rgb(255, 255, 255);
+
+            $("#list1").css("border-bottom", "3px solid rgb(255, 255, 255)");
+            $("#list2").css("border-bottom", "none");
+            // $("#t-btn").css("background-color", "rgb(243, 188, 9)").css("color", "white");
+        });
+
+        $("#id2").click(function () {
+            $("#2").show();
+            $("#1").hide();//: 3px solid rgb(255, 255, 255);
+
+            $("#list2").css("border-bottom", "3px solid rgb(255, 255, 255)");
+            $("#list1").css("border-bottom", "none");
+        });
+    });
+    // 
+    const monthNameToNumber = {
+        'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12
+    };
+    // var monthYearCounts = '{{event_counts_json}}';
+    var monthYearCounts = JSON.parse($('#eventCounts').text());
+    var defaultDate = "{{ default }}";
+    // const currentDate = new Date();
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'title',
+
+            right: 'today '
+        },
+        initialView: 'dayGridMonth',
+        defaultDate: defaultDate,
+        // navLinks: true,
+        eventLimit: true,
+
+        events: '/all_events',
+
+
+        // eventColor: '#378006',
+        eventDisplay: 'list-item',
+
+        viewRender: function (view, element) {
+            var displayedTitle = view.title;
+
+            // Update the content of a <div> with the current title
+            var parts = displayedTitle.split(' '); // Split into ['Month', 'Year']
+            console.log(parts[0]);
+            var year = parts[1]
+            var monthNumber = monthNameToNumber[parts[0]];
+            var formattedMonth = ('0' + monthNumber).slice(-2);
+            var tot = new Date(year, monthNumber, 0).getDate();
+
+            var monthYear = year + '-' + formattedMonth;
+
+            $('#currentmonthyear').text(monthYear);
+            // Check if the displayedTitle exists as a key in the dictionary
+            if (monthYearCounts.hasOwnProperty(monthYear)) {
+                // If it exists, get the corresponding value and display it
+                var count = monthYearCounts[monthYear];
+                var wrk = tot - count
+                $('#idd2').text(wrk);
+                $('#idd').text(count);
+
+
+            }
+            else {
+                // If it doesn't exist, display a message indicating no count found
+                $('#idd').text('0');
+                $('#idd2').text(tot);
+
+            }
+        }
+
+
+    });
+</script>
+
+
+{% endblock %}

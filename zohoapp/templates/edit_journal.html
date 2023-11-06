@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"> -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .custom-form {
+        max-width: 900px;
+        margin: 0 auto;
+        margin-top: 5rem;
+    }
+
+  .modal{
+    z-index: 9999;
+    overflow: scroll;
+  }
+tr:hover{
+  background-color: #8f8e8e2a;
+  font-weight: bold;
+
+}
+</style>
+<section style="height: 350vh; overflow: auto;background-color:  #191C24;">
+  <div class="container">
+        <div class="row justify-content-center">
+          <!-- <div class="card radius-15">
+            <div class="card-body">
+                <div class="card-title">
+                  <h2 class="mb-0 text-uppercase text-right"> Edit Journal</h2>
+                </div>
+            </div>
+          </div> -->
+          <h2 class="mb-0 text-uppercase text-right"> Edit Journal</h2>
+
+            <div class="col-md-12">
+                <form method="POST" action="{% url 'edit_journal' journal.id%}" class="custom-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="">Date:</label>
+                      </div>
+                      <div class="col-md-6">
+                        <input type="date" name="date" class="form-control text-dark" value="{{ journal.date|date:'Y-m-d' }}" required>
+                      </div>
+                      </div>
+                      <div class="row mt-3 mb-5">
+                        <div class="col-md-3">
+                          <label for="">Journal No:</label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" name="journal_no" class="form-control text-dark" value="{{ journal.journal_no }}" required>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                          <div class="col-md-3">
+                            <label for="">Reference No:</label>
+                          </div>
+                          <div class="col-md-6">
+                                <input type="text" name="reference_no" class="form-control text-dark" value="{{ journal.reference_no }}">
+                            </div>
+                        </div>
+                        <div class="row mt-3 mb-5">
+                          <div class="col-md-3">
+                                <label for="">Currency:</label>
+                          </div>
+                          <div class="col-md-6">
+                                <select name="currency" class="form-control text-dark">
+                                    <option value="INR">INR-Indian Rupee</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3 mb-5">
+                          <div class="col-md-3">
+                              <label for="" class="form-check-label">Journal Type:</label>
+                          </div>
+                          <div class="col-md-6">
+                            <!-- <div class="form-check"> -->
+                                <input type="checkbox" name="cash_journal" class="form-check-input" id="cash_journal" {% if journal.cash_journal %}checked{% endif %}>
+                                <label class="form-check-label" for="">Cash Based Journal</label>
+                            <!-- </div>  -->
+                        </div>
+                    </div>
+                    <table id="journal_table" class="table table-responsive-lg" style="background-color:rgba(5, 5, 5, 0.4); border: 1px solid rgba(128, 128, 128, 0.6);">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <!-- <th>Select Account</th> -->
+                                <th>Select Account<a href="" data-toggle="modal" data-target="#create_accountt" style="text-decoration: none;">
+                                  <i class="fa fa-plus btn-sm" style="color: white; background-color: rgb(210, 132, 30);"></i></a></th>
+                                <th>Description</th>
+                                <th>Contact (INR)</th>
+                                <th>Debits</th>
+                                <th>Credits</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for journal_entry in journal.journalentry_set.all %}
+                            <tr>
+                                <td class="text-white">{{ forloop.counter }}</td>
+                                <td>
+                                    <div>
+                                    <select name="account" class="form-control text-dark">
+                                        <option value="">Select Account</option>
+                                        <option id="crt_acc"></option>
+                                        {% for account in accounts %}
+                                        <option value="{{ account.account_name }}" {% if journal_entry.account == account.account_name %}selected{% endif %}>{{ account.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                   
+                                </div>
+                                </td>
+                                <td><input type="text" name="description" class="form-control text-dark" value="{{ journal_entry.description }}"></td>
+                                <td>
+                                    <select name="contact" class="form-control text-dark">
+                                        <option value="">Select Contact (INR)</option>
+                                        {% for customer in customers %}
+                                        <option value="{{ customer.customerName }}" {% if journal_entry.contact == customer.customerName %}selected{% endif %}>{{ customer.customerName }}</option>
+                                        {% endfor %}
+                                        {% for vendor in vendors %}
+                                        <option value="{{ vendor.vendor_display_name }}" {% if journal_entry.contact == vendor.vendor_display_name %}selected{% endif %}>{{ vendor.vendor_display_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="number" name="debits" class="form-control text-dark" value="{{ journal_entry.debits }}" onchange="calculateTotals()"></td>
+                                <td><input type="number" name="credits" class="form-control text-dark" value="{{ journal_entry.credits }}" onchange="calculateTotals()"></td>
+                                <td><button type="button" class="btn btn-outline-danger p-1" onclick="deleteRow(this)"style = "width:25px; height: 25px; border-radius: 90% ">
+                                  <i class="fa fa-window-close bg-dark text-danger"></i></button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" style="color: rgb(218, 164, 48);" class="btn btn-outline-secondary ml-1 text-capitalize" onclick="addRow()">+</button>  
+                    <br><br>                  
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="">Notes:</label>
+                            <textarea name="notes" class="form-control text-dark" style="height: 90px;">{{ journal.notes }}</textarea>
+                          </div>
+                            <div class="form-group text-white">
+                                <input type="file" name="attachment" class="form-control text-dark bg-light" value="{{journal.attachment}}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table" style="background-color:rgba(5, 5, 5, 0.4); border: 1px solid rgba(128, 128, 128, 0.6);">
+                                <thead>
+                                    <tr>
+                                        <th>Subtotal</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-light">Total Amount</td>
+                                        <td><input type="number" class="form-control text-dark" id="totalDebit" placeholder="0" value="{{ journal.total_debit }}"></td>
+                                        <td><input type="number" class="form-control text-dark" id="totalCredit" placeholder="0" value="{{ journal.total_credit }}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-light">Difference</td>
+                                        <td><input type="number" class="form-control text-dark" id="debitDifference" placeholder="0" value="{{ journal.difference }}"></td>
+                                        <td><input type="number" class="form-control text-dark" id="creditDifference" placeholder="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-5 mb-3">
+                      <div class="col-md-4">
+                        <div class="d-flex">
+                            <button type="submit" class="btn mt-2 py-2 rounded-pill text-grey w-50 my-4 mx-2" style="width: 200px; text-align: center;background-color: rgb(218, 164, 48);">Save</button>
+                            <button type="button" class="btn rounded-pill text-grey w-50 my-4 mt-2 py-2" onclick="clearForm()" style="background-color: rgb(218, 164, 48);">Clear</button> 
+                        </div>
+                    </div>
+                  </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="create_accountt">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+      <div class="modal-header " style="background: rgb(32, 35, 37);">
+          <h3 class="m-3 text-uppercase">New Account</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body" style="background: rgb(32, 35, 37);">
+        <div class="card p-3 m-3">
+          <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalAccount">
+    
+            <div class="row mt-2">
+              <div class="col-md-3 mt-2">
+                <label for="">Account Type</label><br>
+              </div>
+              <div class="col-md-6 mt-2">
+                <select class="form-control text-dark bg-light" id="acct_type" name="acct_type">
+                  <option value="" disabled selected>Select Account Types</option>
+                  <option value="Accounts Payable ">Accounts Payable </option>
+                  <option value="Accounts Receivable ">Accounts Receivable </option>
+                  <option value="Other Current Asset">Other Current Asset</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank">Bank</option>
+                  <option value="Fixed Asset"> Fixed Asset</option>
+                  <option value="Stock">Stock</option>
+                  <option value="Other Current Liability">Other Current Liability</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="Long Term Liability">Long Term Liability</option>
+                  <option value="Other Liability"> Other Liability</option>
+                  <option value="Equity">Equity</option>
+                  <option value="Income">Income</option>
+                  <option value="Other Expense">Other Expense</option>
+                  <option value="Expense">Expense</option>
+                  <option value="Cost of Goods Sold"> Cost of Goods Sold</option>
+                </select>  
+              </div>
+            </div>
+            
+            <div class="row mt-2">
+              <div class="col-md-3 mt-2">
+                <label for="cfname">Account name</label>
+              </div>
+              <div class="col-md-6 mt-2">
+                <input type="text" class="form-control text-dark bg-light" id="acct_name" name="acct_name" required>
+              </div>
+            </div>            
+
+            <div class="row mt-5">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
+                  type="submit" data-dismiss="modal" id="accountSave">Submit
+                  </button> 
+
+                  <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" 
+                    data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">Cancel</span>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>  
+
+<script>
+  newAcc = "";
+  $(document).on("click","#accountSave",function(){
+  $.ajax({
+    
+    type : 'POST',
+    url:"{% url 'create_account_jrnl' %}",
+
+    data:{
+        type : $("#acct_type").val(),
+        name : $("#acct_name").val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+        
+      },
+    
+      success: function(response) {
+          acc_name = response.name
+          console.log(acc_name)
+          newAcc = acc_name
+          document.getElementById("crt_acc").innerHTML = acc_name
+          document.getElementById("crt_acc1").innerHTML = acc_name
+          document.getElementById("modalCustomer").reset();
+      },
+  });        
+});
+</script>
+<script>
+function reloadAccount() {
+  $.ajax({
+    url: "{% url 'journal_account_dropdown' %}",
+    type: "GET",
+    dataType: "json",
+    data: $(this).serialize(),
+    csrfmiddlewaretoken: '{{ csrf_token }}',
+
+    success: function(data) {
+      var dropdown = $('.acnt');
+      dropdown.empty();
+      dropdown.append(` <optgroup class=""label="Accounts Payable">
+                        <option value='Accounts Payable'>Accounts Payable</option>
+                      </optgroup>
+  
+                      <optgroup class="" label="Accounts Receivable">
+                        <option value='Accounts Receivable'>Accounts Receivable</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Other Current Asset">
+                        <option value='Advance Tax'>Advance Tax</option>
+                        <option value='Employee Advance'>Employee Advance</option>
+                        <option value='Prepaid Expences'>Prepaid Expences</option>
+                        <option value='GST TCS Receivable'>GST TCS Receivable</option>
+                        <option value='GST TDS Receivable'>GST TDS Receivable</option>
+                        <option value='Input Tax Credits'>Input Tax Credits</option>
+                        <option value='Input CGST'>Input CGST</option>
+                        <option value='Input IGST'>Input IGST</option>
+                        <option value='Input SGST'>Input SGST</option>
+                        <option value='Reverse Charge Input Tax but not Due'>Reverse Charge Input Tax but not Due</option>
+                        <option value='Sales to Customers(Cash)'>Sales to Customers(Cash)</option>
+                        <option value='TDS Receivable'>TDS Receivable</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Expence">
+                        <option value='Advertising and Marketing'>Advertising and Marketing</option>
+                        <option value='Automobile Expense'>Automobile Expense</option>
+                        <option value='Bad Debt'>Bad Debt</option>
+                        <option value='Bank Fees and Charges'>Bank Fees and Charges</option>
+                        <option value='Consultant Expense'>Consultant Expense</option>
+                        <option value='Credit Card Expense'>Credit Card Expense</option>
+                        <option value='IT and Internet Expenses'>IT and Internet Expenses</option>
+                        <option value='Janitorial Expences'>Janitorial Expences</option>
+                        <option value='Lodging'>Lodging</option>
+                        <option value='Meals and Entertainment'>Meals and Entertainment</option>
+                        <option value='Office Supplies'>Office Supplies</option>
+                        <option value=0>Other Expenses</option>
+                        <option value='Other Expenses'>Postage</option>
+                        <option value='Printing and Stationery'>Printing and Stationery</option>
+                        <option value='Rent Expense'>Rent Expense</option>
+                        <option value='Repair and Maintenance'>Repair and Maintenance</option>
+                        <option value='Salaries and Employee Wages'>Salaries and Employee Wages</option>
+                        <option value='Telephone Expense'>Telephone Expense</option>
+                        <option value='Travel Expense'>Travel Expense</option>
+                        <option value='Uncategorized'>Uncategorized</option>
+                        <option value='Contract Assets'>Contract Assets</option>
+                        <option value='Depreciation and Amortisation'>Depreciation and Amortisation</option>
+                        <option value='Merchandise'>Merchandise</option>
+                        <option value='Raw Materials and Consumables'>Raw Materials and Consumables</option>
+                        <option value='Transpotaion Expense'>Transpotaion Expense</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Cost of Goods Sold">
+                        <option value='Cost of Goods Sold'>Cost of Goods Sold</option>
+                        <option value='Job Costing'>Job Costing</option>
+                        <option value='Labor'>Labor</option>
+                        <option value='Materials'>Materials</option>
+                        <option value='Subcontractor'>Subcontractor</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Income">
+                        <option value='Discount'>Discount</option>
+                        <option value='General Income'>General Income</option>
+                        <option value='Interest Income'>Interest Income</option>
+                        <option value='Late Fee Income'>Late Fee Income</option>
+                        <option value='Other Charges'>Other Charges</option>
+                        <option value='Sales'>Sales</option>
+                        <option value='Shipping Charge'>Shipping Charge</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Equity">
+                        <option value='Drawings'>Drawings</option>
+                        <option value='Opening Balance Offset'>Opening Balance Offset</option>
+                        <option value="Owner's Equity">Owner's Equity</option>
+                        <option value='Retained Earnings'>Retained Earnings</option>
+                        <option value='Capital Stock'>Capital Stock</option>
+                        <option value='Distributions'>Distributions</option>
+                        <option value='Dividends Paid'>Dividends Paid</option>
+                        <option value='Investments'>Investments</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Other Current Liability">
+                        <option value='Employee Reimbursements'>Employee Reimbursements</option>
+                        <option value='Opening Balance Adjustments'>Opening Balance Adjustments</option>
+                        <option value='Tax Payable'>Tax Payable</option>
+                        <option value='Unearned Revenue'>Unearned Revenue</option>
+                        <option value='GST Payable'>GST Payable</option>
+                        <option value='Output CGST'>Output CGST</option>
+                        <option value='Output IGST'>Output IGST</option>
+                        <option value='Output SGST'>Output SGST</option>
+                        <option value='TDS Payable'>TDS Payable</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Other Expense">
+                        <option value='Exchange Gain or Loss'>Exchange Gain or Loss</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Fixed Asset">
+                        <option value='Furniture and Equipment'>Furniture and Equipment</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Stock">
+                        <option value='Inventory Asset'>Inventory Asset</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Cash">
+                        <option value='Petty Cash'>Petty Cash</option>
+                        <option value='Undeposited Funds'>Undeposited Funds</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Other Liability">
+                        <option value='Tag Adjustments'>Tag Adjustments</option>
+                      </optgroup>
+
+                      <optgroup class="" label="Long Term Liability">
+                        <option value='Construction Loans'>Construction Loans</option>
+                        <option value='Mortgages'>Mortgages</option>
+                      </optgroup>
+                      <optgroup class="" label="Others">`);
+
+      $.each(data, function(key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value[0]).val(value[1]));
+      });
+      dropdown.append("</optgroup>");
+    },
+    error: function(xhr, status, error) {
+    console.error(xhr.responseText);
+    }
+  });
+}
+
+</script>
+<script>
+    function addRow() {
+        var table = document.getElementById("journal_table");
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var numberCell = row.insertCell(0);
+        var accountCell = row.insertCell(1);
+        var descriptionCell = row.insertCell(2);
+        var contactCell = row.insertCell(3);
+        var debitsCell = row.insertCell(4);
+        var creditsCell = row.insertCell(5);
+        var actionCell = row.insertCell(6);
+
+        numberCell.style.color = "white";
+
+
+        numberCell.innerHTML = rowCount;
+        accountCell.innerHTML = `
+    <div>
+        <select name="account" class="form-control text-dark">
+            <option value="">Select Account</option>
+            <option id="crt_acc1"></option>
+            {% for account in accounts %}
+            <option value="{{ account.account_name }}">{{ account.account_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+`;
+        descriptionCell.innerHTML = '<input type="text" name="description" class="form-control text-dark">';
+        var options = '';
+        options += '<option value="">Select Contact</option>';
+
+        '{% for vendor in vendors %}'
+            options += '<option value="{{ vendor.vendor_display_name }}">{{ vendor.vendor_display_name }}</option>';
+        '{% endfor %}'
+
+        '{% for customer in customers %}'
+            options += '<option value="{{ customer.customerName }}">{{ customer.customerName }}</option>';
+        '{% endfor %}'
+
+        contactCell.innerHTML = '<select name="contact" class="form-control text-dark">' + options + '</select>';
+
+        debitsCell.innerHTML = '<input type="number" name="debits" class="form-control text-dark" onchange="calculateTotals()">';
+        creditsCell.innerHTML = '<input type="number" name="credits" class="form-control text-dark"onchange="calculateTotals()">';
+        actionCell.innerHTML = '<button type="button" class="btn btn-outline-danger p-1" onclick="deleteRow(this)" style = "width:25px; height: 25px; border-radius: 90%"><i class="fa fa-window-close bg-dark text-danger"></i></button>';
+    }
+
+    function deleteRow(button) {
+        var row = button.parentNode.parentNode;
+        row.parentNode.removeChild(row);
+    }
+
+    function clearForm() {
+        var form = document.querySelector('form');
+        form.reset();
+    }
+
+    function calculateTotals() {
+        var debitInputs = document.querySelectorAll('input[name="debits"]');
+        var creditInputs = document.querySelectorAll('input[name="credits"]');
+        var totalDebit = 0;
+        var totalCredit = 0;
+
+        debitInputs.forEach(function (input) {
+            totalDebit += parseFloat(input.value) || 0;
+        });
+
+        creditInputs.forEach(function (input) {
+            totalCredit += parseFloat(input.value) || 0;
+        });
+
+        document.getElementById('totalDebit').value = totalDebit.toFixed(2);
+        document.getElementById('totalCredit').value = totalCredit.toFixed(2);
+
+        var difference = totalDebit - totalCredit;
+
+        if (difference < 0) {
+            document.getElementById('debitDifference').value = Math.abs(difference).toFixed(2);
+            document.getElementById('creditDifference').value = "0.00";
+        } else {
+            document.getElementById('debitDifference').value = "0.00";
+            document.getElementById('creditDifference').value = difference.toFixed(2);
+        }
+    }
+</script>
+{% endblock %}

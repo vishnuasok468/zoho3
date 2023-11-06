@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    .custom-height {
+        height: 40px;
+    }
+    a {
+        text-decoration: none;
+        color: white;
+    }
+    .custom-item:hover {
+        color: white;
+    }
+    .search-bar-container {
+        display: flex;
+        align-items: center;
+        width: 90%;
+    }
+    .btn-group {
+        margin-left: auto;
+        margin-right: 10px;
+    }
+    .btn-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    td{
+        color: white;
+    }
+    section{
+        background-color: #202325;
+        padding: 15px;
+    }
+</style>
+<section>
+    <div>
+        <h3 class="text-white" style="font-size: 2rem;">Manual Journal</h3>
+        <br>
+        <div class="search-bar-container">
+            <form action="{% url 'manual_journal_home' %}" method="GET">
+                <div class="input-group" style="width: 300px;">
+                    <input type="text" name="query" placeholder="Search..." class="form-control custom-height bg-light text-dark">
+                </div>
+            </form>
+            
+            <div class="dropdown btn-group ml-auto">
+                <button class="btn btn-dark border-primary custom-height" style="width: 90px;color: #F86F03;" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-filter"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                    <li><a class="dropdown-item custom-item" href="{% url 'manual_journal_home' %}">All</a></li>
+                    <li><a class="dropdown-item custom-item" href="{% url 'manual_journal_home' %}?filter=draft">Draft</a></li>
+                    <li><a class="dropdown-item custom-item" href="{% url 'manual_journal_home' %}?filter=published">Published</a></li>
+                </ul>
+            </div>
+            <div class="">
+                <a href="{% url 'add_journal' %}" class="btn btn-dark border-primary custom-height btn-center" style="width: 90px;color: #F86F03;">+ NEW</a>
+            </div>
+        </div>
+    </div>
+    <br>
+    <hr>
+    <div class="container-fluid mt-1">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Journal No</th>
+                    <th>Reference No</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in journal %}
+                <tr class="journal-row" data-journal-id="{{ entry.id }}">
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.journal_no }}</td>
+                    <td>{{ entry.reference_no }}</td>
+                    <td>
+                        {% if entry.status == 'published' %}
+                        <span class="status published text-success">{{ entry.status }}</span>
+                        {% else %}
+                        <span class="status" style="color: orangered;">{{ entry.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="note-icon" data-toggle="tooltip" data-placement="top" title="{{ entry.notes }}"><i class="fas fa-sticky-note"></i></div>
+                    </td>
+                    <td><i class="fa fa-inr"></i>{{ entry.total_debit }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+  <script>
+    $(document).ready(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+  
+      $('.journal-row').click(function() {
+        var journalId = $(this).data('journal-id');
+        localStorage.setItem('selectedJournalId', journalId); 
+        window.location.href = "{% url 'journal_list' %}";
+      });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+<p></p>
+<h6 class="pb-1 mb-3"></h6>
+<div class="position-relative">
+    <div class="position-absolute start-0 top-0" style="margin-top: 0.3rem;margin-left: 0.5rem;">
+        <span class="bi bi-filter" ></span>
+    </div>
+</div>
+<select class="btn btn-outline-light w-100 text-start bs_sm bg-dark text-light ps-4" name="select_comp_"
+hx-get="{% url 'add_note_or_date' selected_option new_id %}"
+hx-target="#add_note_or_date_target{{ new_id }}"
+hx-trigger="change"
+>
+    <option value="" disabled><a href="">Select a comparator</a></option>
+    <option value=""><a href="">is</a></option>
+    <option value=""><a href="">isn't</a></option>
+</select>

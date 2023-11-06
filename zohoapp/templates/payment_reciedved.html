@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://unpkg.com/htmx.org@1.6.0/dist/htmx.js"></script>
+
+<link rel="stylesheet" href="{% static 'css/my_calendar.css' %}">
+
+
+<style>
+    .dropdown-item{
+        color: rgb(157, 157, 157);
+    }
+    .dropdown-item:hover{
+        color: white;
+    }
+    .ts_sm{
+        text-shadow: 3px 3px 3px black;
+    }
+    .ts_sm_sm{
+        text-shadow: 2px 2px 2px black;
+    }
+    .ts_sm_sm_sm{
+        text-shadow: 1px 1px 1px black;
+    }
+    .ts_sm_sm_blue{
+        text-shadow: 2px 2px 2px rgb(0, 14, 92);
+    }
+    .bs_sm{
+        box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.075);
+    }
+    .bs_bg{
+        box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.404);
+    }
+    .customize_btn{
+        color: rgb(59, 59, 255);
+        cursor: pointer;
+        transition: all 0.1s linear;    
+    }
+    .customize_btn:hover{
+        color: rgb(255, 255, 255);
+        cursor: pointer;
+        transition: all 0.1s linear;
+    }
+    .text_hover1:hover{
+        color: white;
+    }
+    .text_hover1{
+        color: gray;
+    }
+    .sched_btn{
+        text-shadow: 1px 1px 1px black;
+    }
+    .sched_btn:hover{
+        text-shadow: inherit;
+    }
+    .table th{
+        background-color: black;
+        color: blue;
+    }
+    @media print{
+        table{
+            page-break-after: always;
+            page-break-before: always;
+            color: black;
+        }
+        table { page-break-after:auto }
+        tr    { page-break-inside:avoid; page-break-after:auto; color: black; }
+        td    { page-break-inside:avoid; page-break-after:auto;color: black;  }
+        thead { display:table-header-group }
+        tfoot { display:table-footer-group }
+        body,html{
+            color: black;
+            background: white;
+        }
+        .bs_bg,.rem_ts_bs,.ts_sm,.ts_sm_sm{
+            box-shadow: none;
+            color: black;
+            text-shadow: none;
+        }
+        .visiblity_hide,nav,.navbar-nav-right,.navbar,.cls-btn{
+            display: none;
+            text-shadow: none;
+        }
+        .bg-dark,th.td{
+            background-color: white;
+            color: black;
+        }
+        .print_text{
+            color: black;
+        }
+        table{
+            border: 1px solid black;
+            width: 100%;
+            page-break-inside: auto;
+        }
+    }
+    .d-flexx{
+        display: flex;
+        justify-content: center ;
+    }
+    .d-flexx1{
+        display: flex;
+        justify-content: end ;
+    }
+    .custom_nav_margin{
+        margin-right: 3.2rem;
+    }
+    @media (max-width:1200px)
+    {
+        .d-flexx,.d-flexx1{
+            display: inherit;
+            justify-content: inherit;
+        }
+        .custom_nav_margin{
+            margin-right: inherit;
+        }
+    }
+</style>
+
+<div class="position-relative">
+    <div class="position-absolute">
+        <div id="my_calendar_target"></div>
+    </div>
+</div>
+<!-- <div class="p-3 card bs_bg" style="background-color:rgba(255, 255, 255, 0.055);border-radius:5px;border: 1px solid rgba(255, 255, 255, 0.315);backdrop-filter: blur(10px);"> -->
+    <div>
+    <!-- <p></p> -->
+    <div class="position-relative cls-btn">
+        <div style="margin-bottom: -2.9rem;margin-right: -0.5rem;" class="position-absolute end-0 bottom-100">
+            <div class="col-sm-12 col-xl-1">
+                <!-- <a href="{% url 'report_inventory_view' %}"><h1 class="bi bi-x ts_sm_sm text_hover1"></h1></a> -->
+                <a id="cls-btn1" href="{% url 'report_inventory_view' %}" class="btn btn-dark m-1 border border-light"><span class="fa fa-times-circle text-light"></span></a>
+            </div>
+        </div>
+    </div>
+    <div style="background-color: black;" class="row visiblity_hide p-1 ">
+        <div class="col-sm-12 col-xl-3  p-1 ">
+            <div class="position-relative">
+                <div class="position-absolute start-0 top-0" style="margin-top: 0.1rem;margin-left: 0.5rem;">
+                    <span class="fa fa-calendar text-light" ></span>
+                </div>
+            </div>
+            <!-- Date range calendar input -->
+            <div id="reportrange" style="cursor: pointer; color: #ffffff; background-color: rgb(0, 0, 0);height: 30px; padding: 2px; border-radius: 2px;">
+                <!-- <div style="display: flex;justify-content: space-between;"> -->
+                    <span>Today</span> <i class="fa fa-caret-down pe-1"></i>
+                <!-- </div> -->
+            </div>
+            <style>
+                .daterangepicker{
+                    color: black;
+                }
+                .cancelBtn{
+                    color: gray;
+                }
+                .cancelBtn:hover{
+                    color: black;
+                }
+                #reportrange span{
+                    padding-inline-start: 2.2rem;
+                }
+            </style>
+            <script>
+                $(function () {
+                    var start = moment();
+                    var end = moment();
+
+                    function cb(start, end) {
+                        $('#reportrange span').html(start.format('DD MMM YY') + ' - ' + end.format('DD MMM YY'));
+                        $('#selectedDate').html('From ' + start.format('MMMM D, YYYY') + ' To ' + end.format('MMMM D, YYYY'));
+                        $('#selectedDate_input1').val(start.format('MM/D/YYYY'))
+                        $('#selectedDate_input2').val(end.format('MM/D/YYYY'))
+                        localStorage.setItem('selectedDates', JSON.stringify({ start: start, end: end }));
+                    }
+
+                    // Retrieve the previously selected dates from localStorage
+                    var storedDates = localStorage.getItem('selectedDates');
+                    if (storedDates) {
+                        var parsedDates = JSON.parse(storedDates);
+                        start = moment(parsedDates.start);
+                        end = moment(parsedDates.end);
+                    }
+
+
+                    $('#reportrange').daterangepicker({
+                        startDate: start,
+                        endDate: end,
+                        ranges: {
+                            'Today': [moment(), moment()],
+                            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                            'This Month': [moment().startOf('month'), moment().endOf('month')],
+                            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                            'Previous Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                            'Previous Quarter': [
+                                moment().subtract(3, 'months').startOf('quarter'),
+                                moment().subtract(3, 'months').endOf('quarter')
+                            ]
+                        }
+
+
+                    }, cb);
+
+                    cb(start, end);
+                });
+
+
+                $('.reportrange').addClass('ps-5')
+
+
+                $(document).ready(function(){
+                    $('ranges input').click(function(){
+                        alert('asdasd')
+                    })
+                })
+                
+            </script>
+            <!-- <select class="btn btn-outline-light w-100 text-start bs_sm bg-dark text-light ps-4" name="select_"
+            hx-get ="getthedate"
+            hx-target="#date_here_"
+            hx-trigger="change"
+            >
+                <option value="Today"><a href="">Today</a></option>
+                <option value="This Week"><a href="">This Week</a></option>
+                <option value="This Month"><a href="">This Month</a></option>
+                <option value="This Quarter"><a href="">This Quarter</a></option>
+                <option value="This Year"><a href="">This Year</a></option>
+                <option value="Yesterday"><a href="">Yesterday</a></option>
+                <option value="Previous Week"><a href="">Previous Week</a></option>
+                <option value="Previous Month"><a href="">Previous Month</a></option>
+                <option value="Previous Quarter"><a href="">Previous Quarter</a></option>
+                <option value="Previous Year"><a href="">Previous Year</a></option>
+                <option value="Custom"><a type="button" onclick="alert_fn()">Custom</a></option>
+            </select> -->
+        </div>
+        <div class="col-sm-12 col-xl-3 p-1   customize_btn pt-2">
+            <a href="{% url 'payment_reciedved_customize' %}" class=" text-decoration-none customize_btn ts_sm_sm_blue"><span class="bi bi-gear-fill  "> Customize Report</span></a>
+        </div>
+        <div class="col-sm-12 col-xl-1  p-1 ">
+            
+        </div>
+        <!-- <div class="col-sm-12 col-xl-2 ">
+            <button class="btn btn-outline-primary bg-gradient p-2 bs_sm sched_btn"><span class="bi bi-clock sched_btn"></span> Scheduled Report</button>
+        </div> -->
+        <div class="col-sm-12 col-xl-5  p-1 d-flex justify-content-end">
+            <!-- <div class="d-flexssss"> -->
+                <button id="print_btn" class="btn btn-outline-light bs_sm m-1"><span class="bi bi-printer"></span> Print</button>
+                <!-- <button class="dropdown-toggle btn btn-outline-light  p- bs_sm"></button> -->
+            <!-- </div> -->
+        <!-- </div>
+        <div class="col-sm-12 col-xl-2 d-flexx1 p-1 "> -->
+            <!-- <div class="d-flexsss"> -->
+                <a class="btn btn-outline-light bs_sm m-1" onclick="generate_pdf()"><span class="bi bi-file-earmark-pdf"></span> PDF</a>
+            <!-- </div> -->
+        <!-- </div>
+        <div class="col-sm-12 col-xl-2 d-flexx  p-1 "> -->
+            <!-- <button class="btn btn-outline-light dropdown-toggle bs_sm" data-bs-toggle="dropdown">XLS(Excel)</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="generate_pdf">Export to pdf</a></li>
+                <li><a class="dropdown-item" type="button" onclick="exportToExcel()">Export to Excell</a></li>
+            </ul> -->
+            <button class="btn btn-outline-light bs_sm ms-1 mt-1 mb-1 custom_nav_margin" type="button" onclick="exportToExcel()"><span class="bi bi-table"></span> XLS(Excel)</button>
+        </div>
+        <!-- <div class="col-sm-12 col-xl-1  p-1 "> -->
+            <!-- <a href="{% url 'report_inventory_view' %}"><h1 class="bi bi-x ts_sm_sm text_hover1"></h1></a> -->
+        <!-- </div> -->
+    </div>
+    <hr>
+    <div id="printable_content">
+        <br>
+        <div class="text-center">
+            <h3 class="fw-light ts_sm print_text">{{ company.company_name|upper }}</h4>
+            <h2 class="fw- ts_sm">Payments Received</h1>
+            <!-- <h5 class="ts_sm_sm pt-1">( {{ todays_date }} - {{ todays_date }} )</h5> -->
+            <div class="ts_sm_sm" id="selectedDate"></div>
+            <input id="selectedDate_input1" style="opacity: 0;width: 0;height: 0;margin: 0;padding: 0;" class="" type="text" value="asdasdasd" name="selectedDate_input_">
+            <input id="selectedDate_input2" style="opacity: 0;width: 0;height: 0;margin: 0;padding: 0;" class="" type="text" value="asdasdasd" name="selectedDate_input_">
+        </div>
+    <br>
+        <div class="over" style="overflow: hidden;">
+            <div class="over" style="overflow-x: scroll;">
+                <table style="width:100%;background-color: transparent;" class="table table-hover table- text-light">
+                    <thead>
+                        <th id="paynum_" class="text- fw-bold print__text">PAYMENT NUMBER</th>
+                        <th id="name_" class="text- fw-bold print__text">CUSTOMER NAME</th>
+                        <th id="date_" class="text- fw-bold print__text">DATE</th>
+                        <th id="refnum_" class="text- fw-bold print__text">REFERENCE NUMBER</th>
+                        <th id="paymod_" class="text- fw-bold print__text">PAYMENT MODE</th>
+                        <th id="note_" class="text- fw-bold print__text">NOTES</th>
+                        <th id="invc_" class="text- fw-bold print__text">INVOICE#</th>
+                        <th id="fcy_" class="text- fw-bold print__text">AMOUNT (FCY)</th>
+                        <th id="ufcy_" class="text- fw-bold print__text">UNUSED AMOUNT (FCY)</th>
+                        <th id="bcy_" class="text- fw-bold print__text">AMOUNT (BCY)</th>
+                        <th id="ubcy_" class="text- fw-bold print__text">UNUSED AMOUNT (BCY)</th> 
+                    </thead>
+                    <tbody>
+                        {% for i in customer %}
+                            <tr>
+                                <td class="text-light">---------</td>
+                                <td class="text-light">{{ i.customerName|upper }}</td>
+                                <td class="text-light">-----</td>
+                                <td class="text-light">---------</td>
+                                <td class="text-light">---------</td>
+                                <td class="text-light">------</td>
+                                <td class="text-light">--------</td>
+                                <td class="text-light">----</td>
+                                <td class="text-light">------</td>
+                                <td class="text-light">----</td>
+                                <td class="text-light">------</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // $(document).ready(function(){
+    //     $('#cls-btn1').mouseenter(function(){
+    //         $(this).removeclass('text-dark')
+    //         $(this).addclass('text-light')
+    //     })
+    //     $('#cls-btn1').mouseleave(function(){
+    //         $(this).removeclass('text-light')
+    //         $(this).addclass('text-dark')
+    //     })
+    // })
+    function generate_pdf(){
+        string_date=$('#selectedDate').text()
+        start_d = $('#selectedDate_input1').val()
+        end_d = $('#selectedDate_input2').val() 
+        // alert(end_d)
+        url = "{% url 'generate_pdf' 0 1 2 %}".replace(0,string_date)
+        // url = "{% url 'generate_pdf' 0 1 2 %}".replace(1,start_d)
+        // url = "{% url 'generate_pdf' 0 1 2 %}".replace(2,end_d)
+        window.location.href=url
+    }
+    $(document).ready(function(){
+        $('#print_btn').click(function(){
+            $('#paynum_').text('PAY-NUM')
+            $('#name_').text('FULL NAME')
+            $('#date_').text('DATE')
+            $('#refnum_').text('REF-NUM')
+            $('#paymod_').text('PAY-MOD')
+            $('#note_').text('NOTE')
+            $('#invc_').text('INVOICE')
+            $('#fcy_').text('FCY')
+            $('#ufcy_').text('U-FCY')
+            $('#bcy_').text('BCY')
+            $('#ubcy_').text('U-BCY')
+            $('.over').css({'overflow':'hidden'})
+            $('body').css({'color':'black'})
+            $('html').css({'color':'black','font-size': '11px'})
+            $('.table').removeClass('table-striped table-hover table-dark')
+            $('.table').addClass('table-bordered border-dark bg-light')
+            $('.print__text').removeClass('text-light')
+            $('.print__text').addClass('text-dark')
+            $('table td').addClass('text-dark')
+            var pc = $('#printable_content').html()
+            var backup = document.body.innerHTML
+            document.body.innerHTML = pc
+            window.print()
+            document.body.innerHTML = backup
+            window.location.href = ''
+        })
+    })
+    function exportToExcel() {
+        var table = document.querySelector('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'report.xlsx');
+    }
+
+</script>
+
+<script src="{% static 'js/my_calendar.js' %}"></script>
+
+{% endblock %}

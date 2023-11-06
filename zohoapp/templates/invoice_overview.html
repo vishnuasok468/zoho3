@@ -1,0 +1,896 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+<style>
+    * {
+
+        font-family: "Gill Sans", sans-serif;
+        color: white;
+    }
+
+    .list {
+        background-color: rgb(29, 29, 29);
+    }
+
+    .overview {
+        background-color: black;
+    }
+
+    .searchbar,
+    .overview .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        /* margin: 0 1rem; */
+    }
+
+    .searchbar .btn {
+        width: 5vw;
+        background-color: rgb(28, 117, 233);
+        font-size: 1vw;
+        color: rgb(255, 255, 255);
+    }
+
+    .table .bold {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .table tr:hover {
+        background-color: #d3f3f2;
+    }
+
+    .overview .bar .btn {
+        background-color: rgb(238, 164, 27);
+        color: #ffff;
+        padding: .3rem .3rem;
+        align-items: center;
+    }
+
+    .overview .bar .btn:hover,
+    .overview .bar .btn i:hover {
+        background-color: rgb(182, 180, 178);
+        color: #000000; 
+    }
+
+    .p-name {
+        height: 2.5vw;
+    }
+
+    #div-to-pdf .p-info label,
+    #div-to-pdf .bank-div label {
+        color: #ffffff;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info label {
+        color: #000000;
+        font-size: .8rem;
+    }
+
+    #div-to-pdf .gen-info .bold {
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    .div-to-pdf div {
+        color: #000000;
+    }
+
+
+    #div-to-pdf .p-info .bold,
+    #div-to-pdf .bank-div .bold {
+        font-size: 1rem;
+        color: #ffffff;
+        /* font-weight: bold; */
+    }
+
+    .modal {
+        z-index: 9999;
+        overflow: scroll;
+    }
+
+    .right .dropdown-menu {
+        width: 30vw;
+    }
+
+    .modal-backdrop {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .modal .table th {
+        color: #ffffff;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: 50vw;
+        height: auto !important;
+        margin: auto;
+    }
+
+
+    
+.table-container {
+    display: inline-block;
+    overflow-x: auto; 
+    max-width: 100%; 
+}
+
+
+.truncate-text {
+    max-width: 350px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+#mytable tr {
+    display: table-row;
+}
+
+
+.actoinacto .dropdown-item:hover {
+    background-color: #0baef4;
+}
+</style>
+<section>
+    <div class="row p-3 ">
+        <div class="list col-4 col-lg-4 col-md-3  col-sm-2 py-3">
+            <div class="header">
+                <h5>ALL INVOICE LIST</h5>
+            </div>
+            <div class="searchbar">
+                
+                <input class="form-control" type="text" placeholder="Search by Name" name="search" id="search"
+                    
+                    style="color: rgb(255, 255, 255);background: transparent;margin-right: 5px;">
+                <a class="btn btn-outline mx-1" style="color: #ccc;background-color: rgb(210, 132, 30);"  href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button">
+                    <i class="fa fa-filter"></i>
+                </a>
+               
+                <div class="dropdown-menu actoinacto" >
+                    <a class="dropdown-item" href="{% url 'invoice_overview' invoice.id %}">All</a>
+  
+                    <a class="dropdown-item" href="{% url 'filter_invoice_overview_draft' invoice.id %}">Draft</a>
+                    <a class="dropdown-item" href="{% url 'filter_invoice_overview_send' invoice.id %}">Send</a>
+                </div>
+                
+                <a class="btn btn-outline mr-1" style="color: #ccc;background-color: rgb(210, 132, 30);" href="{% url 'add_prod' %}"><i class="fa fa-plus"></i></a>
+            </div>
+            <hr>
+            <table class="text-white" style="width: 100%;">
+                {% for v in inv_dat %}
+                <tbody id="table">
+                    <tr id="tr_data" class="border-bottom clickable-row" style="cursor: pointer;">
+                        <td>
+                            <a href="{% url 'invoice_overview' v.id %}" style="text-decoration: none; color: black;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 style="color: rgb(218, 143, 5);">{{ v.customer.customerName }}</h5>
+                                    </div>
+                                    <div class="col-md-6 text-right"  style="color: rgb(218, 143, 5);">&#x20B9;{{ v.grandtotal }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <p>{{ v.invoice_no }}</p>
+                                    </div>
+                                    <div class="col-md-3 text-left"></div>
+                                    <div class="col-md-6 text-right">
+                                        <p>{{ v.status }}</p>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+            
+                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+            
+
+
+            
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterLinks = document.querySelectorAll(".filter-link");
+        const tableRows = document.querySelectorAll(".clickable-row");
+
+        filterLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                const status = link.getAttribute("data-status");
+
+                tableRows.forEach(function (row) {
+                    if (status === "all" || (status === "active" && row.getAttribute("data-status") === "True") || (status === "inactive" && row.getAttribute("data-status") === "False")) {
+                        row.style.display = "table-row";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+
+<script>
+    function printForm() {
+        var selectedArea = document.getElementById("selected-area");
+
+        var printWindow = window.open('', 'PrintWindow', 'height=800,width=800');
+
+        // Check if selectedArea exists
+        if (selectedArea) {
+            printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+            printWindow.print();
+            printWindow.close();
+        } else {
+            alert("No content to print!");
+        }
+    }
+    
+
+</script>
+            
+        </div>
+        <div class="overview col-8 col-lg-8 col-md-9  col-sm-10 py-3">
+            <div id="overview">
+                <div class="p-name">
+                    <h3 class="px-2 pb-2" id="id1"> {{invoice.invoice_no}}</h3>
+                </div>
+
+                <div class="bar pt-3">
+                    <div class="left">
+                       
+                        <a class="btn mx-1 fa fa-file-word" href="{% url 'detailedview' id=invoice.id %}">Template</a>
+
+
+                    
+                        <a class="btn mx-1, fa fa-eye"  href="#home">Overview</a>
+                        <a class="btn mx-1, fas fa-file-invoice"  href="{% url 'invoice_slip' id=invoice.id %}">Slip</a>
+                    </div>
+                   
+                    <div class="right">
+                        
+                        <a class="btn ml-1" href="{% url 'edited_prod' id=invoice.id %}" data-toggle="tooltip" title="Edit"><i
+                                class="fas fa-edit"></i></a>
+
+                                <a href="" onclick="printForm()" style="border-radius: 5px;height: 1.7rem;" class="btn btn-sm m-1 text-white btn_print" 
+                                data-toggle="tooltip" title="Print">
+                                <i class="mdi mdi-printer"></i></a>
+        
+                                        {% if invoice.status == 'Draft'%}
+                                        <a href="{% url 'change_status_invoice' id=invoice.id  %}" style="border-radius: 5px;height: 1.7rem;" class="btn btn-sm m-1 text-white"
+                                        data-toggle="tooltip" title="Change Status">
+                                       <i class="fas fa-exchange-alt"></i></a>
+                                       
+                                        {% endif %}
+                                        
+                                   
+                                    <a href="{% url 'emailattachment' %}" class="btn btn-sm text-white ms-1"
+                                    style="border-radius: 5px;height: 1.7rem;" data-toggle="tooltip" title="Email">
+                                        <i class="fas fa-envelope"></i></a>
+                                  
+                                        
+                                          
+                                        <div class="dropdown btn ml-1 " title="comments" style="height: 1.7rem;">
+                                            <a href=" " class=" fas fa-comment-dots  btn-sm text-white ms-1"  
+                                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                                            </a>
+                          
+                                            <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                                <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                                 data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                                                <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                                data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                                                        
+                                            </div>
+                                        </div>
+                               
+                        <a class="btn btn_print ml-1" href="" id="convertToPDFButton" data-toggle="tooltip"
+                            title="Pdf"><i class="mdi mdi-file-pdf"></i></a>
+                        <!-- onclick="generatePDF()" -->
+                        
+                        <script type="text/javascript">
+                            $(document).ready(function ($) {
+                                console.log('print');
+
+                                $(document).on('click', '.btn_print', function (event) {
+                                    console.log('print1');
+                                    event.preventDefault();
+                                    var customerName = "{{invoice.invoice_no }}";
+                                    var element = document.getElementById('div-to-pdf');
+                                    var opt =
+                                    {
+                                        margin: 1,
+                                        filename: 'invoice_'+ customerName + '.pdf',
+                                        image: { type: 'jpeg', quality: 0.98 },
+                                        html2canvas: { scale: 2 },
+                                        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                                    };
+                                    html2pdf().set(opt).from(element).save();
+
+                                });
+
+                            });
+                        </script>
+                        
+                        {% if invoice.file != "" %}
+                    <a href="{{invoice.file.url}}"  style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;" class="btn ms-1 text-white"
+                        data-toggle="tooltip" title="Download Attached File">
+                        <span class="mdi mdi-download"></span></a>
+                    {% endif %}
+                        <a href="{% url 'dele' invoice.id %}" class="btn btn-sm text-white" title="Delete" style="border-radius: 5px;height: 1.7rem;" 
+          onclick="return confirm('Do you want to Delete this Invoice?');"><i class="fas fa-trash-alt"></i></a>
+                        
+                        <div class="dropdown-menu">
+                            {% if attach %}
+                            <div class="table-container">
+                            <table class="table table-borderless">
+                                {% for a in attach %}
+                                {% for loan in loans %}
+                                <tr>
+                                    <td>{{forloop.counter}}.</td>
+                                    <td>
+                                        
+                                        <a href="{% url 'download_loan_attach' payroll_id=loan.payroll.id attachment_id=a.id %}">
+                                            <div class="truncate-text">{{ a.attach.name }}</div>
+                                        </a>
+                                    </td>
+                                    <td><a href="{% url 'delete_loan_attach' a.id %}"><i class="fas fa-trash"></i></a></td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                            {% else %}
+                            <div class="text-center">No Attachment found</div>
+                            {% endif %}
+                        </div>
+                        {% for loan in loans %}
+                        <a class="btn ml-1" href="{% url 'delete_loan' loan.id %}" data-toggle="tooltip" data-placement="top" title="Delete Loan"
+
+                            title="Delete" onclick="return confirm('Do you want to Delete this Employee loan details?');"><i class="fa fa-trash"></i></a>
+                            
+                        <a class="btn ml-1" href="" data-toggle="modal" data-target="#commentModal"
+                            data-toggle="tooltip" title="comment"><i class="far fa-comment"></i></a>
+                            <form  class="btn ml-1" method="post" action="{% url 'add_loan_attach' payroll_id=loan.payroll.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <label for="file-input"  data-toggle="tooltip" title="Upload Attachments">
+                                    <i class="fas fa-paperclip"></i>
+                                </label>
+                                <input id="file-input" type="file" name="file" style="display: none;" onchange="uploadFile()">
+                                <input type="hidden" id="payroll-id" value="{{ loan.payroll.id }}">
+                            </form>
+                            {% endfor %}
+                            
+
+                    <script>    
+                        function uploadFile() {
+                            const fileInput = document.getElementById("file-input");
+                            const file = fileInput.files[0];
+                            const csrfToken = getCookie('csrftoken');
+                            const payrollId = document.getElementById("payroll-id").value;
+                            
+                            const formData = new FormData();
+                            formData.append("file", file);
+                            
+                            fetch(`/add_loan_attach/${payrollId}/`, {
+                                method: "POST",
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response from the server (if needed)
+                                const messageDiv = document.getElementById("upload-message");
+        if (data.message) {
+            // Display the success message
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = "green";
+        }
+        messageDiv.style.display = "block";
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+                        
+                    </script>                    
+{%for loan in loans%}
+{% if loan.active %}
+                    <a class="btn ml-1" href="{% url 'loan_deactive' loan.id %}" id="sts">Active</a>
+                    {%else%}
+                    <a class="btn ml-1" href="{% url 'loan_active' loan.id %}" id="sts">Deactive</a>
+                    {%endif%}
+                    {%endfor%}
+                        
+                    </div>
+                </div>
+                <div id="upload-message" style="display:none;"></div>
+                <hr>
+                
+                <div id="selected-area">
+                <div class="div-to-pdf row" id="div-to-pdf" style="height: auto;background-color: burlywood">
+                    <div class="bar pt-2 pb-4">
+                        <div class="left" style="font-size: 1rem;font-weight: 600;"> {{p.designation}}
+                            <h6 class="text-dark">Client :</h6>
+                            <h6  style="color: rgb(0, 0, 0);font-weight: bold"><div class="text-uppercase">{{ invoice.customer.customerName }} </div><span class="text-dark" style="color: rgb(0, 0, 0);font-weight: bold">{{ invoice.customer.customerEmail }}</span>  <br><span class="text-dark">{{ invoice.customer.customerMobile }}</span></h6>
+                        </div>
+                        <div class="right" style="font-size: 1rem;font-weight: 600;">Order No &nbsp;&nbsp;&nbsp;&nbsp; : {{ invoice.order_no }} <br> Invoice Date&nbsp;: {{invoice.inv_date}}  </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <h3 style="color: #000000;">INVOICE
+                           
+                        </h3>
+                        <h6 class="text-dark" style="font-weight: bold;">Invoice Number : {{invoice.invoice_no}}</h6>
+                    </div>
+                    <hr>
+                    
+                   
+                        <table class="table  " style="border-color: black;">
+                            <thead >
+                                <tr>
+                                    <th style="color: black;font-weight: bold;">#</th>
+                                    <th style="width: 10rem;color: black;font-weight: bold;">Product</th>
+                                    <!-- <th class="text-right;" style="color: black;font-weight: bold;">Hsn</th> -->
+                                    <!-- <th class="text-right;" style="color: black;font-weight: bold;">Description</th> -->
+                                    <th class="text-right;" style="color: black;font-weight: bold;">HSN</th>
+                                    <th class="text-right;" style="color: black;font-weight: bold;">Quantity</th>
+                                    <th class="text-right;" style="color: black;font-weight: bold;">Price</th>
+                                    <th class="text-right;" style="color: black;font-weight: bold;">Discount</th>
+                    
+                                    <th class="text-right;" style="color: black;font-weight: bold;">Tax%</th>
+                                    <th class="text-right;" style="color: black;font-weight: bold;">Total</th>
+                                </tr>
+                                
+                            </thead>
+                            <tbody>
+                                {% for item in invoiceitem %}
+                                <tr>
+                                    <td style="color: black;font-weight: bold;">{{ forloop.counter }}</td>
+                                    <td style="color: black;font-weight: bold;">{{ item.product }}</td>
+                                    <!-- <td class="text-right">{{ item.hsn }}</td> -->
+                                    <!-- <td class="text-right">{{ item.desc }}</td> -->
+
+
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.hsn }}</td>
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.quantity }}</td>
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.rate|floatformat:1 }}</td>
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.discount|floatformat:1 }}</td>
+                    
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.tax }}</td>
+                                    <td class="text-right" style="color: black;font-weight: bold;">{{ item.total|floatformat:1 }}</td>
+                                </tr>
+                                {% endfor %}
+                                
+                            </tbody>
+                        </table>
+                        <div class="gen-info col-6 " style="padding-left: 3rem;">
+                                <table class="table ">
+                                    <tr>
+                                        <td class="text-dark" style="font-weight: bold;">Sub-Total:</td>
+                                        <td class="text-right" style="color: black;font-weight: bold; text-align: end;" style="">{{ invoice.subtotal|floatformat:1 }}</td>
+                                    </tr>
+                                    {% if invoice.cgst|floatformat:1 != 0|floatformat:1 %}
+                                    <tr>
+                                        <td class=" text-dark"  style="color: black;font-weight: bold;" >CGST:</td>
+                                        <td class="text-right" style="color: black;font-weight: bold; text-align: end;" >{{ invoice.cgst|floatformat:1 }}</td>
+                                    </tr>
+                                    {% endif %}
+                    
+                                    {% if invoice.sgst|floatformat:1 != 0|floatformat:1 %}
+                                    <tr>
+                                        <td class="text-dark"  style="color: black;font-weight: bold;" >SGST:</td>
+                                        <td class="text-right"  style="color: black;font-weight: bold; text-align: end;" >{{ invoice.sgst|floatformat:1 }}</td>
+                                    </tr>
+                                    {% endif %}
+                    
+                                    {% if invoice.igst|floatformat:1 != 0|floatformat:1 %}
+                                    <tr>
+                                        <td class="text-dark" style="color: black;font-weight: bold;" >IGST:</td>
+                                        <td class="text-right" style="color: black;font-weight: bold; text-align: end;" >{{ invoice.igst|floatformat:1 }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                      <td class="text-dark"  style="color: black;font-weight: bold;" >TAX:</td>
+                                      <td class="text-right" style="color: black;font-weight: bold; text-align: end;" >{{ invoice.t_tax}}</td>
+                                  </tr>
+                                  {% if invoice.shipping_charge != 0 %}
+                                    <tr>
+                                        <td class="text-dark"  style="color: black;font-weight: bold;" >Shipping Charge:</td>
+                                        <td class="text-right"  style="color: black;font-weight: bold; text-align: end;" >{{ invoice.shipping_charge }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if invoice.adjustment != 0 %}
+                                    <tr>
+                                        <td class="text-dark"  style="color: black;font-weight: bold;" >Adjustment Charge:</td>
+                                        <td class="text-right" style="color: black;font-weight: bold; text-align: end;" >{{ invoice.adjustment|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    
+                                    
+                                    <tr>
+                    
+                                        <td class="text-right"  style="color: black;font-weight: bold;" >Total:</td>
+                                        
+                                        <td class="text-right " style="color: black;font-weight: bold; text-align: end;" >{{ invoice.grandtotal|floatformat:1}}</td>
+                                    </tr>
+                                   
+                                    {% if invoice.paid_amount != 0 %}
+                                    <tr>
+                    
+                                        <td class="text-right"  style="color: black;font-weight: bold;" >Paid Amount:</td>
+                                        
+                                        <td class="text-right " style="color: black;font-weight: bold; text-align: end;" >{{ invoice.paid_amount|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% if invoice.balance != 0 %}
+                                    <tr>
+                    
+                                        <td class="text-right"  style="color: black;font-weight: bold;" >Balance:</td>
+                                        
+                                        <td class="text-right " style="color: black;font-weight: bold; text-align: end;" >{{ invoice.balance|floatformat:1}}</td>
+                                    </tr>
+                                    {% endif %}
+
+                                   
+                                </table>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="m-0 font-weight-bold" style="color:black">Customer Note: {{invoice.cxnote}}</p>
+                                        <div class="col-6">
+                                        <label> <p class="m-0 font-weight-bold" style="color:black "> </p></label>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="m-0 font-weight-bold" style="color:black">Terms & Conditions: {{invoice.terms_condition}}</p>
+                                        <p style="color:black"></p>
+                                    </div>
+                                </div>
+                    
+                            </div>    <div class="p-info col-6 my-2" style="height: auto;">
+                                <div class="card" style="background-color: rgb(110, 61, 46); padding:0.9rem;">       
+                                    {% for customer in customers %}
+                                    <div class="row">
+                                        
+                                        <div class="col-4"><label for="">Place of Supply:</label></div>
+                                        <div class="col-8">
+                                            <p>{{ customer.placeofsupply }}</p>
+                                            {% endfor%}
+                                    </div>
+                                    <hr>
+
+                                    <div class="row my-2"><h4>Invoice Details</h4></div>
+                                    
+                                    <div class="row">
+                                        
+                                        <div class="col-6"><label for="">Invoice Date:</label></div>
+                                        <div class="col-6">
+                                        <label>  <p>{{ invoice.inv_date|date:"d/m/Y" }}</p><label>
+                                    </div>
+
+
+                                    <div class="row">
+                                        
+                                        <div class="col-6"><label for="">Due Date:</label></div>
+                                        <div class="col-6">
+                                        <label>  <p>{{ invoice.due_date|date:"d/m/Y" }}</p></label>
+                                        </div>
+                                    </div>
+                                    <div class="row my-2"><label><h4>Payment Details</h4></label></div>
+                                    
+                                    <div class="row">
+                                        
+                                        <div class="col-6"><label for="">Payment Method:</label></div>
+
+                                        <div class="col-6 text-uppercase" >
+                                            {% for payment in payment %}
+                                        <label>  <p>{{ payment.payment_method }}</p></label>
+                                           
+                                    </div>
+                                   
+{% if payment.payment_method|lower == 'cash' %}
+<div></div>
+{% elif payment.payment_method|lower == 'upi' %}
+                                    <div class="row">
+                                        
+                                        <div class="col-6"><label for="">UPI ID:</label></div>
+                                        <div class="col-6 " >
+                                        <label>  <p >{{ payment.upi_id }}</p></label>
+
+                                        </div>
+                                    </div>
+
+                                    {% elif payment.payment_method|lower == 'cheque' %}
+                                    
+                                    <div class="row">
+                                        
+                                        <div class="col-3"><label for="">Cheque No:</label></div>
+                                        <div class="col-9">
+                                        <label>  <p>{{ payment.cheque_number }}</p></label>
+                                        </div>
+                                    </div>
+
+                                    
+                                    {% elif payment.payment_method|lower == 'bank' %}
+                                    
+                                    <div class="row">
+                                        
+                                        <div class="col-6"><label for="">Bank Name:</label></div>
+                                        <div class="col-6">
+                                           
+                                            <label for="">  <p>{{ payment.bank.name }}</p></label>
+                                           
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor%}
+                                  
+                                
+                                           
+
+                                </div>     
+                            </div>
+                        </div>     
+                                </div>
+                    
+                            </div>  
+                           
+                </div>
+
+                
+            </div>
+            
+        </div>
+
+    </div>
+
+
+
+
+    <!-- Modal -->
+    <!-- Add Comments Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #3b3b3b;">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Add Comments</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                            <path d="M.646 1.646a.5.5 0 0 1 .708 0L8 7.293 15.646.646a.5.5 0 1 1 .708.708L8.707 8l7.647 7.646a.5.5 0 0 1-.708.708L8 8.707l-7.646 7.647a.5.5 0 0 1-.708-.708L7.293 8 .646 1.646a.5.5 0 0 1 0-.708z"/>
+                          </svg>
+                    </button>
+                </div>
+               
+
+    
+ {%for loan in loans%}
+                
+                <form method="post" action="{% url 'add_loan_comment' payroll_id=loan.payroll.id %}">
+                  
+{%endfor%}
+
+                    
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <textarea type="text" class="form-control text-dark" name="comment"></textarea>
+                        <input type="hidden" value="{{loans.id}}" name="loans_id" >
+                        <div class="container-fluid">
+
+                            <table class="table  mt-4">
+                                <thead>
+                                    <tr>
+                                        <th>sl no.</th>
+                                        <th>Comments</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in comments %}
+                                    <tr class="table-row">
+                                        <td>{{forloop.counter }}</td>
+                                        <td>{{c.comment}}</td>
+                                        
+                                        <td><a class="text-danger"
+                                            href="{% url 'delete_loan_comment' c.id %}">Delete</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                        <button type="submit" class="btn btn-primary" id="save">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Check if the cookie name matches the CSRF cookie name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+   
+
+
+</script>
+<script>
+
+    jQuery(document).ready(function ($) {
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+    });
+
+        
+    
+    
+  
+    
+        var $rows = $('#table tr');
+        $('#search').keyup(function() {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            
+            $rows.hide().filter(function() {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return ~text.indexOf(val);
+            }).show();
+        });
+      
+     
+   
+    
+    
+    
+
+        
+</script>
+<script>
+    function sortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (cellValue1 < cellValue2) {
+                return -1;
+            } else if (cellValue1 > cellValue2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+        sortAscending = !sortAscending;
+    }
+
+    function rsortTable(columnIndex) {
+        let sortAscending = false
+        const table = document.getElementById("mytable");
+        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+        rows.sort((row1, row2) => {
+            const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+            const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+
+            if (sortAscending) {
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                if (cellValue1 > cellValue2) {
+                    return -1;
+                } else if (cellValue1 < cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        // Clear the table body
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+
+        // Append the sorted rows back to the table
+        rows.forEach(row => table.appendChild(row));
+
+        // Toggle the sorting order for the next click
+        sortAscending = !sortAscending;
+    }
+
+
+
+
+
+    function toggleLoanActiveStatus(loanId) {
+        // Send an AJAX request to toggle the active status
+        $.ajax({
+            url: `/toggle_loan_active/${loanId}/`,
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                // Update the button text and style based on the response
+                const activeButton = document.getElementById('active-button');
+                if (data.active) {
+                    activeButton.textContent = 'Deactivate';
+                    activeButton.classList.remove('btn-success');
+                    activeButton.classList.add('btn-danger');
+                } else {
+                    activeButton.textContent = 'Activate';
+                    activeButton.classList.remove('btn-danger');
+                    activeButton.classList.add('btn-success');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    
+</script>
+<!-- <script>
+    function generatePDF() {
+        const container = document.getElementById('div-to-pdf');
+        const options = {
+            filename: 'employee.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            htmt2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(container).set(options).save();
+    };
+
+
+</script> -->
+
+{% endblock %}
+
+<!-- edit com attach dele active/inactive -->

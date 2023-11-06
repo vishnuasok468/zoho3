@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<style>
+
+  
+  .col {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+  }
+  
+  @media print {
+    table, th, td, tr { 
+      border: 1px solid black;
+      padding: 10px; /* Ensure black borders when printing */
+     
+    }
+    table {
+    margin: 0 auto; /* Center the table horizontally */
+  }
+
+  }
+  @media (max-width: 768px) {
+  
+      #d1,
+      #d2,
+      #search-box {
+          width: 30%;
+      }
+
+
+  }
+
+  .daterangepicker {
+      background-color: #f0f0f0;
+      color: #000;
+  }
+
+ 
+</style>
+
+
+
+<div class="d-flex justify-content-between align-items-center" style="margin-top: 40px;">
+  <div class="d-flex">
+      <div class="col">
+          <form action="" method="post" id="date-form">
+              {% csrf_token %}
+              From <input type="date" id="d1" name="d1" required>
+              To <input type="date" id="d2" name="d2" required>
+              <span id="date-error" style="color: red;"></span>
+          </form>
+      </div>
+  </div>
+  
+  <div class="d-flex">
+     
+      <!-- <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp; -->  
+      <button class="btn btn-light mr-2" id="print" onclick="printPageContent()">   <i class="fa fa-print"></i> Print</button>&nbsp;
+      <button class="btn btn-light mr-2" id="pdf" onclick="exportAsPDF()"><i class="fa fa-file-pdf-o"></i>PDF</button>
+    
+      <div style="width: 3px;"></div>
+      <div class="dropdown">
+          <button class="btn btn-light mr-3 dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              Export
+          </button>
+          <div class="dropdown-menu" aria-labelledby="exportDropdown">
+           
+              <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+          </div>
+          <a href="{% url 'report_inventory_view' %}" class="btn btn-light" style=" color: rgb(1, 1, 1);">
+              <i class="fa fa-times-circle"></i>
+          </a>
+      </div>
+      
+  </div>
+  
+</div>
+<div  style="top: 7rem; " > 
+  <div class="mt-1">
+      <datalist onclick="getValue()" id="customers" >
+        
+        {% for v in purchasebill %}
+        <option value="{{ v.vendor_name }}" >
+    {% endfor %}
+
+      
+      </datalist>
+  </div>
+  <label>Vendor Name :</label>
+<input type="text" onclick="getValue()" id="search"  placeholder="Search.." autocomplete="off"  list="customers">
+<p id="result" hidden>'{{company.company_name}}'</p>
+<script>
+var searchInput = document.getElementById("search");
+searchInput.addEventListener("input", function () {
+    var searchValue = searchInput.value;
+   if (searchValue.trim() !== "") {
+         document.getElementById("result").innerHTML =  searchValue;
+         document.getElementById("selected_customer_heading").innerHTML =  searchValue+' Balances';
+    } else {
+        document.getElementById("result").innerHTML =  '{{company.company_name}}';
+        document.getElementById("selected_customer_heading").innerHTML =  'Bill Details';
+    }
+});
+</script>
+<div class="container-fluid" id="container-to-print"> 
+  <div class="row pt-5">
+    <center>
+      <div class="row">
+        {% if company.company_name != None %}
+         <div  ><h2 class="text-white" >
+              {{company.company_name }}
+              {% else %}
+              Add Company</h2>
+              </div>
+              {% endif %}
+              <div >
+                  <a class="text-white" id="selected_customer_heading"><h2>Bill Details</h2></a>
+              </div>
+              <p class="text" style="color: white;" id="date-range-display">From <span id="start_date"></span> To <span id="end_date"></span></p>
+          </div>
+      </div>      
+  </center>
+      
+      <div class="table-responsive"> 
+      <table class="table table-bordered table-striped mt-4" id="data-table">
+        <thead class="text-white">
+            <tr>
+                <th style="color: white;">Bill Number</th>
+                <th style="color: white;">Bill Date</th>
+                <th style="color: white;">Due Date</th>
+                <th style="color: white;">Vendor Name</th>
+                {% comment %} <th style="color: white;">Email</th> {% endcomment %}
+                <th style="color: white;">Bill Amount</th>
+                <th style="color: white;">Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+          
+            {% for i in purchasebill %}
+             
+            <tr>         
+              <td style="color: white;">{{ i.bill_no }}</td>
+              <td style="color: white;">{{ i.bill_date }}</td>
+              <td style="color: white;">{{ i.due_date }}</td>
+              <td style="color: white;">{{ i.vendor_name }}</td>
+              {% comment %} <td style="color: white;">{{ i.vendor_email }}</td> {% endcomment %}
+              <td style="color: white;">{{ i.total }}</td>
+
+                {% for vendor_name,bal in vendors_balance.items %}
+                    {% if vendor_name == i.vendor_name %}
+                      <td style="color: white;">
+                        {{bal}} 
+                      </td>
+                    {% endif %}             
+                {% endfor %} 
+
+            </tr>
+            {% endfor %}
+
+
+            {% comment %} {% for i in recurringbill %}
+            <tr>
+              <td style="color: white;">{{ i.bill_no }}</td>
+              <td style="color: white;">{{ i.start_date }}</td>
+              <td style="color: white;">{{ i.end_date }}</td>
+              <td style="color: white;">{{ i.vendor_name }}</td>
+              {% comment %} <td style="color: white;">{{ i.vendor_email }}</td> 
+              <td style="color: white;">{{ i.grand_total }}</td>
+              <td style="color: white;">0</td>
+            </tr>
+            {% endfor %}
+            <h1>{{cur}}</h1> {% endcomment %}
+        </tbody>
+      </table> 
+      <div id="total-bill-amount" class="mt-3" style="color: white;"></div>
+      <div>
+          <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
+          <br><br><br><br><br>
+      </div>
+  </div>
+</div>
+</div>
+<div class="printable-content mt-3">
+  
+</div>
+<script>
+  const searchInput = document.getElementById("search");
+  const partyNameDisplay = document.getElementById("party_name");
+  
+  searchInput.addEventListener("input", handleInputChange);
+  
+  function handleInputChange() {
+      const selectedCustomer = this.value;
+      const headingElement = document.getElementById("selected_customer_heading");
+      headingElement.innerHTML = selectedCustomer ? <h2>${selectedCustomer} Balances</h2> : "<h2>Bill Details</h2>";
+  }
+  
+  // Add event listener to the input field for the "input" event
+  searchInput.addEventListener("input", handleInput);
+  
+  // Function to handle input changes
+  function handleInput() {
+      const checkbox = document.getElementById('myCheckbox');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      // Add an event listener to the checkbox to toggle the date input
+      checkbox.addEventListener('change', function() {
+          if (checkbox.checked) {
+              startDateInput.style.display = 'flex';
+              endDateInput.style.display = 'flex'; // Show the date input
+          } else {
+              startDateInput.style.display = 'none';
+              endDateInput.style.display = 'none' // Hide the date input
+          }
+      });
+  }
+  
+</script>
+<script>
+    var $rows = $('table tbody tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        $rows.hide().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+        calculateTotalBillAmount();
+    });
+    function calculateTotalBillAmount() {
+      const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
+          .filter(row => row.style.display !== 'none');
+    
+      let totalBillAmount = 0;
+    
+      visibleRows.forEach(row => {
+          const billAmountCell = row.querySelector('td:nth-child(6)');
+          const billAmount = parseFloat(billAmountCell.textContent);
+          if (!isNaN(billAmount)) {
+              totalBillAmount += billAmount;
+          }
+      });
+    
+      const totalBillAmountElement = document.getElementById('total-bill-amount');
+      totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(2)}`;
+    }
+</script>
+<script>
+
+  function exportAsPDF() {
+    const container = document.getElementById('container-to-print');
+  
+    // Save the original background color
+    const originalBackgroundColor = container.style.backgroundColor;
+  
+    // Set the container's background color to white
+    container.style.backgroundColor = 'white';
+  
+    // Apply styling changes to the container's content
+    const textWhiteElements = container.querySelectorAll('.text');
+    textWhiteElements.forEach(element => {
+      element.style.color = 'black'; // Set text color to black
+    });
+    
+    const pdfOptions = {
+      margin: 0,
+      filename: '{{company.company_name}} Bill Details.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    };
+  
+    // Generate PDF from the container
+    html2pdf().from(container).set(pdfOptions).save().then(() => {
+
+      // Restore the original background color
+      container.style.backgroundColor = originalBackgroundColor;
+
+      textWhiteElements.forEach(element => {
+        element.style.color = 'white'; // Restore original text color
+
+      // Remove the pdf-background class after generating the PDF
+      container.classList.remove('pdf-background');
+      });
+    });
+  }
+
+ // Function to save Excel using XLSX
+ function exportToExcel() {
+     var table = document.querySelector('table');
+     var ws = XLSX.utils.table_to_sheet(table);
+     var wb = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+     XLSX.writeFile(wb, 'report.xlsx');
+ }
+
+ // Function to handle export based on dropdown selection
+ document.getElementById('exportDropdown').addEventListener('change', function () {
+     var selectedValue = this.value;
+     if (selectedValue === 'pdf') {
+         exportToPDF();
+     } else if (selectedValue === 'xls') {
+         exportToExcel();
+     }
+ });
+ const pdfExportLink = document.getElementById('pdf'); 
+pdfExportLink.addEventListener('click', function (event) {
+ event.preventDefault(); 
+ exportToPDF();
+});
+
+//-------PRINT
+
+function printPageContent() {
+  const contentToPrint = document.getElementById('container-to-print');
+  const clonedContent = contentToPrint.cloneNode(true);
+
+  const textElements = clonedContent.querySelectorAll('.text');
+  const filterDropdowns = clonedContent.querySelectorAll('.filter-dropdown');
+
+  textElements.forEach(element => {
+    element.style.color = '#000000'; // Text color (black)
+  });
+
+  filterDropdowns.forEach(dropdown => {
+    dropdown.style.display = 'none';
+  });
+
+  const tableElements = clonedContent.querySelectorAll('table');
+  tableElements.forEach(table => {
+    const tableHeaders = table.querySelectorAll('th');
+    tableHeaders.forEach(th => {
+      th.style.color = '#000000';
+    
+    });
+   
+
+    const tableCells = table.querySelectorAll('td, th, tr');
+    tableCells.forEach(cell => {
+      cell.style.border = '1px solid black';
+      cell.style.padding = '10px';
+      cell.style.color = '#000000';
+      
+    });
+    table.style.margin = '0 auto';
+  });
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.body.appendChild(clonedContent);
+  printWindow.print();
+  printWindow.close();
+}
+
+
+//date
+
+const d1 = document.getElementById('d1');
+const d2 = document.getElementById('d2');
+const dateError = document.getElementById('date-error');
+const dataTable = document.getElementById('data-table');
+const dateRangeDisplay = document.getElementById('date-range-display');
+
+d1.addEventListener('input', filterData);
+d2.addEventListener('input', filterData);
+
+function filterData() {
+  const fromDate = new Date(d1.value);
+  const toDate = new Date(d2.value);
+
+  if (isNaN(toDate)) {
+      dateError.textContent = '';
+  } else if (fromDate > toDate) {
+      dateError.textContent = 'Invalid date range';
+  } else {
+      dateError.textContent = '';
+      const rows = dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+      for (let i = 0; i < rows.length; i++) {
+          const rowDateText = rows[i].getElementsByTagName('td')[1].textContent;
+          const rowDate = new Date(rowDateText);
+
+          if (!isNaN(rowDate)) {
+              // Compare dates without considering the time component
+              const rowDateWithoutTime = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate());
+              const fromDateWithoutTime = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+              const toDateWithoutTime = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+
+              if (rowDateWithoutTime >= fromDateWithoutTime && rowDateWithoutTime <= toDateWithoutTime) {
+                  rows[i].style.display = '';
+              } else {
+                  rows[i].style.display = 'none';
+              }
+    dateRangeDisplay.textContent = ` from ${d1.value} to ${d2.value}`;
+    calculateTotalBillAmount();
+  }
+}
+//------------
+function calculateTotalBillAmount() {
+  const visibleRows = Array.from(dataTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'))
+      .filter(row => row.style.display !== 'none');
+
+  let totalBillAmount = 0;
+
+  visibleRows.forEach(row => {
+      const billAmountCell = row.querySelector('td:nth-child(6)');
+      const billAmount = parseFloat(billAmountCell.textContent);
+      if (!isNaN(billAmount)) {
+          totalBillAmount += billAmount;
+      }
+  });
+
+  const totalBillAmountElement = document.getElementById('total-bill-amount');
+  totalBillAmountElement.textContent = `Total Bill Amount: ${totalBillAmount.toFixed(2)}`;
+}
+ }
+      }
+      
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+{%endblock%}

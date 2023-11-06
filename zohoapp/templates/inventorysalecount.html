@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<style>
+    .tr{
+        cursor: pointer;
+    }
+
+    @media print{
+    body{
+        visibility: hidden;
+    }
+
+    #printtable{
+        visibility: visible;
+        width: auto;
+        height: auto;
+        margin-top: -600px;
+        margin-left: -100px;
+    }
+}
+h2{
+    font-size: x-large;
+    font-family: 'Segoe UI', Tahoma,;
+    color:#dfe4e9;
+  }
+  .card{
+        background: none;
+    }
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+ 
+
+tr:hover {
+  background-color : rgb(94, 94, 101);
+  color: aliceblue;
+cursor: pointer
+}
+    .btn {
+  background-color: white;
+  border: none;
+  color: green;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Darker background on mouse-over */
+.btn:hover {
+  background-color: white;
+}
+
+</style>
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .bar .left input {
+        height: 5vh;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media print and (color) {
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="page-content">
+    <div class="card radius-15">
+        <div class="card-body">
+            <div class="card-title">
+                <center><h2 class="mb-0" style="font-size: 35px;color: rgb(218, 164, 48);">{{ company.company_name  }}</h2></center><br>
+                <center><label  id="headline" style="font-size: 40px;color: rgb(218, 164, 48);">INVENTORY SALE REPORT </label></center>
+                <center><p id="hdate" style="font-size: 20px;color: rgb(218, 164, 48);"></p></center>
+            </div>
+            <p class="text  text-center" style="color:rgb(218, 164, 48);" id="date-range-display"style="display: inline-block;">From:{{start}} _To :{{end}}</p>
+            <hr/>
+        </div>
+    </div> 
+     <form action="{% url 'productsale_filter' %}" method="post">
+        {% csrf_token %}
+        From <input type="date" id="d1" name="d1"  style="width: 20%; border-radius: 10px;padding: 8px;border: 3px solid rgb(214, 141, 5);" required>
+        To <input type="date" id="d2" name="d2"  style="width: 20%; border-radius: 10px;padding: 8px;border: 3px solid rgb(214, 141, 5);" required>
+        <button class=" fa fa-filter btn-warning btn-outline-light" style="padding: 10px;border-radius: 10px;background-color: rgb(214, 141, 5);color: white;"></button>
+        
+    </form>
+    <div class="bar">
+        <div class=" left">
+            
+      
+        </div>
+        <div class="right">
+           
+            <button class="btn btn_pdf btn-outline-info" style="background: white; color: rgb(218, 164, 48);outline-color:rgb(218, 164, 48) ;"><i class="fa fa-file-pdf"></i> </button>
+            <button class="btn btn_print btn-outline-info" id="printButton" onclick="display()"  style="background: white; color: rgb(218, 164, 48);"><i class="fa fa-print"></i></button>
+            <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()"  style="background: white; color: rgb(218, 164, 48);"> <i class="fa fa-file-excel"></i> </button>
+            <button class=" btn btn-outline-info"  style="background: white; color: rgb(218, 164, 48);"> <a  href="{% url 'report_inventory_view' %}" class="fa fa-close" style="color:rgb(218, 164, 48);"></a> </button>
+        </div>
+    </div>
+              
+                     
+                   
+              
+        
+               
+ 
+                  <BR>  
+                    
+                
+    <div class="card radius-15 p-5" id="graph_div" style="display: none;background-color: #303232; color:rgb(218, 164, 48) ;">
+        <div class="card-body">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+    <div class="card radius-15 p-5" id="sales_div">
+    <div class="row">
+        <div class="col-md-4">
+            <input name="party" list="party" class="form-control"  id="search" placeholder="Search Type..." style="color: rgb(255, 255, 255);background: transparent;width: 20vw;">
+            
+         
+        </div></form>
+        <div class="col-md-4"></div>
+        <div class="btn-group col-md-1 mt-2" style="float: right; height:5vh;">
+        
+        </div>
+   
+        <div  id="pdf-card">
+        <div class="card radius-15 p-5" id="sales_div">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12" id="saletable" id="pdf-card">
+                       
+                         
+                              
+                           
+                            <div class="table-responsive" >
+                                <p style="text-align: right;color: black; display: none;" id="datediv">
+                                    <span style="font-weight: bold;" >From Date : <span id="from"></span> </span><br> 
+                                    <span style="font-weight: bold;" >To Date : <span id="to"></span></span>
+                                  </p>
+                                <table class="table table-hover " id="saletable" >
+                                    <thead>
+                                <thead>
+                                    <tr>
+                                        <th class="hidden"></th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                          TYPE
+                                        </th>
+                                        <th class="center font-weight-dark border-dark"class="table" style=" color: rgb(218, 164, 48);">
+                                           TYPE COUNT
+                                        </th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                            SALES PRICE
+                                        </th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                            SALES WITH TAX
+                                        </th>
+                                        <th class="center font-weight-dark border-dark" class="table" style=" color: rgb(218, 164, 48);">
+                                          
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tb">
+                                    
+                                        <tr class="tr">
+                                            
+                                            <td class="center text-white">Invoice</td> 
+                                            <td class="center text-white">{{count}}</td> 
+                                            
+                                            <td class="center text-white">{{subsale}}</td>         
+                                            <td class="center text-white">{{sale}}</td>   
+                                                 
+                                        </tr></a>
+
+                                  <tr class="tr">
+                                    <td class="center text-white" >Recurring_Invoice</td> 
+                                    <td class="center text-white">{{count1}}</td>  
+                                   
+                                    <td class="center text-white">{{subsale1}}</td>         
+                                    <td class="center text-white">{{sale1}}</td>          
+                                   
+                                </tr></a>
+                                <tr class="tr">
+                                    <td class="center text-white" >Estimates</td> 
+                                    <td class="center text-white">{{count2}}</td>  
+                                   
+                                    <td class="center text-white">{{subsale2}}</td>         
+                                    <td class="center text-white">{{sale2}}</td>          
+                                   
+                                </tr>
+                                <tr class="tr">
+                                    <td class="center text-white" >Sales_Order</td> 
+                                    <td class="center text-white">{{count3}}</td>  
+                                   
+                                    <td class="center text-white">{{subsale3}}</td>         
+                                    <td class="center text-white">{{sale3}}</td>          
+                                   
+                                </tr>
+
+                                <tr class="tr">
+                                    <td class="center text-white" >Vendor_Credits</td> 
+                                    <td class="center text-white">{{count4}}</td>  
+                                   
+                                    <td class="center text-white">{{subsale4}}</td>         
+                                    <td class="center text-white">{{sale3}}</td>          
+                                   
+                                </tr>
+                        </tbody>
+                            </table>
+                        </div>
+                      
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function exportAsExcel() {
+        const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+        const wb = XLSX.utils.table_to_book(table);
+
+        XLSX.writeFile(wb, 'inve.xlsx');
+    }
+</script>
+<script>
+    function display() {
+        var printContents = document.getElementById("pdf-card").innerHTML;
+        var div2Contents = document.getElementById('div2').innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = div2Contents + printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload();
+
+    }
+
+
+    $(document).ready(function ($) {
+        $(document).on('click', '.btn_pdf', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var name = document.getElementById("headline").innerHTML;
+            var div2 = document.getElementById("div2");
+            var element = document.createElement('div');
+            element.appendChild(div2.cloneNode(true));
+            element.appendChild(document.getElementById('pdf-card').cloneNode(true));
+            element.style.color = 'white';
+            element.style.backgroundColor = '#243e54';
+            var opt = {
+                margin: 1,
+                filename: name + '.pdf',
+                image: { type: 'png', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait', backgroundColor: '#243e54' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+    });
+
+    
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://unpkg.com/htmx.org@1.6.0/dist/htmx.js"></script>
+
+
+<link rel="stylesheet" href="{% static 'css/my_calendar.css' %}">
+
+
+<style>
+    /* @media print
+    {
+        body *{
+            display: none;
+        }
+        #printable_content, #printable_content *{
+            display: block;
+        }
+    } */
+    ::-webkit-scrollbar{
+        display: none;
+    }
+    .dropdown-item{
+        color: rgb(157, 157, 157);
+    }
+    .dropdown-item:hover{
+        color: white;
+    }
+    .ts_sm{
+        text-shadow: 3px 3px 3px black;
+    }
+    .ts_sm_sm{
+        text-shadow: 2px 2px 2px black;
+    }
+    .ts_sm_sm_sm{
+        text-shadow: 1px 1px 1px black;
+    }
+    .ts_sm_sm_blue{
+        text-shadow: 2px 2px 2px rgb(0, 14, 92);
+    }
+    .bs_sm{
+        box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.075);
+    }
+    .bs_bg{
+        box-shadow: 0px 0px 10px 10px rgba(0, 0, 0, 0.404);
+    }
+
+    .text_hover1:hover{
+        color: white;
+    }
+    .text_hover1{
+        color: gray;
+    }
+    .d-flexx{
+        display: flex;
+        justify-content: center ;
+    }
+    .d-flexx1{
+        display: flex;
+        justify-content: end ;
+    }
+    .custom_nav_margin{
+        margin-right: 3.0rem;
+    }
+    @media (max-width:1100px)
+    {
+        .d-flexx,.d-flexx1{
+            display: inherit;
+            justify-content: inherit;
+        }
+        .custom_nav_margin{
+            margin-right: inherit;
+        }
+    }
+    ::-webkit-scrollbar{
+        display: none;
+    }
+    table{
+        background-color: transparent;
+        color: rgb(230, 173, 68);
+        width: 100%;
+        text-align: center;
+        border: 0.5px solid white;
+    }
+    table th{
+        color:rgb(230, 173, 68) ;
+    }
+    table tr:hover{
+        background-color: rgb(41, 41, 41);
+    }
+    .my_btn{
+        color: rgb(230, 173, 68);
+        border: 1px solid rgb(230, 173, 68);
+        background-color: white;
+        font-size: large;
+        padding: 5px 15px 5px 15px;
+    }
+    .my_btn:hover{
+        background-color: transparent;
+        color: rgb(230, 173, 68);
+        border: 1px solid rgb(230, 173, 68);
+    }
+    .search_input{
+        background-color: transparent;border: 1px solid white;border-radius: 5px;color: white;
+    }
+</style>
+
+<form action="" method="post">
+<div class="position-relative">
+    <div class="position-absolute">
+        <div id="my_calendar_target"></div>
+    </div>
+</div>
+    <div class="p-3">
+    <div class="position-relative cls-btn">
+        <div style="margin-bottom: -3.55rem;margin-right: -0.5rem;" class="position-absolute end-0 bottom-100">
+            <div class="col-sm-12 col-xl-1">
+                <a id="cls-btn1" href="{% url 'report_inventory_view' %}" class="btn btn-outline-light m-1 border border-light my_btn" style="padding: 12px 16px 12px 16px;"><span class="fa fa-close"></span></a>
+            </div>
+        </div>
+    </div>
+    {% csrf_token %}
+    <div style="background-color: rgba(0, 0, 0, 0);" class="row visiblity_hide p-1">
+        <div class="col-sm-12 col-xl-6 mt-2">
+            <label for="">From:</label>
+            <input id="ash_input1" class="text-center m-2" style="border-radius: 7px;border: 2px solid rgb(228, 189, 33);padding: 1px;" width="1rem" type="date" required name="start_date"
+            hx-post="{% url 'payment_type_bank_get_data' %}"
+            hx-target="#payment_type_bank_get_data"
+            hx-trigger="input"
+            >
+            <label class="ps-3" for="">To:</label>
+            <input id="ash_input2"  class="text-center m-2" style="border-radius: 7px;border: 2px solid rgb(228, 189, 33);padding: 1px;" type="date" required name="end_date"
+            hx-post="{% url 'payment_type_bank_get_data' %}"
+            hx-target="#payment_type_bank_get_data"
+            hx-trigger="input"
+            >
+        </div>
+        <!-- <div class="col-sm-12 col-xl-3 p-2 mt-2">
+            <label class="ps-" for="">To:</label>
+            <input id="ash_input2" style="border-radius: 7px;border: 2px solid rgb(228, 189, 33);padding: 1px;" type="date">
+        </div> -->
+        <div class="col-sm-12 col-xl-6  d-xl-flex justify-content-end">
+            <a id="print_btn" class="btn btn-outline-light bs_sm m-1 my_btn justify-content-bet" style="padding: 0.7rem 1rem;"type="button" onclick="printContent()"><span class="fa fa-print" ></span></a>
+            <a class="btn btn-outline-light bs_sm m-1 my_btn"onclick="generate_pdf()"style="padding: 0.7rem 1rem;" type="submit"><span class="bi bi-file-earmark-pdf" ></span> </a>
+            <a class="btn btn-outline-light bs_sm ms-1 mt-1 mb-1 custom_nav_margin my_btn" style="padding: 0.7rem 1rem;"type="button" onclick="exportToExcel()"><span class="bi bi-table"></span></a>
+        </div>
+        <!-- <div class="col-sm-12 col-xl-3 p-1">
+            <label for="">To:</label>
+            <input id="ash_input2" style="border-radius: 10px;border: 2px solid rgb(228, 189, 33);" type="date">
+        </div> -->
+        <!-- <div class="col-sm-12 col-xl-2  p-1 ">
+            
+        </div> -->
+        <div class="  p-1 d-flex justify-content-end ">
+                
+        </div>
+    </div>
+    <div id="printable_content">
+        <br>
+        <div class="text-center">
+            <h2 class="fw- ts_sm print_text print__text text-warning">{{ company.company_name }}</h4>
+            <h1 id="bank_title_heading" class="fw- ts_sm print__text text-warning pt-2">BANK DETAILS</h1>
+            <div class="ts_sm_sm pt-2" id="selectedDate">-</div>
+            <!-- <input id="selectedDate_input1" style="opacity: 0;width: 0;height: 0;margin: 0;padding: 0;" class="" type="text" value="asdasdasd" name="selectedDate_input_">
+            <input id="selectedDate_input2" style="opacity: 0;width: 0;height: 0;margin: 0;padding: 0;" class="" type="text" value="asdasdasd" name="selectedDate_input_"> -->
+        </div>
+
+        <div id="input_print_hide" class="row">
+            <div class="col-sm-12 col-xl-3 p-2">
+                <input oninput="check_change()" name="bank_name" style="background-color: transparent;border-color: rgba(255, 255, 255, 0.438);" class="form-control" type="text" id="search"  placeholder="Search.." autocomplete="off"  list="my_list"
+                hx-post="{% url 'payment_type_bank_get_data' %}"
+                hx-target="#payment_type_bank_get_data"
+                hx-trigger="input"
+                >
+            </div>
+            <div class="col-sm-12 col-xl-9"></div>
+        </div>
+        <datalist  id="my_list" >
+            {% for i in banks %}
+            <option class="ps-5 pe-5" value="{{ i.name|upper }}"></option>
+            {% endfor %}
+        </datalist>   
+       
+        <hr>
+    <br>
+        <div class="over" style="overflow: hidden;">
+            <div id="payment_type_bank_get_data" class="over" style="overflow-x: scroll;">
+                <table class="table table-bordered">
+                    <thead style="background-color: transparent;">
+                        <!-- <th id="date_" class="fw-bold print__text text-warning">NAME</th> -->
+                        <th id="paynum_"  class="fw-bold print__text text-warning">DATE</th>
+                        <th id="name_" class="fw-bold print__text text-warning">TYPE</th>
+                        <th id="refnum_" class="fw-bold print__text text-warning">AMOUNT</th>
+                        <th id="refnum_" class="fw-bold print__text text-warning">BALANCE</th>
+                    </thead>
+                    <tbody>
+                        {% for i in transaction %}
+                        <tr>
+                            <!-- <td class="text-light">{{ i.bank.name }}</td> -->
+                            <td class="text-light">{{ i.date|upper }}</td>
+                            <td class="text-light">{{ i.type|upper }}</td>
+                            <td class="text-light">{{ i.amount }}</td>
+                            <td class="text-light">{{ i.bank.balance }}</td>
+                        </tr>                     
+                        {% endfor %}
+                        <!-- <tr>
+                            <td id="print_left_edge" style="color: rgb(230, 173, 68);border: none;" class="fw-bold">Balance</td>
+                            <td style="border: none;"></td>
+                            <td style="border: none;"></td>
+                            <td style="border: none;"></td>
+                            <td class="text-light">{{ bank_detail.balance }}</td>
+                        </tr> -->
+                    </tbody>
+                </table>
+                <input style="visibility: hidden;" id="bank_title" type="text" value="{{ bank_detail.name }}">
+            </div>
+        </div>
+    </div>
+</div>
+</form>  
+<div style="height: 30rem;">
+
+</div>
+<script>
+    var date1='',date2='';
+    var date1object1='',date1object2=''
+    $(document).ready(function(){
+        $('#ash_input1').on('change',function(){
+            date1 = $(this).val()
+            date1object1 = new Date(date1)
+            $('#ash_input2').prop('min',date1)
+            var options = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (date1object2=='')
+            {
+                $('#selectedDate').text(date1object1.toLocaleDateString(undefined, options)+' - ')
+            }
+            else
+            {
+                $('#selectedDate').text(date1object1.toLocaleDateString(undefined, options)+' - '+date1object2.toLocaleDateString(undefined,options))
+            }
+        })
+    })
+    $(document).ready(function(){
+        $('#ash_input2').on('change',function(){
+            date2 = $(this).val()
+            date1object2 = new Date(date2)
+            $('#ash_input1').prop('max',date2)
+            var options = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (date1object1=='')
+            {
+                $('#selectedDate').text(' - '+date1object2.toLocaleDateString(undefined, options))
+            }
+            else
+            {
+                $('#selectedDate').text(date1object1.toLocaleDateString(undefined, options)+' - '+date1object2.toLocaleDateString(undefined,options))
+            }
+        })
+    })
+    function generate_pdf(){
+        string_date=$('#selectedDate').text()
+        var start_date = $('#ash_input1').val()
+        var end_date = $('#ash_input2').val()
+        var bank_name = $('#search').val()
+            var main_dict = {
+                string_date : string_date,
+                start_date : start_date,
+                end_date : end_date,
+                bank_name : bank_name,
+            }
+            var jsondict =  JSON.stringify(main_dict)
+            url = "{% url 'generate_pdf5' 0 1 2 %}".replace(0,jsondict)
+            window.location.href=url
+    }
+    // $(document).ready(function(){
+    //     $('#print_btn').click(function(){
+            // $('.over').css({'overflow':'hidden'})
+            // $('body').css({'color':'black'})
+            // $('html').css({'color':'black','font-size': '11px'})
+            // $('.table').removeClass('table-striped table-hover table-dark')
+            // $('.table').addClass('table-bordered border-dark bg-light')
+            // $('.print__text').removeClass('text-light')
+            // $('.print__text').addClass('text-dark')
+            // $('table td').addClass('text-dark')
+            // $('.print_title').css({'color':'black'})
+            // $('#input_print_hide').hide()
+            // $('#print_left_edge').css({'border-left':'1px solid black'})
+            // var pc = $('#printable_content')
+            // var printWindow = window.open('','','')
+            // printWindow.document.open()
+            // // printWindow.document.write('<html><head><title>Print</title></head><body>');
+            // printWindow.document.write(pc);
+            // // printWindow.document.write('</body></html>');
+            // printWindow.document.close()
+            // printWindow.print()
+            // printWindow.close()
+            // $('.over').css({'overflow':'scroll'})
+            // $('body').css({'color':'inherit'})
+            // $('html').css({'color':'inherit','font-size': 'inherit'})
+            // $('.table').removeClass('table-striped table-hover table-dark')
+            // $('.table').addClass('table-bordered border-dark bg-light')
+            // $('.print__text').removeClass('text-light')
+            // $('.print__text').addClass('text-dark')
+            // $('table td').addClass('text-dark')
+            // $('.print_title').css({'color':'inherit'})
+            // $('#input_print_hide').hide()
+            // $('#print_left_edge').css({'border-left':'inherit'})
+            // window.print()
+            // document.body.innerHTML = backup
+            // window.location.href = ''
+            // pc.printThis({
+            // importCSS: true,  // Preserve imported CSS
+            // importStyle: true,  // Preserve imported styles  // Load Bootstrap CSS
+            // });
+    //         print();
+
+    //     })
+    // })
+    function printContent() {
+            // Create an iframe to render the content
+            $('.over').css({'overflow':'hidden'})
+            // $('body').css({'color':'black'})
+            $('html').css({'color':'black','font-size': '11px'})
+            $('.table').removeClass('table-striped')
+            $('table th').css({'color':'black'})
+            $('.print__text').removeClass('text-light')
+            $('.print__text').addClass('text-dark')
+            $('table td').addClass('text-dark')
+            $('.print_title').css({'color':'black'})
+            $('#input_print_hide').hide()
+            $('#print_left_edge').css({'border-left':'1px solid black'})
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            // Get the printable content
+            const printableContent = document.getElementById('printable_content').innerHTML;
+            iframe.contentDocument.open();
+            iframe.contentDocument.write('<html><head><title>Print</title>');
+            iframe.contentDocument.write('<style>');
+            iframe.contentDocument.write(`
+                /* Custom alignment styles for printed content */
+                body {
+                    font-family: Arial, sans-serif; /* Change font-family if needed */
+                    text-align: center; /* Center-align the content */
+                    
+                }
+                table {
+                    width: 100%; /* Make the table width 100% */
+                    border:1px solid black;
+                    border-collapse:collapse;
+                }
+                th, td {
+                    border:1px solid black;
+                    border-collapse:collapse;
+                    text-align:center;
+                    padding: 10px; /* Add padding for better spacing */
+                }
+            `);
+            iframe.contentDocument.write('</style>');
+            iframe.contentDocument.write('</head><body>' + printableContent + '</body></html>');
+            iframe.contentDocument.close();
+    
+        
+            // Print the iframe content
+            iframe.contentWindow.print();
+            document.body.removeChild(iframe);
+
+            $('.over').css({'overflow':'visible'})
+            // $('body').css({'color':'inherit'})
+            $('html').css({'color':'inherit','font-size': 'inherit'})
+            $('.table').addClass('table-striped table-hover')
+            $('.table').removeClass('bg-light')
+            $('.print__text').removeClass('text-dark')
+            $('.print__text').addClass('text-warning')
+            $('table td').removeClass('text-dark')
+            $('.print_title').css({'color':'inherit'})
+            $('#input_print_hide').show()
+            $('#print_left_edge').css({'border-left':'1px solid white'})
+            
+        }
+    function exportToExcel() {
+        var table = document.querySelector('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'report.xlsx');
+    }
+    $(document).ready(function(){
+        $('#search').on('input click',function(){
+            setTimeout(function(){
+                if($('#bank_title').val()!=='')
+                {
+                    $('#bank_title_heading').text($('#bank_title').val().toUpperCase())
+                }
+                else{
+                    $('#bank_title_heading').text("BANK DETAILS")
+                }
+            },1000)
+        })
+    })
+</script>
+
+<script src="{% static 'js/my_calendar.js' %}"></script>
+
+{% endblock %}

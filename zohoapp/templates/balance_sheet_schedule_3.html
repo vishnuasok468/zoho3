@@ -1,0 +1,540 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+
+    <style>
+        .table-responsive tbody {
+            -ms-overflow-style: none;
+            /* Internet Explorer 10+ */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .table-responsive tbody::-webkit-scrollbar {
+            display: none;
+        }
+
+        .table-responsive th,
+        .table-responsive td {
+            text-align: left;
+            color: white;
+        }
+
+        .table-responsive table,
+        .table-responsive td {
+            border: none;
+        }
+
+        .table-responsive table a {
+            color: white
+        }
+
+        .table-responsive table a:hover {
+            color: rgb(184, 121, 4)
+        }
+
+        .table-responsive table tr:hover {
+            background-color: rgba(29, 31, 33, 255)
+        }
+
+        .allow-border {
+            border-bottom: 1pt dotted white;
+        }
+
+        .table-responsive tr.detail-row,
+        #furplus,
+        #funplus,
+        #totalfur,
+        #totalfun {
+            display: none;
+        }
+
+        .close-button {
+            font-size: 2vh;
+            font-weight: 100;
+        }
+
+
+        .sticky-header {
+            position: fixed;
+            top: 10;
+            background-color: #f2f2f2;
+            margin-top: -355px;
+            background-color: #212529;
+            padding-top: 60px;
+        }
+
+        .table-responsive table td {
+            width: 33%;
+        }
+
+        .daterangepicker {
+            color: #010101;
+        }
+
+        #reportrange span {
+            font-size: 1rem;
+        }
+        @media print{
+            #pdfdiv{
+                width: 100%;
+            }
+        }
+        </style>
+</head>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="d-flex">
+                <i class="fa fa-calendar" aria-hidden="true" style="font-size: 4vh; color: white;"></i>&nbsp;
+                <!-- Date range calendar input -->
+                <div id="reportrange"
+                    style="cursor: pointer; color: #010101; background-color: #fff;height: 30px;border-radius: 2px; padding: 2px;">
+                    <span></span> <i class="fa fa-caret-down"></i>
+                </div>
+                <script>
+                    $(function () {
+                        var start = moment();
+                        var end = moment();
+
+                        function cb(start, end) {
+                            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                            $('#selectedDate').html('From ' + start.format('MMMM D, YYYY') + ' To ' + end.format('MMMM D, YYYY'));
+
+                            localStorage.setItem('selectedDates', JSON.stringify({ start: start, end: end }));
+                        }
+
+                        // Retrieve the previously selected date from localStorage
+                        var storedDates = localStorage.getItem('selectedDates');
+                        if (storedDates) {
+                            storedDates = JSON.parse(storedDates);
+                            start = moment(storedDates.start);
+                            end = moment(storedDates.end);
+                        }
+
+                        $('#reportrange').daterangepicker({
+                            singleDatePicker: true,
+                            startDate: start,
+                            endDate: end,
+                            ranges: {
+                                'Today': [moment(), moment()],
+                                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                'Previous Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                                'Previous Quarter': [
+                                    moment().subtract(3, 'months').startOf('quarter'),
+                                    moment().subtract(3, 'months').endOf('quarter')],
+
+
+                            }
+                        }, cb);
+
+                        cb(start, end);
+                    });
+
+                </script>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-light"><a class="text-dark customize" href="{% url 'customize_report_bss3' %}"><i
+                        class="fa fa-cog">&nbsp;</i>Customize Report</a></button>
+        </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class=" col-md-1 d-flex">
+            <button class="btn btn-light" type="button" style="height: 30px;" onclick="display()">
+                <i class="fa fa-print">&nbsp;Print</i>
+            </button>
+        </div>
+        <div class="col-md-1 d-flex">
+            <button class="btn btn-light" type="button" style="height: 30px;" onclick="exportToPDF()">
+                <i class="fa fa-file-pdf-o" aria-hidden="true">&nbsp;PDF</i>
+            </button>
+        </div>
+        <div class="col-md-1 d-flex">
+            <button class="btn btn-light dropdown-toggle" type="button" id="exportDropdown2" data-bs-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" style="height: 30px;">
+                <i class='fas fa-file-export'></i> Export
+            </button>
+            <div class="dropdown-menu " aria-labelledby="exportDropdown2">
+                <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+            </div>&nbsp;&nbsp;&nbsp;
+            <a href="{% url 'report_inventory_view' %}" class="btn btn-light close-button" style="height: 30px;">
+                X
+            </a>
+        </div>
+    </div><br><br><br>
+
+    <div class="row" id="pdfdiv" style="width:105%;">
+        <div class="row bg-dark" style="border-radius: 3vh; width: 77vw;" id="printdiv">
+            <h3 style="text-align: center; margin-top: 2vh;">{{company.company_name}}</h3>
+            <h1 style="text-align: center;font-size: 2.9rem;;">Balance Sheet (schedule lll)</h1>
+            <h6 style="text-align: center;font-size: 20px;margin-bottom: 16px">Basis: Cash</h6>
+            <br>
+            
+            <h6 style="text-align: center;font-size: 20px;"><span id="selectedDate"></span></h6> <br>
+            <div class="table-responsive">
+                <div class="container-fluid ">
+                    <table class="table">
+                        <thead id="stick">
+                            <tr>
+                                <th class="bg-dark"
+                                    style="border-bottom: 2px solid white; font-size: 3vh; font-weight: 500; width: 26vw;">
+                                    Particulars </th>
+                                <th class="bg-dark"
+                                    style="border-bottom: 2px solid white; font-size: 3vh; font-weight: 500; width: 20vw; text-align: center;">
+                                    Note No.
+                                </th>
+                                <th class="bg-dark" id="tbhd"
+                                    style=" border-bottom: 2px solid white; text-align: right; font-size: 3vh; font-weight: 500; width: 26vw;">
+
+                                </th>
+                                <th class="bg-dark" id="tbhd"
+                                    style=" border-bottom: 2px solid white; text-align: right; font-size: 3vh; font-weight: 500; width: 26vw;">
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span style="font-size: 2rem;">EQUITY AND LIABILITIES</span></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            
+                            <tr>
+                                <td>1. Shareholders funds</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="padding-left: 30px;">a. Share Capital</td>
+                                <td></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr><br>
+                            <tr>
+                                <td style="padding-left: 30px;">b. Reserves and Surplus</td>
+                                <td style="text-align: center;">0</td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">c. Money received against share warrants
+                                </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>2. Money received against share warrants</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>3. Non-current liabiilities</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;"></td>
+                                <td style="text-align: right;"></td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="padding-left: 30px;">a. Long Term Borrowings</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding-left: 30px;">b. Dffered Tax Borrowings</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">c. Other long term liabilities</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">d. LOng Term Provisions</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>4. Current Liabilities</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;"></td>
+                                <td style="text-align: right;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">a. Short-term borrowings</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">b. Trade Payables</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">c. Other Current Liabilities</td>
+                                <td style="text-align: center;">0</td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">d.Short Term Provisions</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td style="text-align: right;font-size: medium;">TOTAL EQUITY AND LIABILITIES</td>
+                                <td style="text-align: right;" class="allow-border">0.00</td>
+                                <td style="text-align: right;" class="allow-border">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:2rem;">ASSETS</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>1.Non-current assets</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;"></td>
+                                <td style="text-align: right;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;">a. Fixed Assets</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;"></td>
+                                <td style="text-align: right;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 45px;"> i. Tangible Assets</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 45px;"> ii. InTangible Assets</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 45px;"> iii. Capital Work-in-progress</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 45px;"> iv. InTangible assets under development </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> b. Non-current investments </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> c. Deferred Tax Assets (Net) </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> d. Long term loans and advances </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> e. Other non-current assets </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td> 2. Current Assets </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;"></td>
+                                <td style="text-align: right;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> a. Current Investments </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> b. Inventories </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> c. Trade Receivables</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> d. Cash and cash equivalents</td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> e. Short term loans and advances </td>
+                                <td style="text-align: center;"></td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 30px;"> f. Other current assets </td>
+                                <td style="text-align: center;">0</td>
+                                <td style="text-align: right;">0.00</td>
+                                <td style="text-align: right;">0.00</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td style="text-align: right;font-size: medium;">TOTAL ASSETS</td>
+                                <td style="text-align: right;" class="allow-border">0.00</td>
+                                <td style="text-align: right;" class="allow-border">0.00</td>
+                            </tr>
+
+                        </tbody><br>
+                    </table>
+                    <div><br>
+                        <p>
+                            <small>**Amount is displayed in your base currency</small>&nbsp;
+                            <span class="badge text-semibold badge-success d-inline">INR</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // Function to save Excel using XLSX
+    function exportToExcel() {
+        var table = document.querySelector('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'Balancesheet_schedule3.xlsx');
+    }
+
+
+    function exportToPDF() {
+    var content = document.getElementById('pdfdiv');
+    html2pdf()
+        .set({
+            pagebreak: { mode: 'avoid' },
+            scale: 1 // Adjust the scale factor as per your requirement
+        })
+        .from(content)
+        .set({
+            filename: 'Balance_sheet(schedule_3).pdf',
+            pagesize: 'A4'
+        })
+        .save();
+}
+
+
+    function display() {
+        var printContents = document.getElementById("printdiv").innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        $('#exportDropdown1').dropdown()
+
+    }
+</script>
+
+{% endblock %}

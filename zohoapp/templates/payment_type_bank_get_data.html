@@ -1,0 +1,45 @@
+{% if transaction %}
+<table class="table table-bordered">
+    <thead style="background-color: transparent;">
+        <!-- <th id="date_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">NAME</th> -->
+        <th id="paynum_" style="color: rgb(230, 173, 68);" class="fw-bold print__text">DATE</th>
+        <th id="name_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">TYPE</th>
+        <th id="refnum_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">AMOUNT</th>
+        <th id="refnum_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">BALANCE</th>
+    </thead>
+    <tbody>
+        {% for i in transaction %}
+        <tr>
+            <!-- <td class="text-light">{{ i.bank.name }}</td> -->
+            <td class="text-light">{{ i.date|upper }}</td>
+            <td class="text-light">{{ i.type|upper }}</td>
+            <td class="text-light">{{ i.amount }}</td>
+            <td class="text-light">{{ i.balance }}</td>
+        </tr>                     
+        {% endfor %}
+        <!-- <tr>
+            <td id="print_left_edge" style="color: rgb(230, 173, 68);border: none;" class="fw-bold">Balance</td>
+            <td style="border: none;"></td>
+            <td style="border: none;"></td>
+            <td style="border: none;"></td>
+            <td class="text-light">{{ bank_detail.balance }}</td>
+        </tr> -->
+    </tbody>
+</table>
+<input style="visibility: hidden;" id="bank_title" type="text" value="{{ bank_detail.name }}">
+{% else %}
+<table class="table table-bordered">
+    <thead style="background-color: transparent;">
+        <thead style="background-color: transparent;">
+            <!-- <th id="date_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">NAME</th> -->
+            <th id="paynum_" style="color: rgb(230, 173, 68);" class="fw-bold print__text">DATE</th>
+            <th id="name_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">TYPE</th>
+            <th id="refnum_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">AMOUNT</th>
+            <th id="refnum_"style="color: rgb(230, 173, 68);" class="fw-bold print__text">BALANCE</th>
+        </thead>
+    </thead>
+</table>
+<input style="visibility: hidden;" id="bank_title" type="text" value="{{ bank_detail.name }}">
+<h5 class="text-center fw-bold p-3">no data available</h5>
+
+{% endif %}

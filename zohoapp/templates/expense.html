@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+       ::-webkit-scrollbar {
+        width: 5px; 
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+    body {
+            font-family: Arial, sans-serif;
+           
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-wrap: wrap;
+        }
+        .card{
+        background: none;
+    }
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+    tr:hover{
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+   
+    ul.image-bullets {
+        list-style-type: none;
+        padding-left: 30px;
+    }
+
+    ul.image-bullets li:before {
+        content: "";
+        background-image: url('static/images/bullet.png');
+        background-size: 15px 15px;
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-right: 5px; 
+        margin-left: 26%;
+    }
+    .recurpoints ul li{
+        margin-bottom: 10px;
+    }
+
+    .flowchart {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px;
+}
+
+    .flowchart-item {
+        text-align: center;
+        padding: 10px;
+        background-color: lightblue;
+        border: 3px solid rgb(25, 91, 145);
+        border-radius: 5px;
+        width: 150px;
+        color: black;
+        font-size: 12px;
+    }
+    .flowchart-item i{
+        font-size: 15px;
+    }
+
+    .flowchart-connector {
+        flex-grow: 1;
+        height: 2px;
+        background-color: #ccc;
+        margin-top: 0%;
+
+    }
+    
+    @media (max-width: 768px) {
+        .flowchart {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flowchart-item {
+            width: 120px;
+        }
+        .flowchart-connector {
+            height: 50px;
+            width: 2px; 
+            margin-left: 0%; 
+            transform: translateX(-50%);
+        }
+    }
+    .btn{
+        color: rgb(218, 164, 48);
+        outline-color: azure;
+        border: 2px solid rgb(25, 91, 145);
+    }
+    .btn:hover{
+        color: darkslategray;
+        background-color: lightblue;
+        outline: none;
+        
+    }
+    a{
+        list-style: none;
+        color: azure;
+    }
+     a:hover{
+        color: rgb(218, 164, 48);
+     }
+     ::-webkit-scrollbar {
+        width: 5px; 
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+    
+    
+</style>
+
+<script src="https://kit.fontawesome.com/3b9793c077.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href='https://unpkg.com/css.gg@2.0.0/icons/css/trash.css' rel='stylesheet'>
+<script src="https://cdn.jsdelivr.net/bootstrap.datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+
+<div class="container-fluid" style=" background-color:transparent">
+
+  <div class="col-md-10">
+    <h1> All Expenses</h1>
+    <input type="text" id="search" placeholder="Search..." class="form-control text-dark bg-light" autocomplete="off" onkeyup="searchTable()"
+      style="width: 20%;">
+      <!-- <div class="col-md-6 form-inline" style="margin-left: 28rem;margin-top: -2rem;padding-left: 40%;"><a
+        style="color: #ece2e2;" class="btn btn-success mr-2" ><i class="fa-solid fa-filter"></i></a></div> -->
+        <div class="col-md-6 form-inline" style="margin-left: 28rem; margin-top: -2rem; padding-left: 40%;">
+            <div class="dropdown">
+                <a class="btn btn-outline-primary" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="filterDropdownButton" style="color: #3ec61c;" >
+                    <i class="fa-solid fa-filter"></i>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#" data-sort="amount">Customer</a>
+                    <a class="dropdown-item" href="#" data-sort="amount">Amount</a>
+                </div>
+            </div>
+        </div>
+        
+
+       
+    <div class="col-md-6 form-inline" style="margin-left: 28rem;margin-top: -2rem;padding-left: 50%;"><a
+        style="color: #ccc;" class="btn btn-success mr-2" href="{%url 'save_expense'%}">New</a></div><br><br>
+    <!-- <a style="color: #ccc;"href="#3">  -->
+
+    <!-- <div style="height: 300px; width:1000px; margin-left:0px;">
+         
+          
+          <table class="table text=white" style="color: white;" id="table"> -->
+            
+    <div class="table-responsive" style="height: 300px; width: 1000px; margin-left: 0px;">
+      <table class="table text-white" style="color: white;" id="table">
+
+
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Expense Account</th>
+            <th>Vendor</th>
+            <th>Email Id</th>
+            <th>Paid Through</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr onclick="location.href='{% url 'expense_details' expense.id %}'" style="cursor: pointer;">
+            
+            <td>{{ expense.date }}</td>
+            <td>{{ expense.expense_account}}</td>
+            <td>{{ expense.vendor.vendor_display_name }}</td>
+            <td>{{expense.customer_name.customerEmail}}</td>
+            <td>{{ expense.paid }}</td>
+            <td>{{ expense.customer_name.customerName }}</td>
+            <td>{{ expense.amount }}</td>
+            <td{% if forloop.last %} class="disabled-column"{% endif %}>  {% if expense.is_active %}
+                Active
+            {% else %}
+                Inactive
+            {% endif %}</td>
+            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- <section >
+    <h4 style="margin-top: 5%;text-align: center;">Life cycle of an Expense</h4><br>
+    <img src="https://www.zoho.com/books/accounting-software-demo//assets/images/1x/expense-workflow.png"
+      class="img-fluid">
+  </section>
+  <section style="margin-top: 5%; color: white;padding-left: 20%;">
+    <h4>In the Expenses section, you can:</h4>
+    <i class="fa-regular fa-circle-check" style="color: orange;"></i> Record a single expense or record expenses in
+    bulk.<br>
+    <i class="fa-regular fa-circle-check" style="color: orange;"></i> Set mileage rates and record expenses based on the
+    distance travelled.<br>
+    <i class="fa-regular fa-circle-check" style="color: orange;"></i> Convert an expense into an invoice to get it
+    reimbursed.
+
+  </section> -->
+
+
+  <hr>
+        <div class="card radius-15 mt-5">
+            <div class="card-body">
+                <div class="card-title">
+                    <h3 class="mb-0 text-center">Life cycle of  Expense</h3>
+                    <br>
+                    <div class="flowchart">
+                        <div class="flowchart-item text-uppercase" style="width: 200px;">
+                            <i class="fa-sharp fa-solid fa-bag-shopping" style="color: #daa430;"></i> Expense Incurred
+                        </div>
+                        <div class="flowchart-connector"></div>
+                        <div class="flowchart-item text-uppercase" style="width: 210px;">
+                            <i class="fa-sharp fa-solid fa-file" style="color: #daa430;"></i> Record Expense
+                        </div>
+                        <div class="flowchart-connector"></div>
+                        <div class="flowchart-item text-uppercase" >
+                            <i class="fa-sharp fa-solid fa-receipt" style="color: #daa430;"></i> Billable
+                        </div>
+                        
+                        <div class="flowchart-connector">  </div>
+                        <div class="flowchart-item text-uppercase">
+                            <i class="fa-sharp fa-solid fa-money-check-dollar" style="color: #3ec61c;"></i> Convert To Invoice
+                        </div>
+                        
+                    </div>
+
+                  
+                    
+                </div>
+            </div>
+        </div>
+        <div class="card radius-15">
+            <div class="card-body">
+                <div class="card-title recurpoints">
+                    <h3 class="mb-0 text-center">In the Expenses section, you can:</h3>
+                    <br>
+                    <div >
+                    <ul class='image-bullets'>
+                        <li>Record a single expense or record expenses in bulk.</li>
+                        <li> Set mileage rates and record expenses based on the distance travelled.</li>
+                        <li>Convert an expense into an invoice to get it reimbursed.</li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+</div>
+ 
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    var $rows = $('#table tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
+    });
+  });
+
+  function searchTable() {
+    let input, filter, table, tr, td, i, j, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("tableBody");
+    tr = table.getElementsByTagName("tr");
+
+    console.log("Filter Value:", filter);
+
+    // Loop through all table rows (excluding the first row, which contains the column headers)
+    for (i = 0; i < tr.length; i++) {
+        let rowVisible = false;
+        td = tr[i].getElementsByTagName("td");
+
+        // Loop through all table cells (columns) in each row
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                console.log("Text Value:", txtValue);
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    rowVisible = true;
+                    break;
+                }
+            }
+        }
+
+        // Show/hide the row based on the search results
+        tr[i].style.display = rowVisible ? "" : "none";
+    }
+}
+
+
+
+
+
+    $(document).ready(function() {
+            function sortTable(criteria) {
+                const rows = $("#table tbody tr").get();
+                rows.sort(function(rowA, rowB) {
+                    const cellA = $(rowA).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    const cellB = $(rowB).find("td").eq(criteria === "customer" ? 2 : 1).text().toLowerCase();
+                    return cellA.localeCompare(cellB);
+                });
+                $("#table tbody").empty().append(rows);
+            }
+
+            // Handle click event on dropdown items
+            $(".dropdown-menu a").click(function() {
+                const sortingCriteria = $(this).data("sort");
+                if (sortingCriteria) {
+                    sortTable(sortingCriteria);
+                }
+            });
+        });
+
+</script>
+       
+
+{%endblock%}

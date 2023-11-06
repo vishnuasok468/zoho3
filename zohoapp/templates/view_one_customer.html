@@ -1,0 +1,827 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"
+    integrity="sha512-LwZthDLbb+dritfG9jbFyY1ClYqlkF4I9foqo+783wcl6EPR+kE3uqb0OPsieHt4pFH4HVduwX6rTTDmCaC20g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    integrity="sha384-**YOUR-INTEGRITY-VALUE**" crossorigin="anonymous">
+
+<style>
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: rgb(252, 236, 217)"
+
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .slip {
+        /* position: absolute; */
+        overflow: hidden;
+    }
+
+    .ribbon {
+        position: relative;
+        top: -20px;
+        left: -80px;
+
+        width: 140px;
+
+        background-color: rgb(95, 91, 100);
+        transform: rotate(-45deg);
+        text-align: center;
+        color: #fff;
+
+        font-size: 15px;
+        overflow: hidden;
+
+    }
+    .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {
+            color: rgb(212, 118, 10);
+            background-color: transparent;
+        }
+
+
+        .nav-tabs .nav-link {
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            color: black;
+        }
+
+        .nav-link {
+            /* color: rgb(53, 52, 52); */
+            display: block;
+            padding: 0;
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+        }
+</style>
+<!-- <style>
+    
+      
+
+        .jobs-tab {
+
+            float: left;
+        }
+
+        .jobs-tab li {
+            display: inline-block;
+            padding: 1px 0;
+            margin-left: 20px;
+            position: relative;
+
+        }
+
+
+        .single-job {
+            padding: 40px 50px;
+            border-radius: 25px;
+            border-top-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+
+        }
+
+        .single-job:hover {
+            background-color: #d6d5d5;
+            box-shadow: 4px 4px 6px 6px rgb(170, 172, 172);
+
+        }
+
+
+        .job-text i {
+
+            font-size: 15px;
+            width: 10px;
+            height: 10px;
+            margin-right: 10px;
+            color: var(--heading);
+        }
+
+        .single-job ul {
+            list-style-type: none;
+        }
+
+        .nav-tabs .nav-item.show .nav-link,
+        .nav-tabs .nav-link.active {
+            color: rgb(212, 118, 10);
+            background-color: transparent;
+        }
+
+
+        .nav-tabs .nav-link {
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            color: black;
+        }
+
+        .nav-link {
+            /* color: rgb(53, 52, 52); */
+            display: block;
+            padding: 0;
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+        }
+        .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 999;
+        /* Adjust the alpha value to control the opacity */
+    }
+    #over:hover{
+        background-color: rgba(110, 110, 110, 0.616);
+        font-weight:bold ;
+    }
+.exp-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; 
+    background-color: rgb(50, 109, 34);
+    display: inline-block;
+    margin-right: 5px; 
+}
+.re-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* To create a circle */
+    background-color: rgb(70, 199, 246); /* Color for expense transactions */
+    display: inline-block;
+    margin-right: 5px; /* Adjust the spacing between the dot and text */
+}
+.po-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* To create a circle */
+    background-color: rgb(248, 61, 10); /* Color for expense transactions */
+    display: inline-block;
+    margin-right: 5px; /* Adjust the spacing between the dot and text */
+}
+.pm-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* To create a circle */
+    background-color: rgb(213, 63, 239); /* Color for expense transactions */
+    display: inline-block;
+    margin-right: 5px; /* Adjust the spacing between the dot and text */
+}
+.pb-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* To create a circle */
+    background-color: rgb(250, 235, 74); /* Color for expense transactions */
+    display: inline-block;
+    margin-right: 5px; /* Adjust the spacing between the dot and text */
+}
+.rb-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* To create a circle */
+    background-color: rgb(66, 43, 242); /* Color for expense transactions */
+    display: inline-block;
+    margin-right: 5px; /* Adjust the spacing between the dot and text */
+}
+.transaction_table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+.transaction_table, .transaction_table th, .transaction_table td {
+        border: 1px solid #000; /* Set the border style and color */
+        width: 100%;
+
+    } 
+
+</style> -->
+
+<style>
+    
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        console.log('print');
+
+        $(document).on('click', '.btn_print', function (event) {
+            console.log('print1');
+            event.preventDefault();
+            var element = document.getElementById('whatToPrint');
+            var opt =
+            {
+                margin: 1,
+                filename: 'customertransactions' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+
+        });
+
+    });
+</script>
+
+
+
+
+
+
+
+<div class="row">
+    <div class="col-md-4">
+          <div class="py-2"><a class="text-white" style="font-size: 2rem;"> All Customers</a></div>
+        <div class="row  ">
+            <!-- <div class="col-md-4 py-2"><a class="text-white" style="font-size: 1.5rem;"> All Bills</a></div> -->
+            <!-- <div class="col-md-10 py-2 d-flex justify-content-end">
+                <select id="selectOption" class="btn  dropdown-toggle " style="background-color: rgb(217, 156, 26);"
+                        aria-label=".form-select-lg example"  name="type">
+                        <option value="1" selected>All Bills</option>
+                        <option value="2">Customer A-Z</option>
+                        <option value="3">Vendor A-Z</option>
+                </select>
+            </div> -->
+            <div class="searchbar">
+
+                <div class="left">
+                    <a class="btn btn-outline-warning" href="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    role="button">Sort <i class="fa fa-filter"></i>
+                    </a>
+                    <div class="dropdown-menu" id="filterMenu">
+                        <a class="dropdown-item" href="{% url 'view_one_customer' cu.id %}">All</a>
+                        <a class="dropdown-item" href="{% url 'cust_sname' cu.id %}">Name</a>
+                        <a class="dropdown-item" href="{% url 'cust_amt' cu.id %}">Amount</a>
+                    </div>
+                    <!-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+                    <a style="color: white; background-color: rgb(210, 132, 30); margin-left: 60%;" class="btn mr-1"
+                    href="{% url 'add_customers' %}"><i class="fa-solid fa-plus "></i>New</a>                </div>
+    
+            </div>
+            
+            
+        </div>
+        <div class="pt-5" >
+            <table class="text-white" style="width: 100%;">
+                {% for v in vc %}
+                <tr class="clickable-row" data-href="{% url 'view_one_customer' v.id %}">
+                    <td>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>{{v.customerName}}</h5>
+                            </div>
+                            <div class="col-md-6 " style="text-align: right;">&#x20B9;{{v.OpeningBalance}}.00</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="clickable-row" data-href="{% url 'view_one_customer' v.id %}">
+                    <td>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p>{{v.id}}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <hr style="border-top: 1px solid white;">
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </table>
+
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="text-light" style="font-size: 2rem;">
+            {{cu.customerName }}</div>
+        <div class="row py-3 mt-2" >
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="jobs-tab tab-item ">
+                            <ul class="nav nav-tabs " id="myTab" role="tablist">
+                                
+                               
+                                <li class="nav-item ">
+                                    <a class=" btn  " id="home-tab" data-toggle="tab" href="#overview" role="tab"
+                                    style="background-color: rgb(71, 70, 69);"
+                                        aria-controls="home" aria-selected="false"><i class="fas fa-eye"></i> Overview</a>
+                                </li>
+                                <li class="nav-item " style="margin-left: 10px;">
+                                    <a class=" btn  " id="profile-tab" data-toggle="tab" href="#transactions" role="tab"
+                                    style="background-color: rgb(217, 156, 26);"
+                                        aria-controls="profile" aria-selected="true"><i class="fas fa-file-alt"></i>  Transactions</a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 text-white my-auto " style="text-align: right;">
+                
+                <!-- <div class="btn-group" role="group" aria-label="Basic example"> -->
+                    <a href="#" class="btn btn-sm text-white" style="background-color:  rgb(217, 156, 26);"
+                        data-toggle="modal" data-target="#addComment" data-inv-id="{{ bill.id }}">
+                        <i class="fas fa-comment" data-toggle="tooltip" 
+                        title="Add/Edit Comment"></i></a>
+                    <a href="{% url 'editcustomer' cu.id %}" class="btn btn-sm text-white" style="background-color:  rgb(217, 156, 26);"
+                        data-toggle="tooltip" data-placement="top" title="Edit">
+                        <i class="fas fa-pencil-alt" ></i></a>
+                        <a href="{% url 'emailattachment_cust' %}" class="btn btn-sm text-white"
+                        style="background-color:  rgb(217, 156, 26);" data-toggle="tooltip" title="Email">
+                        <i class="fa fa-envelope"></i></a>
+                    <a href="" class="btn btn-sm text-white btn_print" style="background-color:  rgb(217, 156, 26);"
+                        data-toggle="tooltip" title="PDF" id="pdf">
+                        <i class="fa fa-file-pdf-o"></i></a>
+                    <a href="" class="btn btn-sm text-white " style="background-color:  rgb(217, 156, 26);"
+                        data-toggle="tooltip" title="Print" onclick="printDiv()">
+                        <i class="fa fa-print"></i></a>
+                    <!-- <a href="{% url 'emailattachment' %}" class="btn btn-sm text-white"
+                        style="background-color:  rgb(217, 156, 26);" data-toggle="tooltip" title="Email">
+                        <i class="fa fa-envelope"></i></a> -->
+                <!-- </div> -->
+
+                <!-- {% if cu.attachment %}
+                <a download href="{{cu.attachment.url}}" class="btn btn-sm text-white"
+                    style="background-color:  rgb(217, 156, 26);" data-toggle="tooltip" 
+                    title="Download">
+                    <i class="fas fa-download"></i></a>
+               
+                {% else %}
+                <a href="#" class="btn btn-sm text-white" style="background-color:  rgb(217, 156, 26);"
+                    data-toggle="modal" data-target="#attachModal" data-inv-id="{{ bill.id }}">
+                    <i class="fas fa-paperclip" data-toggle="tooltip" 
+                    title="Attach File"></i></a> -->
+                
+                <!-- {% endif %} -->
+                <!-- <label for="file-upload" class="btn text-white border-0" title="Upload"
+                        style="background-color: rgb(210, 132, 30);">
+                        <i class="fas fa-upload text-white"></i> 
+                    </label> -->
+                    <input id="file-upload" type="file" name="file" style="display:none;">
+                <a href="{% url 'delete_customr' cu.id %}" class="btn btn-sm text-white" style="background-color:  rgb(217, 156, 26);"
+                    onclick="return confirm('Do you want to Delete this Customer?');"><i
+                        class="fas fa-trash-alt" data-toggle="tooltip" 
+                        title="Delete"></i></a>
+                        <a class="btn  btn-sm text-white ml-1" style="background-color:  rgb(217, 156, 26);" href="{% url 'customer_active' cu.id %}" id="sts">{{cu.status}}</a>
+
+            </div>
+        </div>
+
+        <div class="my-4  " style="background-color: rgba(252, 236, 217, 0.8); ">
+            
+            <div class="row my-3">
+                <div class="col-lg-12">
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="row">
+                                <div class="col-md-6 bg-light" style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
+                                    <div class="overview text-dark">
+                                        <h2 class="text-dark p-2" style="text-transform: uppercase;">{{ cu.customerName }}</h2>
+                                        
+                                        <h6 class="p-2" for="">Customer Name  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;:&nbsp; &nbsp;{{ cu.customerName }}</h6> 
+                                        <h6 class="p-2" for="">Customer Email  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; &nbsp;{{ cu.customerEmail }}</h6> 
+                                        <h6 class="p-2" for="">Customer Address  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; &nbsp;{{ cu.Address1 }}</h6> 
+                                        <h6 class="p-2" for="">Company Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.companyName }}</h6>
+                                        <h6 class="p-2" for="">Place of Supply  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.placeofsupply }}</h6>
+                                        <h6 class="p-2" for="">Opening Balance  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.OpeningBalance }}</h6>
+                                        <h6 class="p-2" for="">Credit/Debit  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.cr_dr }} Balance</h6>
+                                        <h6 class="p-2" for="">Payment Terms  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.PaymentTerms }}</h6>
+                                        <h6 class="p-2" for="">Tax Preference &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.Taxpreference }}</h6>
+                                        <!-- <h6 class="p-2" for="">Country  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; &nbsp;{{ cu.country }}</h6> -->
+                                        <!-- <h6 class="p-2" for="">Total Amount &nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; &nbsp;{{ bill.total }}</h6> -->
+                                    </div>
+                                </div>
+                                <div class="col-md-6" style="height: 100%;">
+                                    <!-- <h2 class="p-2 text-dark mt-4" for=""></h2> -->
+                                    <div class="card" style="background-color: rgb(100, 98, 98); padding:1rem;">
+                                        <div class="row my-2">
+                                            <div class="card-title h4 mt-4">Customer Infomartion
+                                                <hr>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for=""> Customer Type :</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.customerType}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-6"><label for="">Opening Balance :</label></div>
+                                            <div class="col-6">
+                                                <p class="bold">{{cu.OpeningBalance}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">Phone Number :</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.customerWorkPhone}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">Mobile Number :</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.customerMobile}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">Currency:</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.currency}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-title h4 mt-4">More Info
+                                            <hr>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">GST Treatment:</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.GSTTreatment}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">GST Number:</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.GSTIN}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-5"><label for="">Pan Number:</label></div>
+                                            <div class="col-7">
+                                                <p class="bold">{{cu.pan_no}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                       
+                  
+<!-- .........................TRANSACTIONS CUSTOMERS ............................................ -->
+
+<div class="tab-pane fade " id="transactions" role="tabpanel" aria-labelledby="profile-tab" style="background-color: black; max-height: 100vw;">
+    <div class="slip m-1 p-4 pl-2 ml-1  " id="whatToPrint"
+        style="box-shadow: 5px 5px 10px rgb(45, 45, 45); width: 98%;" style="background-color: black; max-height: 100vw;">
+<!-- <fieldset8 id="" style="background-color: burlywood" > -->
+    <div class="row text-light " >
+      <div class="col-md-8">
+        <h3 class="text-uppercase py-2">{{ cu.customerName }}
+        </h3>
+        <p >Phone : {{cu.customerMobile}}</p>
+        <p >Email : {{cu.customerEmail}}</p>
+        <!-- <p>No Credit Limit Set</p> -->
+        <br>
+      </div>
+      <div class="col-md-4">
+        <br><br>
+        <p style="text-align: right;">Address : {{cu.Address1}}</p>
+        <p style="text-align: right;">GSTIN : {{cu.GSTIN}}</p>
+      </div>
+      <hr>
+    </div> 
+    
+
+
+
+    <div id="tableContainer" style="max-height: 500px; overflow-y: auto; margin-left: 0.1rem; width: 100%;">
+        <table class="table text-light" id="dataTable2">
+          <thead>
+            <tr>
+              <th id="trans">Transactions 
+              </th>
+              
+              <th>Type 
+              </th>
+              
+              <th>Number
+              </th>
+              
+              <th>Date
+              </th>
+              
+              <th>Total 
+              </th>
+              
+              <th>Balance 
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            
+            <tr>
+                {% for est in estimatecus %}
+                    <td>Estimates</td>
+                    <td>{{ est.estimate_no }}</td>
+                    <td>{{ est.estimate_date }}</td>
+                    <td>{{ est.total }}</td>
+                    <td>0</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for re in recur %}
+                
+                    <td>Recurring Invoice</td>
+                    <td>{{ re.reinvoiceno }}</td>
+                    <td>{{ re.start }}</td>
+                    <td>{{ re.total }}</td>
+                    <td>0</td>
+                {% endfor %}
+            </tr>
+            {% for rt in retainer %}
+                <td>Retainer Invoice</td>
+                <td>{{ rt.retainer_invoice_number }}</td>
+                <td>{{ rt.retainer_invoice_date }}</td>
+                <td>{{ rt.total_amount }}</td>
+                <td>0</td>
+            {% endfor %}
+
+            <tr>
+                {% for pur in purchase %}
+                <td>Purchase Order</td>
+                <td>{{ pur.id}}</td>
+                <td>{{ pur.Ord_date}}</td>
+                <td>{{ pur.grand_total }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+
+            <tr>
+                {% for b in bills %}
+                <td>Purchase Bills</td>
+                <td>{{ b.bill_no}}</td>
+                <td>{{ b.bill_date}}</td>
+                <td>{{ b.total }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+
+            <tr>
+                {% for rb in recurbills %}
+                <td>Recurring Bills</td>
+                <td>{{ rb.id}}</td>
+                <td>{{ rb.start_date}}</td>
+                <td>{{ rb.grand_total }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+            <tr>
+                {% for s in sales %}
+                <td>Sales Order</td>
+                <td>{{ s.sales_no}}</td>
+                <td>{{ s.sales_date }}</td>
+                <td>{{ s.grandtotal }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+            <tr>
+                {% for dl in delivery %}
+                <td>Delivery Challans</td>
+                <td>{{ dl.chellan_no}}</td>
+                <td>{{ dl.chellan_date }}</td>
+                <td>{{ dl.total }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+            <tr>
+            {% for i in inv %}
+                <td>Invoice</td>
+                <td>{{ i.invoice_no}}</td>
+                <td>{{ i.inv_date }}</td>
+                <td>{{ i.grandtotal }}</td>
+                <td>0</td>
+            {% endfor %}
+            </tr>
+    
+           
+          </tbody>
+        </table>
+      </div>
+
+
+    </div>
+</div>
+                   
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableBody = document.getElementById("tableBody");
+        const rows = tableBody.querySelectorAll("tr");
+
+        let counter = 0; // Initialize the counter
+
+        rows.forEach(function (row) {
+            // Check if the row has non-empty cells
+            const hasData = Array.from(row.querySelectorAll("td")).some(function (cell) {
+                return cell.textContent.trim() !== "";
+            });
+
+            if (hasData) {
+                counter++; // Increment the counter
+                const counterCell = document.createElement("td");
+                counterCell.textContent = counter;
+                row.insertBefore(counterCell, row.firstElementChild);
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+                       
+                    </div>
+                </div>
+            </div>
+
+
+
+           
+            
+        </div>
+    </div>
+
+
+
+
+    
+</div>
+
+
+
+
+
+
+
+
+</section>
+
+
+
+</div>
+
+<!-- Attach File Modal -->
+<div class="modal fade" id="attachModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commentModalLabel">Upload File</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body ">
+          <form  id="comment-form" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="file"  style="margin-top: 10px; width: 70%;">
+            <div class="text-center pt-4 pb-2">
+                <button class="btn  " type="submit" style="background-color:rgb(255, 145, 0) ;">Submit</button>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add comment Modal -->
+  <div class="modal fade" id="addComment" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body ">
+            <form  id="comment-form" action="{% url 'add_comment_cust' cu.id %}" method="POST">
+                {% csrf_token %}
+                {% if cu.comments %}
+                <label class="text-dark pb-2" for="">Edit Comment</label>
+                <textarea style="width: 100%;" name="comment">{{ cu.comments}}</textarea>
+                {% else %}
+                <textarea style="width: 100%;" name="comment" placeholder="Add a comment"></textarea>
+                {% endif %}
+                <div class="text-center pt-4 pb-2">
+                    <button class="btn  " type="submit" style="background-color: rgb(44, 44, 43);" onclick="cancelDialog()">Cancel</button>
+                    <button class="btn  " type="submit" style="background-color: rgb(210, 114, 30);" onclick="saveDialog()" >Save</button>
+                </div>
+                
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            // Get the URL from the "data-href" attribute
+            const url = row.getAttribute('data-href');
+            // Navigate to the URL
+            window.location.href = url;
+        });
+    });
+</script>
+<script>
+     function saveDialog() {
+        var frm = document.getElementById("comment-form");
+        frm.submit(); // Submit the form
+    }
+
+    function cancelDialog() {
+        console.log("hi");
+        var frm = document.getElementById("comment-form");
+        let customMsg = "Do you want to cancel?";
+
+        if (confirm(customMsg)) {
+            alert("Comment cancelled!")
+        }
+    }
+</script>
+
+
+  <script>
+    function printDiv() { 
+        //   var divContents = document.getElementById("panel").innerHTML; 
+        //   var a = window.open('', '', 'height=1000, width=1000'); 
+        //   a.document.write('<html>'); 
+        //   a.document.write('<body > <h1> <br>'); 
+        //   a.document.write(divContents); 
+        //   a.document.write('</body></html>'); 
+        //   a.document.close(); 
+        //   a.print(); 
+
+        var printContents = document.getElementById("whatToPrint").innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+      } 
+    
+     
+  </script>
+
+<script>
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  </script>
+ <script>
+    $(document).ready(function() {
+        $('#selectOption').change(function() {
+            var selectedValue = $(this).val();
+            
+            if (selectedValue === "1") {
+                window.location.href = "{% url 'view_bills' %}";
+            } else if (selectedValue === "2") {
+                window.location.href = "{% url 'customerAtoZ_bills' %}";
+            } else if (selectedValue === "3") {
+                window.location.href = "{% url 'vendorAtoZ_bills' %}";
+            }
+        });
+    });
+  </script> 
+
+{% endblock %}

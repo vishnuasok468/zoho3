@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+  #over:hover{
+    background-color: rgba(110, 110, 110, 0.616);
+  }
+
+  .dropdown-item:hover{
+    color: chocolate;
+  }
+
+  #myTable tbody{
+    cursor: pointer;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="fixed-top" style="top: 7rem; margin-left: 18rem;">
+    <div style="height: 600px;overflow-y: scroll;">
+
+      <div class="row container-fluid">
+          <div class="col-md-3"><a class="text-white" style="font-size: 2rem;">All Sales Order</a></div>
+      </div>    
+
+      <div class="row container-fluid mb-3">
+        <div class="col-md-3">
+          <input type="text" id="search" class="form-control bg-light text-dark" placeholder="Search.." autocomplete="off">
+        </div>
+        <div class="col-md-2">
+          <div class="dropdown">
+            <a class="btn text-center px-4 pt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+              <i  class="fas fa-sort m-1"></i>
+            </a>
+            <div class="dropdown-menu m-1">
+              <a class="dropdown-item" href="{% url 'view_sales_order_all' %}">All</a>
+              <a class="dropdown-item" onclick="sortTableName()">Customer Name</a>
+              <a class="dropdown-item" onclick="sortTableTotal()">Total</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-3">
+          <div class="dropdown d-flex">
+            <a class="btn text-center px-4 pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+              <i class="fa fa-filter mt-1"></i>
+            </a>
+            <div class="dropdown-menu m-1">
+              <a class="dropdown-item" href="{% url 'view_sales_order_all' %}">All</a>
+              <a class="dropdown-item" href="{% url 'view_sales_order_Draft' %}">Draft</a>
+              <a class="dropdown-item" href="{% url 'view_sales_order_approved' %}">Approved</a>
+            </div>
+            <a style="height: 5vh; margin-left: 2vh;" class="btn btn-outline-warning text-right px-3 py-2" role="button" style="margin-left: 5px;" href="{% url 'create_sales_order' %}">
+              <i class="fa fa-plus" style="font-size: large;"></i><span style="font-size: 3vh;">New</span>
+            </a>
+          </div>
+        </div>
+      </div>
+          
+      <div class="row container-fluid">
+        <div class="col-sm-12 col-md-11 col-lg-11">
+          <table class="table  text-white" id="myTable">
+            <thead>
+              <tr>
+                <th style="text-align: center;">DATE</th>
+                <th style="text-align: center;">SALES ORDER</th>
+                <th style="text-align: center;">CUSTOMER NAME</th>
+                <th style="text-align: center;">CUSTOMER MAIL</th>
+                <th style="text-align: center;">AMOUNT</th>
+                <th style="text-align: center;">STATUS</th>
+                <th style="text-align: center;">BALANCE</th>
+                <th style="text-align: center;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in sale %}
+                <tr id="over" class='clickable-row' data-href="sales_order_det/{{ i.id }}">
+                  <td style="text-align: center;">{{i.sales_date}}</td>
+                  <!-- <td style="text-align: center;" onclick="location.href ='' " > {{v.Name}}</td> -->
+                  <td style="text-align: center;">{{i.sales_no}}</td>
+                  <td style="text-align: center;">{{i.customer.customerName}}</td>
+                  <td style="text-align: center;">{{i.customer.customerEmail}}</td>
+                  <td style="text-align: center;">{{i.grandtotal}}</td>
+                  <td style="text-align: center;">{{i.status}}</td>
+                  <td style="text-align: center;">{{i.balance}}</td>
+                  {% if i.complete_status == 0 %}
+                    <td style="text-align: center;"><a href="{% url 'convert_to_invoice' i.id %}" style="color: chocolate;">Convert to invoice</a></td>
+                  {% else %}
+                    <td style="text-align: center; color: green;">Completed</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Function to sort the table by the selected column
+  function sortTableName() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("td")[2];
+        y = rows[i + 1].getElementsByTagName("td")[2];
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+      }
+    }
+  }
+
+  function sortTableTotal() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("td")[4];
+        y = rows[i + 1].getElementsByTagName("td")[4];
+        if (parseInt(x.innerHTML) > parseInt(y.innerHTML)) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+      }
+    }
+  }
+</script>
+
+<script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href");
+    });
+  });
+</script>
+
+
+<script>
+  var $rows = $('table tbody tr');
+  $('#search').keyup(function() {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    $rows.hide().filter(function() {
+      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return ~text.indexOf(val);
+    }).show();
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous">
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous">
+</script>
+{% endblock %}

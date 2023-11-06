@@ -1,0 +1,481 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<style>
+    .table-responsive table {
+        width: 100%;
+    }
+
+    .table-responsive th,
+    .table-responsive td {
+        text-align: left;
+        color: white;
+    }
+
+    .table-responsive td {
+        border: none;
+    }
+
+    .table-responsive table,
+    .table-responsive th {
+        border: 1pt solid white;
+    }
+
+    .table-responsive th i {
+        font-size: 200%;
+        color: white;
+    }
+
+    .right {
+        text-align: right;
+        border-right: 1pt solid white;
+    }
+
+    .border_right {
+        border-right: 1pt solid white;
+    }
+
+    .table-responsive table a:hover {
+        background-color: #007bff;
+        color: #007bff;
+    }
+
+    .table-responsive table a:active {
+        background-color: #007bff;
+    }
+
+    .myDiv:target {
+        display: block !important;
+    }
+
+    .myd {
+        display: none;
+        padding: 10px;
+        margin-top: 20px;
+    }
+
+    #furplus,
+    #funplus,
+    #totalfur,
+    #totalfun {
+        display: none;
+    }
+
+    #furminus,
+    #funminus,
+    #furplus,
+    #funplus a:hover {
+        background-color: transparent;
+    }
+
+    .close-button {
+        font-size: 2vh;
+        font-weight: 100;
+    }
+
+    .close-button:hover {
+        color: blue;
+    }
+
+    .table-responsive table a {
+        color: white
+    }
+
+    .table-responsive table a:hover {
+        color: rgb(184, 121, 4);
+        background-color: transparent;
+    }
+
+    .customize:hover {
+        background-color: transparent;
+    }
+
+    .daterangepicker {
+        color: #010101;
+    }
+
+    #reportrange span {
+        font-size: 1rem;
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="d-flex" style="padding: 0 5px;">
+                <i class="fa fa-calendar" aria-hidden="true" style="font-size: 4vh; color: white;"></i>&nbsp;
+
+                <!-- Date range calendar input -->
+                <div id="reportrange"
+                    style="cursor: pointer; color: #010101; background-color: #fff;height: 30px; padding: 2px; border-radius: 2px;">
+                    <span></span> <i class="fa fa-caret-down"></i>
+                </div>
+
+                <script>
+                    $(function () {
+                        var start = moment();
+                        var end = moment();
+
+                        function cb(start, end) {
+                            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                            $('#selectedDate').html('From ' + start.format('MMMM D, YYYY') + ' To ' + end.format('MMMM D, YYYY'));
+
+                            localStorage.setItem('selectedDates', JSON.stringify({ start: start, end: end }));
+                        }
+
+                        // Retrieve the previously selected dates from localStorage
+                        var storedDates = localStorage.getItem('selectedDates');
+                        if (storedDates) {
+                            var parsedDates = JSON.parse(storedDates);
+                            start = moment(parsedDates.start);
+                            end = moment(parsedDates.end);
+                        }
+
+                        $('#reportrange').daterangepicker({
+                            startDate: start,
+                            endDate: end,
+                            ranges: {
+                                'Today': [moment(), moment()],
+                                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                'Previous Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+                                'Previous Quarter': [
+                                    moment().subtract(3, 'months').startOf('quarter'),
+                                    moment().subtract(3, 'months').endOf('quarter')
+                                ]
+                            }
+                        }, cb);
+
+                        cb(start, end);
+                    });
+
+                </script>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <button class="btn btn-light"><a class="text-dark customize" href="{% url 'customize_report_hpl' %}"><i
+                        class="fa fa-cog">&nbsp;</i>Customize Report</a></button>
+        </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="col-md-1 d-flex">
+            <button class="btn btn-light" type="button" style="height: 30px;" onclick="display()">
+                <i class="fa fa-print">&nbsp;Print</i>
+            </button>
+        </div>
+        <div class="col-md-1 d-flex">
+            <button class="btn btn-light" type="button" style="height: 30px;" onclick="exportToPDF()">
+                <i class="fa fa-file-pdf-o" aria-hidden="true">&nbsp;PDF</i>
+            </button>
+        </div>
+        <div class="col-md-1 d-flex">
+            <button class="btn btn-light dropdown-toggle" type="button" id="exportDropdown2" data-bs-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" style="height: 30px;">
+                <i class='fas fa-file-export'></i> Export
+            </button>
+            <div class="dropdown-menu " aria-labelledby="exportDropdown2">
+                <a class="dropdown-item" href="#" onclick="exportToExcel()">XLS (Excel)</a>
+            </div>&nbsp;&nbsp;&nbsp;
+            <a href="{% url 'report_inventory_view' %}" class="btn btn-light close-button" style="height: 30px;">
+                X
+            </a>
+        </div>
+    </div><br><br><br>
+
+    <div class="row" id="pdfdiv" style="width:105%;page-break-inside: avoid;">
+        <div class="row bg-dark" id="printdiv" style="border-radius: 3vh; width: 77vw;">
+            <h3 style="text-align: center; margin-top: 9px;">{{company.company_name}}</h3>
+            <h1 style="text-align: center;font-size: 1.5rem;">Horizontal Profit & Loss</h1>
+            <h6 style="text-align: center;">Basis: Cash</h6>
+            <h6 style="text-align: center;"><span id="selectedDate">From {{ start_date }} To {{ end_date }}</span></h6>
+            <br>
+
+            <div class="table-responsive">
+                <div class="container-fluid">
+                    <table class="table" style="border-color: white;">
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align: top; width: 50%;">
+                                    <div class="text-uppercase"
+                                        style="text-align: center; color: grey; font-size: 1rem; font-weight: 500;">
+                                        Expenses
+                                        <p
+                                            style="border-bottom: 1px solid white; margin-left: -2vh; margin-right: -2vh; margin-top: 2vh;">
+                                        </p>
+                                    </div>
+
+                                    <div style="font-size: 15px;"> OPENING STOCK <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div style="font-size: 15px;"> PURCHASES <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div style="font-size: 15px;"> DEBIT NOTES <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div style="font-size: 15px;"> INVENTORY ADJUSTMENT <a style="float: right;"
+                                            href="#">0</a></div><br><br>
+
+                                    <div>
+                                        <span class="text-uppercase" style="font-size: large;">operating
+                                            expense</span>
+                                    </div><br>
+
+
+                                    <div>
+                                        <a class="btn" style="border: 2px solid white; font-size: x-small;" id="furplus"
+                                            onclick="openfur()">+</a>
+                                        <a class="btn" style="border: 2px solid white; font-size: x-small;"
+                                            id="furminus" onclick="closefur()">-</a>
+                                        Advertising And Marketing
+                                        <a href="#" style="float: right;" id="furvalue"> 0 </a>
+                                        <a href="#" style="float: right;" id="totalfur"> 0 </a>
+                                    </div><br>
+                                    <div id="furdiv1">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        Automobile Expense ( 098765432 )
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div style=" float: right;" id="furdiv2">
+                                        Total for Advertising And Marketing
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#">0</a>
+                                    </div><br>
+
+
+
+                                    <div>
+                                        • Cost of Goods Sold
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Custom duty
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Depreciation Expense
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • IT and Internet Expenses
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Lodging
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Meals and Entaertainment
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Office Supplies
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Parking
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Rent Expense
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Salaries and Employee Wages
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Tax Paid Expense
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Telephone Expense
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <div>
+                                        • Travel Expense
+                                        <a style="float: right;" href="#">0</a>
+                                    </div><br>
+                                    <hr>
+                                    <div class="text-right text-uppercase " style=" float: right;">
+                                        Total operating expense&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+                                    </div><br><br>
+
+                                    <div>
+                                        <span class="text-uppercase" style="font-size: large;"><br>Non operating
+                                            expense</span>
+                                        <div>
+                                            <hr>
+                                            <div class="text-right text-uppercase " style=" float: right;">
+                                                Total NON OPERATING Liabilities&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+                                            </div><br>
+                                        </div>
+                                    </div>
+
+                                    <div style="border: 1px solid white;padding: 1rem;">
+                                        NET PROFIT/LOSS <a style="float: right;" href="#">0</a>
+                                    </div>
+                                </td>
+
+                                <td style=" border-left: 1pt solid white; width: 50%;vertical-align: top;">
+                                    <div class="text-uppercase"
+                                        style="text-align: center; color: grey; font-size: 1rem; font-weight: 500;">
+                                        income
+                                        <p
+                                            style="border-bottom: 1px solid white; margin-left: -2vh; margin-right: -2vh; margin-top: 2vh;">
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-uppercase" style="font-size: large;">operating
+                                            income</span>
+                                        <div>
+                                            <div><br>
+                                                <div>
+                                                    • Discount (0)
+                                                    <a style="float: right;" href="#">0</a>
+                                                </div><br>
+                                                <div>
+                                                    • General Income (0)
+                                                    <a style="float: right;" href="#">0</a>
+                                                </div><br>
+                                                <div>
+                                                    • Interest Income (0)
+                                                    <a style="float: right;" href="#">0</a>
+                                                </div><br>
+                                                <div>
+                                                    • Other Charges (6)
+                                                    <a style="float: right;" href="#">0</a>
+                                                </div><br>
+                                                <div>
+                                                    • Sales (0)
+                                                    <a style="float: right;" href="#">0</a>
+                                                </div><br>
+                                                <hr>
+
+                                                <div class="text-right text-uppercase" style=" float: right;">
+                                                    Total operating income&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+                                                </div><br><br><br>
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 15px;"> CLOSING STOCK <a style="float: right;"
+                                                        href="#">0</a>
+                                                </div><br><br><br>
+                                            </div>
+                                            <div>
+                                                <span class="text-uppercase" style="font-size: large;">non operating
+                                                    income</span>
+                                                <hr>
+                                                <div class="text-right text-uppercase" style=" float: right;">
+                                                    Total non operating income&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+                                                </div><br><br>
+
+                                            </div>
+                                        </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: large; width: 50%; border-top:1pt solid white;">
+                                    Total <span style="float: right;">0</span>
+                                </td>
+                                <td
+                                    style="font-size: large; width: 50%; border-left: 1pt solid white; border-top:1pt solid white;">
+                                    Total <span style="float: right;">0</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table><br>
+                    <div>
+                        <p>
+                            <small>**Amount is displayed in your base currency</small>&nbsp;
+                            <span class="badge text-semibold badge-success d-inline">INR</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+
+
+    function openfur() {
+        $("#furdiv1").show()
+        $("#furdiv2").show()
+        $("#furplus").hide()
+        $("#furminus").show()
+        $("#totalfur").hide()
+        $("#furvalue").show()
+        $("#fundiv1").hide()
+        $("#fundiv2").hide()
+        $("#funplus").show()
+        $("#funminus").hide()
+    }
+
+    function closefur() {
+        $("#furdiv1").hide()
+        $("#furdiv2").hide()
+        $("#furplus").show()
+        $("#furminus").hide()
+        $("#totalfur").show()
+        $("#furvalue").hide()
+        $("#fundiv1").hide()
+        $("#fundiv2").hide()
+    }
+
+    // Function to save Excel using XLSX
+    function exportToExcel() {
+        var table = document.querySelector('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'Horizontal_profit_and_loss.xlsx');
+    }
+
+    /* function exportToPDF() {
+         var content = document.getElementById('pdfdiv');
+         html2pdf()
+             .from(content)
+             .save('Horizontal_profit_and_loss.pdf')
+     }*/
+
+    function exportToPDF() {
+        var content = document.getElementById('pdfdiv');
+        html2pdf()
+            .set({ pagebreak: { mode: 'avoid' } })
+            .from(content)
+            .set({
+                filename: 'Horizontal_profit_and_loss.pdf',
+                format: 'A4',
+            })
+            .save();
+    }
+
+
+
+    function display() {
+        var printContents = document.getElementById("printdiv").innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        $('#exportDropdown1').dropdown()
+
+    }
+
+
+</script>
+
+
+{% endblock %}

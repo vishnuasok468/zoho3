@@ -1,0 +1,24 @@
+<p></p>
+<h6 class="pb-1 mb-0">Advanced Filters</h6>
+<div class="position-relative">
+    <div class="position-absolute start-0 top-0" style="margin-top: 0.3rem;margin-left: 0.5rem;">
+        <span class="bi bi-filter" ></span>
+    </div>
+</div>
+<select class="btn btn-outline-light w-100 text-start bs_sm bg-dark text-light ps-4" name="select_"
+hx-get="{% url 'select_comparator' %}"
+hx-target="#select_comparator_target"
+hx-trigger="change"
+>
+    <option value="" disabled><a href="">Customer Payment</a></option>
+    <option value="Payment Number"><a href="">Payment Number</a></option>
+    <option value="Customer Name"><a href="">Customer Name</a></option>
+    <option value="Date"><a href="">Date</a></option>
+    <option value="Reference Number"><a href="">Reference Number</a></option>
+    <option value="Payment Mode"><a href="">Payment Mode</a></option>
+    <option value="Invoice#"><a href="">Invoice#</a></option>
+    <option value="Applied Date"><a href="">Applied Date</a></option>
+    <option value="Refund Amount (BCY)"><a href="">Refund Amount (BCY)</a></option>
+    <option value="Amount (BCY)"><a href="">Amount (BCY)</a></option>
+    <option value="Unused Amount (BCY)"><a href="">Unused Amount (BCY)</a></option>
+</select>

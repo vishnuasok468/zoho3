@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<style>
+.dropdown-item:hover{
+    color: rgb(226, 149, 5);
+}
+
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  #tr_data:hover{
+    background-color: #757575;
+  }
+</style>
+
+
+<div style="top: 7rem;">
+
+  <section id="estimates_section">
+    <div class="row  mx-2">
+      <div class="col-md-6 py-2"><a class="text-white" style="font-size: 1.5rem;">View PriceList</a></div>
+      <div class="col-md-6 form-inline justify-content-end py-2">
+        <!-- <a style="color: white; background-color: rgb(210, 132, 30);" class="btn mr-1" href="{% url 'newestimate' %}"><i
+            class="fa-solid fa fa-plus " ></i>New</a> -->
+        
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12 col-md-5 col-lg-5">
+        <input type="text" id="search" class="form-control bg-light text-dark" placeholder="Search.." autocomplete="off">
+      </div>
+      <div class="col-sm-6 col-md-4 col-lg-4">
+        <div class="dropdown btn-group">
+          <button class="btn  btn-secondary text-dark dropdown-toggle px-3 py-2" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Sort
+          </button>
+          <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+            <a class="dropdown-item" href="#"  data-sort="all">All</a>
+            <a class="dropdown-item" href="#"  data-sort="name">Name</a>
+            <a class="dropdown-item" href="#"  data-sort="HSN">Type</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-1 col-md-1 col-lg-1">
+        <div class="col-md-1">
+          <div class="dropdown">
+            <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href="" data-toggle="dropdown">
+              <i style="color: chocolate;" class="fa fa-filter"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item" href="#" id="filterAllButton">All</a>
+              <a class="dropdown-item" href="#" id="filterActiveButton">Active</a>
+              <a class="dropdown-item" href="#" id="filterInactiveButton">Inactive</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-5 col-md-2 col-lg-2">
+        <a style="color: white; background-color: rgb(210, 132, 30); height: 35px;" class="btn mr-1 pt-2" href="{% url 'addprice' %}">
+          <i class="fa-solid fa fa-plus"></i>New
+        </a>
+      </div>
+      
+    </div>
+    
+
+    <div class="col-sm-12 mt-5">
+      <table id="estimates-table" class="table  text-white text-center" style="cursor: pointer;">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>DESCRIPTION </th>
+            <th>TYPE</th>
+            <th>ITEM RATE</th>
+            <th>ROUNDING</th>
+            <th>STATUS</th>
+            <th>DETAILS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="table">
+          {% for v in view %}
+          <tr   {% if v.status == 'active' or v.status == 'Active' %}class="active" {% elif v.status == 'inactive' or v.status == 'Inactive' %}class="inactive" {% endif %}>
+
+            <td> <a href="" style="color: white;" >{{v.itemtable.date}}</a></td>
+            <td><a href="{% url 'viewlist' v.id %}"style="color: white;">{{v.name}}</a></td>
+            <td><a href="" style="color: white;"> <i class="fa fa-comments " title="{{v.description}}"></i>  </a></td>
+            <td><a href="" style="color: white;">{{v.itemtable.type}}</a></td>
+
+            <td><a href="" style="color: white;">{{v.itemtable.rate}}</a></td>
+            <td><a href="" style="color: white;">{{v.roundoff}}</a></td>
+            <td><a href="" style="color: white;">{{v.status}}</a></td>
+            <td><a href="" style="color: white;">{{v.mark}}</a></td>
+
+            <td>
+               <a href="" class="btn btn-sm text-white ms-1" data-toggle="modal" data-target="#deleteModalViewGodown{{v.id}}" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+            </a> 
+           
+            </td>
+ 
+ <!-- DElete modal -->
+ <div class="modal fade" id="deleteModalViewGodown{{v.id}}" style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden; z-index: 1100;">
+ <div class="modal-dialog modal-xl m-5 p-5">
+     <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+         <div class="modal-header " style="background: rgb(32, 35, 37);">
+             <h5 class="m-3 text-uppercase text-light">Enter Reason</h5>
+             <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                 aria-label="Close">&times;</button>
+
+         </div>
+         <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+             <div class="card p-0 m-0">
+             
+                 <form action="{% url 'delete_item' v.id %}" method="post" class="needs-validation" novalidate autocomplete="off"
+                     id="modalComment">
+                     {% csrf_token %}
+                     
+                     <div class="row mt-2">
+                         <div class="col-md-6 mt-2">
+                          <div style="color: red;">{{errmsg}}</div>
+                          <textarea class="form-control text-dark bg-light" id="uniqueDeleteID" name="deletereason"  style="height: 100px; width: 520px;" required></textarea>
+
+                         </div>
+                     </div>
+
+                     <div class="row mt-5">
+                         <div class="col-md-4"></div>
+                         <div class="col-md-4">
+                             <div class="d-flex">
+                                 <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Delete </button>
+                                 <button type="button"
+                                     class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                     data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">Cancel</span>
+                                 </button>
+                             </div>
+                         </div>
+                         <div class="col-md-4"></div>
+                     </div>
+                 </form>
+                
+             </div>
+         </div>
+     </div>
+
+ </div>
+</div>
+ {% endfor %}
+</tbody>
+
+</table>
+</div>
+  </section>
+
+
+  
+</div>
+
+
+<script>
+  // Function to filter items based on status
+  function filterItems(status) {
+    if (status === 'active' || status === 'Active') {
+      $('tbody tr').hide().filter('.active, .Active').show();
+    } else if (status === 'inactive' || status === 'Inactive') {
+      $('tbody tr').hide().filter('.inactive, .Inactive').show();
+    } else {
+      $('tbody tr').show(); // Show all items
+    }
+  }
+
+  // Attach the filter function to the filter buttons
+  $('#filterActiveButton').on('click', function() {
+    filterItems('active');
+  });
+
+  $('#filterInactiveButton').on('click', function() {
+    filterItems('inactive');
+  });
+
+  $('#filterAllButton').on('click', function() {
+    filterItems('all');
+  });
+</script>
+
+
+<script>
+  $(document).ready(function() {
+    var originalTable = $('#estimates-table').clone(); // Clone the original table on page load
+
+    // Function to sort items by name
+    function sortByName() {
+      var rows = $('#estimates-table tbody tr').get();
+      rows.sort(function(a, b) {
+        var keyA = $(a).children('td').eq(1).text().toUpperCase(); // Adjust the column index for Name
+        var keyB = $(b).children('td').eq(1).text().toUpperCase(); // Adjust the column index for Name
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+      });
+      $.each(rows, function(index, row) {
+        $('#estimates-table').children('tbody').append(row);
+      });
+    }
+
+    // Function to sort items by HSN/SAC
+    function sortByItem() {
+      var rows = $('#estimates-table tbody tr').get();
+      rows.sort(function(a, b) {
+        var keyA = $(a).children('td').eq(0).text().toUpperCase(); // Adjust the column index for HSN/SAC
+        var keyB = $(b).children('td').eq(0).text().toUpperCase(); // Adjust the column index for HSN/SAC
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+      });
+      $.each(rows, function(index, row) {
+        $('#estimates-table').children('tbody').append(row);
+      });
+    }
+
+    // Function to restore the table to its original state
+    function restoreOriginalTable() {
+      $('#estimates-table').replaceWith(originalTable.clone()); // Replace the current table with the original table clone
+    }
+
+    // Handle sorting based on data-sort attribute
+    $('[data-sort]').on('click', function() {
+      var sortType = $(this).data('sort');
+      if (sortType === 'godownname') {
+        sortByName();
+      } else if (sortType === 'item') {
+        sortByItem();
+      } else if (sortType === 'all') {
+        restoreOriginalTable();
+      }
+    });
+  });
+</script>
+
+
+<script>
+  // Add click event listener to all rows with class "clickable-row"
+  const rows = document.querySelectorAll('.clickable-row');
+  rows.forEach(row => {
+    row.addEventListener('click', () => {
+      // Get the URL from the "data-href" attribute
+      const url = row.getAttribute('data-href');
+      // Navigate to the URL
+      window.location.href = url;
+    });
+  });
+</script>
+
+<script>
+  var $rows = $('#table tr');
+  $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      
+      $rows.hide().filter(function() {
+          var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+          return ~text.indexOf(val);
+      }).show();
+  });
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+{% endblock %}

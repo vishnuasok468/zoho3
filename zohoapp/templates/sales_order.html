@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+
+
+
+  .daterangepicker{
+    color: black;
+  }
+
+  .daterangepicker td.available, .daterangepicker th {
+    color: black;
+  }
+
+  @media print {
+    body{
+            visibility: hidden !important; /* hide everything in body when in print mode*/
+        }
+
+        .printContainer {
+            visibility: visible !important; /* Override the rule above to only show the printables*/
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin-left: 1vh;
+        } 
+
+        table{
+          width:50%;
+          background-color: white;
+        }
+
+        table tbody td{
+          color: black;
+
+        }
+
+        #company{
+          margin-left: 15vh;
+        }
+  }
+
+  #reportrange span, #selectedEndDate, .daterangepicker .ranges ul li {
+    font-size: 14px; /* Adjust the font size as needed */
+  }
+
+  .dropdown-item:hover{
+    color: chocolate;
+  }
+
+          /* Style for the tooltip-like list */
+          #nameTooltip {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            padding: 10px;
+            z-index: 1;
+            width: 26%; /* Adjust the width as needed */
+            color: black;
+            margin-top: 1vh;
+  border-radius: 1vh;
+
+        }
+
+        /* Style for the list items in the tooltip */
+        .tooltip-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .tooltip-item:hover {
+          background-color: #555;
+          color: white;
+        }
+
+        #nameTooltip .scrollable-tooltip {
+  max-height: 130px; /* Maximum height for the tooltip */
+  overflow-y: auto; /* Add vertical scrollbar when content overflows */
+        }
+
+</style>
+
+
+<div class="container-fluid">
+    <div class="row">
+      <div class="col-md-6">
+          <form class="form-inline">
+            <label class="mr-2" for="fromdate">From:</label>&nbsp;
+            <input type="date" class="form-control" id="fromdate" style="color: black !important;">
+            <label class="mx-2" for="todate">To:</label>
+            <input type="date" class="form-control" id="todate" style="color: black !important;">
+          </form>
+      </div>
+
+      <div class="col-md-6" style="text-align: right;">
+        <a class="btn text-center btn-outline-warning p-2"  onclick="exportAsPDF()" style="margin-right: 2vh;"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>PDF</a>
+
+
+        <a class="btn text-center btn-outline-warning printdrop p-2" href="#" onclick="printPageContent()" style="margin-right: 2vh;"><i class="fa fa-print" aria-hidden="true"></i>Print</a>
+    
+        <a class="btn text-center btn-outline-warning p-2"  onclick="exportAsXLS()" style="margin-right: 2vh;"><i class="fa fa-file-excel-o" aria-hidden="true"></i>EXCEL</a>
+    
+    
+          <a class="btn btn-outline-warning p-2" href="{% url 'report_inventory_view' %}" >&times;</a>
+      </div>
+
+    </div>
+
+
+</div>
+
+<div class="row">
+  <div class="col-md-4" style="margin-left: 5vh;"><br><br>
+    <input class="form-control text-black" type="text" id="searchInput" placeholder="Search by Name">
+    
+    <div id="nameTooltip" >
+      <div class="scrollable-tooltip">
+      {% for name in name_list %}
+        <div class="tooltip-item">{{name}}</div>
+        {% endfor %}
+    </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid" id="container-to-print"> 
+  <div class="row pt-5">
+    <center>
+      <div class="col-md-4" id="company">
+        {% if company.company_name != None %}
+          <a class="text" style="font-size: 1rem; color: white;">{{ company.company_name }}</a><br>
+        {% else %}
+          <a class="text" style="font-size: 1rem; color: white;">Add Company</a><br>
+        {% endif %}
+        <a class="text" style="font-size: 1.5rem; color: white;">Sale Order</a><br>
+        <h5 class="text" id="selectedEndDate"></h5><br>
+      </div>
+    </center>   
+  </div> 
+
+  <div>
+    <table class="table text-white" id="myTable">
+      <thead >
+        <tr style="text-align: center;">
+          <th>DATE 
+          </th>
+          <th>ORDER NO 
+          </th>
+          <th>NAME 
+          </th>
+          <th>DUE DATE 
+          </th>
+          <th>STATUS 
+          </th>
+
+          <th>TOTAL 
+          </th>
+          <th>ADVANCE 
+          </th>
+          <th>BALANCE 
+          </th>
+        </tr>
+      </thead>
+
+      <tbody style="text-align: center;">
+        {% for d in data %}
+        <tr>
+          <td>{{ d.sales_date }}</td>
+          <td>{{ d.sales_no }}</td>
+          <td>{{ d.customer.customerName }}</td>
+          <td>{{ d.ship_date }}</td>
+          {% if d.complete_status == 1 %}
+            <td>Invoice</td>
+            {% else %}
+            <td>Sales Order</td>
+            {% endif %}
+          <td>{{ d.subtotal }}</td>
+          <td>{{ d.advance }}</td>
+          <td>{{ d.balance }}</td>
+        </tr>
+        
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+</div>  
+
+<script>
+  function updateEndDateMin() {
+      const startDateInput = document.getElementById('fromdate');
+      const endDateInput = document.getElementById('todate');
+      
+      // Set the minimum allowed date for the end date input
+      endDateInput.min = startDateInput.value;
+  }
+</script>
+
+
+<script>
+  function ApplyDateFilter() {
+    updateEndDateMin()
+    var fromDate = new Date(document.getElementById('fromdate').value);
+    var toDate = new Date(document.getElementById('todate').value);
+
+    // Set the time part to the beginning and end of the day
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(23, 59, 59, 999);
+
+    var table = document.getElementById("myTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) {
+      var row = tr[i];
+      var td = row.getElementsByTagName("td")[0]; // Assuming the date is in the first column.
+
+      if (td) {
+        var txtValue = td.textContent || td.innerText;
+        var check = new Date(txtValue);
+
+        // Set the time part of check to match the format of fromDate and toDate
+        check.setHours(0, 0, 0, 0);
+
+        if (check >= fromDate && check <= toDate) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      }
+    }
+    // Update the selectedEndDate div
+    var start = fromDate;
+    var end = toDate;
+    document.getElementById('selectedEndDate').textContent = 'From ' + start.toDateString() + ' to ' + end.toDateString();
+  }
+
+  // Add event listeners to the date inputs to trigger ApplyDateFilter on change
+  document.getElementById('fromdate').addEventListener('change', ApplyDateFilter);
+  document.getElementById('todate').addEventListener('change', ApplyDateFilter);
+
+  // Initialize the filter when the page loads (optional)
+  ApplyDateFilter();
+
+  // Function to show full table when no dates are selected
+  function ShowFullTable() {
+    var table = document.getElementById("myTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) {
+      tr[i].style.display = "";
+    }
+
+    // Reset the selectedEndDate div
+    document.getElementById('selectedEndDate').textContent = '';
+  }
+
+  // Call the function to show full table initially
+  ShowFullTable();
+</script>
+
+<script>
+  function printPageContent(){
+
+      var printContents = document.getElementById("container-to-print").innerHTML;
+
+var $printerDiv = $('<div class="printContainer"></div>'); // create the div that will contain the stuff to be printed
+$printerDiv.html(printContents); // add the content to be printed
+$('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+window.print(); // call print
+$printerDiv.remove(); // remove the div
+$('body').removeClass("printingContent");
+  }
+</script>
+
+
+
+
+  <script>
+    function exportAsXLS() {
+            // Assuming you have data in a table format, you can export it to Excel using SheetJS
+            const table = document.querySelector('table');
+            const ws = XLSX.utils.table_to_sheet(table);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, 'sales_order.xlsx');
+    }
+    
+    function exportAsPDF() {
+      const container = document.getElementById('container-to-print');
+    
+      // change colour 
+      container.style.backgroundColor = 'white';
+    
+      const textWhiteElements = container.querySelectorAll('.text');
+      textWhiteElements.forEach(element => {
+        element.style.color = '#000000';
+      });
+
+      const table_rows = document.querySelectorAll('#myTable tbody tr');
+
+      table_rows.forEach(row => {
+            row.style.backgroundColor = 'white'; 
+            row.style.color = 'black'; 
+        });
+    
+      const pdfOptions = {
+        margin: 0,
+        filename: 'Sales_order.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+      };
+    
+      // Generate PDF from the container
+      html2pdf().from(container).set(pdfOptions).save().then(() => {
+
+
+        container.style.backgroundColor = 'transparent';
+
+        // Restore the original background color'
+      textWhiteElements.forEach(element => {
+        element.style.color = 'white'; 
+      });
+
+      table_rows.forEach(row => {
+            row.style.backgroundColor = 'transparent'; 
+            row.style.color = 'white'; 
+        });
+    
+
+      });
+    }
+    
+  </script>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const nameTooltip = document.getElementById('nameTooltip');
+  const dataTable = document.getElementById('myTable');
+  const tableBody = dataTable.getElementsByTagName('tbody')[0];
+  const initialTableData = [...tableBody.querySelectorAll('tr')];
+
+  searchInput.addEventListener('click', showTooltip);
+  searchInput.addEventListener('keyup', filterTooltip);
+  nameTooltip.addEventListener('click', filterTable);
+
+  function showTooltip(){
+      nameTooltip.style.display = 'block';
+  }
+
+  function filterTooltip() {
+            const searchText = searchInput.value.toLowerCase();
+    
+            // Show the tooltip if there's text in the input
+            if (searchText.length > 0) {
+                nameTooltip.style.top = (searchInput.offsetTop + searchInput.offsetHeight) + 'px';
+                nameTooltip.style.left = searchInput.offsetLeft + 'px';
+            } else {
+              nameTooltip.style.display = 'block';
+                // If search input is empty, restore the initial table
+                restoreInitialTable();
+            }
+    
+            // Filter the tooltip items based on the input
+            const items = nameTooltip.getElementsByClassName('tooltip-item');
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const itemName = item.textContent.toLowerCase();
+                if (itemName.includes(searchText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        }
+
+  function filterTable(event) {
+      if (event.target.classList.contains('tooltip-item')) {
+        searchInput.value = event.target.textContent
+        const selectedName = event.target.textContent.toLowerCase();
+
+          const rows = tableBody.getElementsByTagName('tr');
+
+          // Loop through table rows and hide/show based on selected name
+          for (let i = 0; i < rows.length; i++) {
+              const row = rows[i];
+              const cell = row.getElementsByTagName('td')[2];
+              if (cell.textContent.slice(3,).toLowerCase() === selectedName) {
+                  row.style.display = 'table-row';
+              } else {
+                  row.style.display = 'none';
+              }
+          }
+
+          // Hide the tooltip after selecting
+          nameTooltip.style.display = 'none';
+      }
+  }
+
+  function restoreInitialTable() {
+      // Restore all rows to the initial state
+      initialTableData.forEach((row) => {
+          row.style.display = 'table-row';
+      });
+  }
+
+  // Close the tooltip when clicking outside of it
+document.addEventListener("click", function(event) {
+  const tooltip = document.getElementById("nameTooltip");
+  if (event.target != tooltip) {
+    if(event.target != document.getElementById("searchInput")){
+
+      tooltip.style.display ="none";
+    }
+  }
+});
+</script>  
+
+{% endblock content %}
+

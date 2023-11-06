@@ -1,0 +1,692 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"
+    integrity="sha512-LwZthDLbb+dritfG9jbFyY1ClYqlkF4I9foqo+783wcl6EPR+kE3uqb0OPsieHt4pFH4HVduwX6rTTDmCaC20g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://fontawesome.com/icons/pencil?f=classic&s=solid"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+<style>
+
+    .modal{
+      z-index: 9999;
+      overflow: scroll;
+    }
+
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: rgb(252, 236, 217);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    #tr_data:hover{
+    background-color: #757575;
+  }
+
+
+  
+    
+.tooltip-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #f8f8f8;
+  color: #0e0d0d;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  top: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+.small-search {
+    width: 330px; 
+    height: 30px; 
+    font-size: 14px;
+    
+}
+
+
+</style>
+
+<!-- <script>
+
+
+    async function generatePDF() {
+        // document.getElementById("downloadButton").innerHTML = "Currently downloading, please wait";
+        console.log('pdf');
+        //Downloading
+        var downloading = document.getElementById("whatToPrint");
+        var doc = new jsPDF('l', 'pt');
+
+        await html2canvas(downloading, {
+            //allowTaint: true,
+            //useCORS: true,
+            // width: 600
+
+        }).then((canvas) => {
+            //Canvas (convert to PNG)
+            doc.addImage(canvas.toDataURL("image/png"), 'PNG', 15, 10, 700, 850);
+        })
+
+
+
+        doc.save("Document.pdf");
+
+
+        //End of downloading
+
+        // document.getElementById("downloadButton").innerHTML = "Click to download";
+    }
+
+
+</script> -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        console.log('print');
+
+        $(document).on('click', '.btn_print', function (event) {
+            console.log('print1');
+            event.preventDefault();
+
+            //credit : https://ekoopmans.github.io/html2pdf.js
+
+            var element = document.getElementById('whatToPrint');
+
+            //easy
+            //html2pdf().from(element).save();
+
+            //custom file name
+            //html2pdf().set({filename: 'code_with_mark_'+js.AutoCode()+'.pdf'}).from(element).save();
+
+
+            //more custom settings
+            var opt =
+            {
+                
+                filename: 'Inventoryadjustment_' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+                margin: 0.5
+            };
+
+            // New Promise-based usage:
+            html2pdf().set(opt).from(element).save();
+
+
+        });
+
+
+
+    });
+</script>
+
+
+
+
+
+
+<div style="top: 7rem; ">
+    <div class="row">
+        <div class="col-md-4">
+            
+                <div class="col-md-12 py-2"><h2 class="text-white ">Inventory Adjustments</h2></div>
+                
+                    
+                
+
+            
+            <div class="row">
+                <div class="col-sm-8 col-md-8 col-lg-8 " style="margin-top: 3px;">
+                    <input type="text" id="search" class="form-control text-dark mb-2 mt-2 small-search" placeholder="search......">
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4 mt-2">
+                    <div class="dropdown ms-2 ">
+                        <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href="" data-toggle="dropdown">
+                          <i style="color: chocolate;" class="fa fa-filter"></i>
+                        </a>
+                        <div class="dropdown-menu m-1" >
+
+                            
+
+
+                           <a class="dropdown-item text-white" href="{% url 'inv_overview' adj.id %}">All</a>
+            
+                          <a class="dropdown-item text-white" href="{% url 'filterby_draft' adj.id %}">Draft</a>
+                          <a class="dropdown-item text-white" href="{% url 'filterby_adjusted' adj.id %}">Adjusted</a> 
+                        </div>
+                        <a style="color: white; background-color: rgb(210, 132, 30);padding: 8px;" class="btn mr-1 "
+                        href="{% url 'new_adjustment' %}"><i class="fa-solid fa-plus "></i>New</a>
+                      </div>
+                </div>
+            </div>
+            <div class="pt-3 ps-2 " style="height: 600px; overflow-y: scroll;overflow-x: hidden;">
+                <table class="text-white" style="width: 100%; ">
+                    {% for a in alladj %}
+                    <tbody id="table" >
+                    <tr id="tr_data" class="clickable-row border-bottom" style="cursor: pointer;" data-href="{% url 'inv_overview' a.id %}">
+                        <td>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 style="color: rgb(218, 143, 5);">{{a.reference_number}}</h5>
+                                    
+                                </div>
+                                <div class="col-md-6 text-right" style="color: rgb(218, 143, 5);"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 ">
+                                    <span>{{ a.date }}</span>
+                                </div>
+                                <div class="col-md-6 "style="text-align: right;">
+                                    {{ a.status }} &nbsp;&nbsp;&nbsp;&nbsp;
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="row mt-3">
+
+                            </div>
+                        </td>
+                    </tr>
+                   
+                </tbody>
+
+                    {% endfor %}
+                </table>
+               
+            </div>
+        </div>
+
+     
+
+
+
+
+        <div class="col-md-8">
+            <div class="row  mx-2 py-3" style="background-color: rgba(136, 136, 135, 0.5)">
+                <div class="col-md-5 text-light"><h2>Adjustment Details</h2>
+                    </div>
+                <div class="col-md-7 text-white text-right my-auto " style="text-align: end;">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+
+                       
+                        <a href="{% url 'edit_inventory' adj.id %}" class="btn btn-sm ms-1  text-white"
+                        style="background-color:  rgb(212, 139, 3);border-radius: 5px;" data-toggle="tooltip" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>                     </a>
+                        <a href="" class="btn btn-sm text-white ms-1 btn_print" style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                            data-toggle="tooltip" title="PDF" id="pdf">
+                            <i class="far fa-file-pdf"></i></a>
+                     
+                        <!-- <a href="" class="btn btn-sm text-white ms-1" data-toggle="tooltip" data-toggle="modal" data-target="#cmnts"><i class="fas fa-comment-dots"></i></a> -->
+
+
+                        <div class="dropdown m-0 p-0 ms-1" title="comments" style="background-color:  rgb(212, 139, 3);border-radius: 5px;">
+                            <a href=" " class=" fas fa-comment-dots dropdown-toggle  btn-sm text-white ms-1"  
+                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal"
+                                 data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                                <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal"
+                                data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                                        
+                            </div>
+                        </div>
+
+                        {% if adj.status == "Draft" %}
+                        <div class="dropdown ms-1" style="background-color: rgb(212, 139, 3);border-radius: 5px;">
+                            <button style="background-color: rgb(212, 139, 3);" class="btn dropdown-toggle" type="button" id="convertDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Convert
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="convertDropdown">
+                                
+                                <a class="dropdown-item text-center" data-toggle="tooltip" data-placement="top" title="Change Status" href="{% url 'change_inventory_status' adj.id %}" style="color: white!important;">
+                                 Adjusted
+                                </a>
+                               
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+
+                        <!-- {% if adj.status == "Draft" %}
+                        <a class="btn btn-sm ms-1" data-toggle="tooltip" data-placement="top" title="Change Status"  style="background-color:  rgb(212, 139, 3);"
+                        href="{% url 'change_inventory_status' adj.id %}" ></i><i class="fas fa-info-circle"></i></a>
+                        {% endif %} -->
+                        <!-- <button  class="btn btn-sm text-white ms-1"
+                        style="background-color:  rgb(212, 139, 3);border-radius: 5px;" data-toggle="tooltip" title="Comments" onclick="comment_list()">
+                            <i class="fas fa-comment-dots"></i></button> -->
+                        
+                    </div>
+                   
+                        
+                    <a href="{% url 'delete_inventory' adj.id %}" class="btn btn-sm text-white" title="Delete" style="background-color:  rgb(212, 139, 3);border-radius: 5px;" 
+                    onclick="return confirm('Do you want to Delete this inventory?');"><i class="fas fa-trash-alt"></i></a>
+                </div>
+            </div>
+
+
+
+
+            <div id="div_inventory" class="mx-2 my-1 p-4 "
+                >
+                <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
+                    style="box-shadow: 5px 5px 10px rgb(45, 45, 45); background-color: burlywood!important;">
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Date</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-black">: &nbsp;{{ adj.date }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Reason</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-black">: &nbsp;{{ adj.reason }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Status</h4>
+                        </div>
+                        <div class="col-md-6">
+                            {% if adj.status == "Adjusted" %}
+                            <h4 class="text-black">:&nbsp; <span class="text-white" style="background-color:rgb(212, 139, 3);border-radius: 5px; padding: 3px;">{{ adj.status }}</span></h4>
+                            {% else %}
+                            <h4 class="text-black">:&nbsp; <span class="text-white" style="background-color:rgb(105, 105, 105);border-radius: 5px; padding: 3px;">{{ adj.status }}</span></h4>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Account</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-black">: &nbsp;{{ adj.account.account_name }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Adjustment Type</h4>
+                        </div>
+                        <div class="col-md-6">
+
+                            <h4 class="text-black">: &nbsp;{{ adj.type }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Adjustment Type</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-black">: &nbsp; {{ adj.reference_number }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Adjusted By</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-black">: &nbsp;{{ adj.company.company_name }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row py-2">
+                        <div class="col-md-6">
+                            <h4 class="text-black">Description</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-black">: &nbsp;{{ adj.description }}</h4>
+                        </div>
+                    </div>
+
+                    
+                    <hr class="text-black" color="back">
+                    <div class="row ">
+                        <h3 class="text-black">Adjusted Items</h3> 
+                    </div>
+                    
+                    <table class="table mt-2 text-white" style="border-color: black; background-color: rgb(110, 61, 46);border-radius:5px;" >
+                        <thead >
+                           
+                            <tr>
+                                <th class="text-white">#</th>
+                                <th style="width: 30rem;" class="text-white">Item Details</th>
+                                <th class="text-white">
+                                    {% if adjItems.0.adjustment.type == "Value" %}
+                                        Changed Value
+                                    {% else %}
+                                        New Quantity on Hand
+                                    {% endif %}
+                                </th>
+                                <th class="text-white">
+                                    {% if adjItems.0.adjustment.type == "Value" %}
+                                        Current Value
+                                    {% else %}
+                                        Quantity Available
+                                    {% endif %}
+                                </th>
+                                <th class="text-right text-white" >
+                                    {% if adjItems.0.adjustment.type == "Value" %}
+                                        Value Adjusted
+                                    {% else %}
+                                        Quantity Adjusted
+                                    {% endif %}
+                                </th>
+                                
+                            </tr>
+                           
+                        </thead>
+                        <tbody>
+                            {% for item in adjItems %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ item.item }}</td>
+
+                                {% if item.adjustment.adjustment_type == "Value" %}
+                                <td class="text-right">{{ item.changed_value }}</td>
+                                {% else %}
+                                <td class="text-right">{{ item.quantity_available }}</td>
+                                {% endif %}
+
+                                {% if item.adjustment.adjustment_type == "Value" %}
+                                <td class="text-right">{{ item.current_value }}</td>
+                                {% else %}
+                                <td class="text-right">{{ item.new_quantity_on_hand }}</td>
+                                {% endif %}
+
+
+                                {% if item.adjustment.adjustment_type == "Value" %}
+                                <td class="text-right">{{ item.adjusted_value }}</td>
+                                {% else %}
+                                <td class="text-right">{{ item.adjusted_quantity }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+
+
+                </div>
+               
+            </div>
+            
+
+
+           
+    <!-- comment modal -->
+
+    <div class="modal fade " id="cmnts"
+    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+    <div class="modal-dialog modal-xl m-5 p-5">
+        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                    aria-label="Close">&times;</button>
+
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                <div class="card p-0 m-0">
+                    <form action="{% url 'add_inv_comment' adj.id %}" method="post" class="needs-validation" novalidate autocomplete="off"
+                        id="modalComment">
+                        {% csrf_token %}
+                        <div class="row mt-2">
+                            <div class="col-md-6 mt-2">
+                                <textarea class="form-control text-dark bg-light" id="comment" name="comments" required
+                                    style="height: 200px; width: 520px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit">Save </button>
+                                    <button type="button"
+                                        class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                        data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">Cancel</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ....................................  comment list modal ................ -->
+
+<div class="modal fade " id="cmt_list"
+style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+<div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header " style="background: rgb(32, 35, 37);">
+            <h5 class="m-3 text-uppercase text-light">LIST</h5>
+            <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                aria-label="Close">&times;</button>
+
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
+            <div class="card p-0 m-0">
+
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="p-2">
+                            <table class="table table-bordered" style="table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="background-color:rgb(218, 143, 3) ;color: white;">Comments</th>
+                                    </tr>
+                                </thead>
+                                {% for comt in inv_comments %}
+                                <tbody>
+                                    <tr>
+                                        <!-- <td><input type="text" value="{{ comt.comments }}" style="width: 100%;height: 20px;"></td> -->
+                                        <td><textarea name="" id="" cols="80" rows="5" style="border: none;background-color:transparent ;color: white;">{{ comt.comments }}</textarea></td>
+                                    </tr>
+                                </tbody>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    </section>
+
+
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            // Get the URL from the "data-href" attribute
+            const url = row.getAttribute('data-href');
+            // Navigate to the URL
+            window.location.href = url;
+        });
+    });
+</script>
+
+<script>
+
+    function print() {
+        var content = document.getElementById("whatToPrint");
+        var printWindow = window.open('', 'PrintWindow');
+        printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + content + '</body></html>');
+        printWindow.print();
+        printWindow.close();
+
+
+    }
+
+
+
+
+    // function saveAsPDF() {
+    //     const element = document.getElementById("whatToPrint");
+    //     const opt = {
+    //         margin: 1,
+    //         filename: "estimate.pdf",
+    //         image: { type: "jpeg", quality: 0.98 },
+    //         html2canvas: { scale: 2 },
+    //         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    //         output: "save", // this option tells html2pdf to save the file instead of downloading it
+    //         outputParam: "D:/sumi/Altos/zoho_django (1)/zoho_django/media/image/estimate.pdf" // this is the path where the file will be saved
+    //     };
+    //     html2pdf().set(opt).from(element).save();
+    // }
+
+    // function ConvertToPDF() {
+    //     var doc = new jsPDF();
+    //     var HTMLelement = $(".convert_to_pdf").html();
+    //     doc.fromHTML(HTMLelement, 10, 10, {
+    //         'width': 190
+    //     });
+    //     doc.save('estimateslip.pdf');
+    // }
+
+
+</script>
+<script>
+    function openFilePicker() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf'; // set the file type filter to only allow PDF files
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            // send the selected file to the server via AJAX
+            const formData = new FormData();
+            formData.append('file', file);
+            $.ajax({
+                url: '/send_email/',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert('File uploaded successfully');
+                },
+                error: function (xhr, status, error) {
+                    alert('Error uploading file: ' + error);
+                }
+            });
+        });
+        input.click();
+    }
+</script>
+
+<script>
+    var $rows = $('#table tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        
+        $rows.hide().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return ~text.indexOf(val);
+        }).show();
+    });
+  
+  </script>
+  <script>
+    function comment_list()
+    {
+        document.getElementById("div_inventory").style.display="none";
+        document.getElementById("comments_fieldset1").style.display="block";
+        document.getElementById("comments_fieldset").style.display="none";
+
+    }
+    function create_comment()
+    {
+        document.getElementById("div_inventory").style.display="none";
+        document.getElementById("comments_fieldset").style.display="block";
+        document.getElementById("comments_fieldset1").style.display="none";
+    }
+  </script>
+{% endblock %}
