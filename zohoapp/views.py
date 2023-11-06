@@ -2927,7 +2927,7 @@ def add_account_est(request):
 def customerdata(request):
     customer_id = request.GET.get('id')
     cust = customer.objects.get(id=customer_id)
-    data7 = {'email': cust.customerEmail,'gstno':cust.GSTIN,'place':cust.placeofsupply,'gsttreat':cust.GSTTreatment}
+    data7 = {'email': cust.customerEmail,'gstno':cust.GSTIN,'place':cust.placeofsupply,'gsttreat':cust.GSTTreatment,'billingAddress':cust.Address1}
     return JsonResponse(data7)
 
 def termdata(request):
@@ -3721,11 +3721,20 @@ def create_sales_order(request):
 
     if last_record ==None:
         reford = '01'
+        reference = 'SO-01'
     else:
-        if last_record.id+1 < 10:
-            reford = '0'+ str(last_record.id+1)
+        reference = 'SO-01'
+        lastSalesNo = last_record.sales_no
+        last_two_numbers = int(lastSalesNo[-2:])+1
+        remaining_characters = lastSalesNo[:-2]  
+        if last_two_numbers < 10:
+            reference = remaining_characters+'0'+str(last_two_numbers)
         else:
-            reford = last_record.id+1
+            reference = remaining_characters+str(last_two_numbers)
+        if last_record.id+1 < 10:
+            reford = '0'+ str(int(last_record.reference)+1)
+        else:
+            reford = str(int(last_record.reference)+1)
     
     context={
         "c":cust,
@@ -3736,6 +3745,8 @@ def create_sales_order(request):
         "sales":sales,
         "purchase":purchase,
         "reford":reford,
+        "reference":reference,
+        "remaining_characters":remaining_characters,
         "bank":bank
     }
     return render(request,'create_sales_order.html',context)
