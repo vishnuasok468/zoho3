@@ -149,7 +149,7 @@
             <label>Customer Name *</label>
           </div>
           <div class="col-md-6 d-flex">
-          
+
 
             <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark" style="width: 91%;">
               <option value="" hidden selected></option>
@@ -334,12 +334,12 @@
 
         <div class="row mt-2" id="chequediv" style="display: none;">
           <div class="col-md-3">
-            <label for="date2">Cheque ID</label>
+            <label for="date2">Cheque Number</label>
           </div>
 
           <div class="col-md-6">
             <input type="text" class="form-control text-black" name="cheque_id" id="cheque_id"
-              placeholder="Enter Cheque ID">
+              placeholder="Enter Cheque Number">
           </div>
         </div>
 
@@ -388,7 +388,7 @@
                       id='item1' onchange="itemfunction(this.id)">
                       <option value="" selected hidden>Select Item</option>
                       {% for i in itm %}
-                      <option class="text-black" value="{{i.Name}}">{{ i.Name}} </option>
+                      <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
                       {% endfor %}
                     </select>
                   </td>
@@ -399,10 +399,8 @@
                   <td style="width: 17%;" class='text-right'>
                     <input type='number' id='qty1'
                       class=' text-right qty form-control border-0 bg-transparent text-white' name='quantity[]'
-                      value='0' style="margin-top: 4vh;" onchange="qtychange(this.id)">
-                    <br>
-                    <span class="text-warning">Available Stock : <span id="stock_data1"
-                        class="text-warning"></span></span>
+                      value='0' onchange="qtychange(this.id)">
+
                   </td>
                   <td style="width: 15%;" class='text-right'><input type='number' id='rate1'
                       class=' text-right rate form-control border-0  bg-transparent text-white' name='rate[]' value='0'
@@ -820,44 +818,44 @@
                     <div class="col-md-6 mt-2">
                       <select class="form-control bg-light text-dark" id="placesupply" name="placesupply">
                         <option value="Nill" hidden></option>
-                        <option value="[AN] Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
-                        <option value="[AD] Andhra Pradhesh">[AD] Andhra Pradhesh</option>
-                        <option value="[AR] Arunachal Pradesh">[AR] Arunachal Pradesh</option>
-                        <option value="[AS] Assam">[AS] Assam</option>
-                        <option value="[BR] Bihar">[BR] Bihar</option>
-                        <option value="[CH] Chandigarh">[CH] Chandigarh</option>
-                        <option value="[CG] Chhattisgarh">[CG] Chhattisgarh</option>
-                        <option value="[DNH] Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
-                        <option value="[DD] Damn anad Diu">[DD] Damn anad Diu</option>
-                        <option value="[DL] Delhi">[DL] Delhi</option>
-                        <option value="[GA] Goa">[GA] Goa</option>
-                        <option value="[GJ] Gujarat">[GJ] Gujarat</option>
-                        <option value="[HR] Haryana">[HR] Haryana</option>
-                        <option value="[HP] Himachal Pradesh">[HP] Himachal Pradesh</option>
-                        <option value="[JK] Jammu and Kashmir">[JK] Jammu and Kashmir</option>
-                        <option value="[JH] Jharkhand">[JH] Jharkhand</option>
-                        <option value="[KA] Karnataka">[KA] Karnataka</option>
-                        <option value="[KL] Kerala">[KL] Kerala</option>
-                        <option value="[LA] Ladakh">[LA] Ladakh</option>
-                        <option value="[LD] Lakshadweep">[LD] Lakshadweep</option>
-                        <option value="[MP] Madhya Pradesh">[MP] Madhya Pradesh</option>
-                        <option value="[MH] Maharashtra">[MH] Maharashtra</option>
-                        <option value="[MN] Manipur">[MN] Manipur</option>
-                        <option value="[ML] Meghalaya">[ML] Meghalaya</option>
-                        <option value="[MZ] Mizoram">[MZ] Mizoram</option>
-                        <option value="[NL] Nagaland">[NL] Nagaland</option>
-                        <option value="[OD] Odisha">[OD] Odisha</option>
-                        <option value="[PY] Puducherry">[PY] Puducherry</option>
-                        <option value="[PB] Punjab">[PB] Punjab</option>
-                        <option value="[RJ] Rajasthan">[RJ] Rajasthan</option>
-                        <option value="[SK] Sikkim">[SK] Sikkim</option>
-                        <option value="[TN] Tamil Nadu">[TN] Tamil Nadu</option>
-                        <option value="[TS] Telangana">[TS] Telangana</option>
-                        <option value="[TR] Tripura">[TR] Tripura</option>
-                        <option value="[UP] Uttar Pradesh">[UP] Uttar Pradesh</option>
-                        <option value="[UK] Uttarakhand">[UK] Uttarakhand</option>
-                        <option value="[WB] West Bengal">[WB] West Bengal</option>
-                        <option value="[OT] Other Territory">[OT] Other Territory</option>
+                        <option value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+                        <option value="[AD]-Andhra Pradhesh">[AD] Andhra Pradhesh</option>
+                        <option value="[AR]-Arunachal Pradesh">[AR] Arunachal Pradesh</option>
+                        <option value="[AS]-Assam">[AS] Assam</option>
+                        <option value="[BR]-Bihar">[BR] Bihar</option>
+                        <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
+                        <option value="[CG]-Chhattisgarh">[CG] Chhattisgarh</option>
+                        <option value="[DNH]-Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+                        <option value="[DD]-Damn anad Diu">[DD] Damn anad Diu</option>
+                        <option value="[DL]-Delhi">[DL] Delhi</option>
+                        <option value="[GA]-Goa">[GA] Goa</option>
+                        <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
+                        <option value="[HR]-Haryana">[HR] Haryana</option>
+                        <option value="[HP]-Himachal Pradesh">[HP] Himachal Pradesh</option>
+                        <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+                        <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
+                        <option value="[KA]-Karnataka">[KA] Karnataka</option>
+                        <option value="[KL]-Kerala">[KL] Kerala</option>
+                        <option value="[LA]-Ladakh">[LA] Ladakh</option>
+                        <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
+                        <option value="[MP]-Madhya Pradesh">[MP] Madhya Pradesh</option>
+                        <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
+                        <option value="[MN]-Manipur">[MN] Manipur</option>
+                        <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
+                        <option value="[MZ]-Mizoram">[MZ] Mizoram</option>
+                        <option value="[NL]-Nagaland">[NL] Nagaland</option>
+                        <option value="[OD]-Odisha">[OD] Odisha</option>
+                        <option value="[PY]-Puducherry">[PY] Puducherry</option>
+                        <option value="[PB]-Punjab">[PB] Punjab</option>
+                        <option value="[RJ]-Rajasthan">[RJ] Rajasthan</option>
+                        <option value="[SK]-Sikkim">[SK] Sikkim</option>
+                        <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
+                        <option value="[TS]-Telangana">[TS] Telangana</option>
+                        <option value="[TR]-Tripura">[TR] Tripura</option>
+                        <option value="[UP]-Uttar Pradesh">[UP] Uttar Pradesh</option>
+                        <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
+                        <option value="[WB]-West Bengal">[WB] West Bengal</option>
+                        <option value="[OT]-Other Territory">[OT] Other Territory</option>
                       </select>
                     </div>
                   </div>
@@ -886,6 +884,7 @@
                       <select name="intra" class="form-control bg-light text-dark" id="intra1">
                         <option value="" hidden>Select GST</option>
                         <option value="GST0[0%]">GST0[0%]</option>
+                        <option value="GST3[3%]">GST3[3%]</option>
                         <option value="GST5[5%]">GST5[5%]</option>
                         <option value="GST12[12%]">GST12[12%]</option>
                         <option value="GST18[18%]">GST18[18%]</option>
@@ -900,6 +899,7 @@
                       <select name="inter" class="form-control bg-light text-dark" id="inter1">
                         <option value="" hidden>Select GST</option>
                         <option value="IGST0[0%]">IGST0[0%]</option>
+                        <option value="GST3[3%]">GST3[3%]</option>
                         <option value="IGST5[5%]">IGST5[5%]</option>
                         <option value="IGST12[12%]">IGST12[12%]</option>
                         <option value="IGST18[18%]">IGST18[18%]]</option>
@@ -1294,6 +1294,7 @@
                         <option value="" hidden>Select GST</option>
 
                         <option value="GST0[0%]">GST0[0%]</option>
+                        <option value="GST3[3%]">GST3[3%]</option>
                         <option value="GST5[5%]">GST5[5%]</option>
                         <option value="GST12[12%]">GST12[12%]</option>
                         <option value="GST18[18%]">GST18[18%]</option>
@@ -1310,6 +1311,7 @@
                         <option value="" hidden>Select GST</option>
 
                         <option value="IGST0[0%]">IGST0[0%]</option>
+                        <option value="GST3[3%]">GST3[3%]</option>
                         <option value="IGST5[5%]">IGST5[5%]</option>
                         <option value="IGST12[12%]">IGST12[12%]</option>
                         <option value="IGST18[18%]">IGST18[18%]]</option>
@@ -1617,6 +1619,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
 
 
 <script>
@@ -2112,15 +2116,15 @@
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
+        location.reload();
 
-
-        reloadcustomer();
+        //reloadcustomer();
 
       },
     });
   });
 
-  function reloadcustomer() {
+  /*function reloadcustomer() {
 
     $.ajax({
       url: "{% url 'customer_dropdown_sales' %}",
@@ -2141,7 +2145,7 @@
         console.error(xhr.responseText);
       }
     });
-  }
+  }*/
 
 
 
@@ -2221,7 +2225,7 @@
   });
 
   $(document).ready(function () {
-    $("#hsn").change(function () {
+    $("#hsn").keyup(function () {
       var x = String($('#hsn').val());
       if (x.length != 6) {
         document.getElementById("hsn_war").style.display = "block"
@@ -2261,7 +2265,6 @@
     else {
       active_type = "nonactive"
     }
-
 
     $.ajax({
 
@@ -2424,28 +2427,32 @@
         id: term
       },
       success: function (response) {
-        days = response.days
-        order_date = new Date(document.getElementById("date1").value)
-        if (!isNaN(order_date.getTime())) {
-          // Calculate the new date by adding 20 days
-          const endDate = new Date(order_date);
-          endDate.setDate(endDate.getDate() + days);
-
+        days = response.days;
+        order_date = moment(document.getElementById("date1").value);
+        if (order_date.isValid()) {
+          // Calculate the new date by adding the number of days
+          const endDate = moment(order_date).add(days, 'days');
           // Format the new date as YYYY-MM-DD
-          const formattedDate = endDate.toISOString().split("T")[0];
-
+          const formattedDate = endDate.format("YYYY-MM-DD");
           // Set the result in the second input
           document.getElementById("date2").value = formattedDate;
         } else {
           alert("Please enter a valid date.");
         }
-
       }
     });
   });
+
 </script>
 
 <script>
+
+  $(document).ready(function () {
+    var currentDate = moment().format("YYYY-MM-DD");
+    document.getElementById("date1").value = currentDate;
+  });
+
+
   $(document).on('change', '#pay_term', function () {
     var term = $('#pay_term').val();
     $.ajax({
@@ -2456,16 +2463,10 @@
       },
       success: function (response) {
         days = response.days
-        order_date = new Date(document.getElementById("date1").value)
-        if (!isNaN(order_date.getTime())) {
-          // Calculate the new date by adding 20 days
-          const endDate = new Date(order_date);
-          endDate.setDate(endDate.getDate() + days);
-
-          // Format the new date as YYYY-MM-DD
-          const formattedDate = endDate.toISOString().split("T")[0];
-
-          // Set the result in the second input
+        var orderDate = moment(document.getElementById("date1").value);
+        if (orderDate.isValid()) {
+          var endDate = orderDate.add(days, 'days');
+          var formattedDate = endDate.format("YYYY-MM-DD");
           document.getElementById("date2").value = formattedDate;
         } else {
           alert("Please enter a valid date.");
@@ -2495,8 +2496,9 @@
       row.find('.taxamount').val(taxAmount.toFixed(2));
 
       return rowAmount;
-      calculateTaxAmount();
     }
+    calculateTaxAmount();
+
 
     // Function to calculate the subtotal
     function calculateSubtotal() {
@@ -2533,7 +2535,7 @@
       $('#total_taxamount').val(totalTaxAmount.toFixed(2));
     }
 
-    $('#item_table').on('change', '.tax', function () {
+    $('#item_table').on('change', '.tax,.rate', function () {
       var row = $(this).closest('tr');
       calculateRowAmount(row);
       calculateSubtotal();
@@ -2563,7 +2565,6 @@
         
         <td style="width: 17%;" class='text-right'>
           <input type='number' id='qty${rowCount}' class='text-right border-0 bg-transparent text-white qty form-control' name='quantity[]' value='0' style="margin-top: 4vh;" onchange='qtychange(this.id)'><br>
-          <span class="text-warning">Available Stock : <span id="stock_data${rowCount}" class="text-warning"></span></span>
         </td>
         
         <td style="width: 15%;" class='text-right'>
@@ -2660,15 +2661,8 @@
       toggleDateInput();
       calculateTaxAmount();
     });
-    // Input change event for quantity, rate, and discount
-    $('#item_table').on('input', '.qty, .rate, .discount,.tax', function () {
-      var row = $(this).closest('tr');
-      calculateRowAmount(row);
-      calculateSubtotal();
-      calculateGrandTotal();
-      toggleDateInput();
-      calculateTaxAmount();
-    });
+
+
 
     $('#shipping').on('input', function () {
       var shippingAmount = parseFloat($(this).val()); 5
@@ -2721,7 +2715,15 @@
     });
 
 
-
+    // Input change event for quantity, rate, and discount
+    $('#item_table').on('input', '.qty, .rate, .discount,.tax', function () {
+      var row = $(this).closest('tr');
+      calculateRowAmount(row);
+      calculateSubtotal();
+      calculateGrandTotal();
+      toggleDateInput();
+      calculateTaxAmount();
+    });
 
   });
   function calculateTaxAmount() {
@@ -2790,7 +2792,11 @@
       var taxElement = $('#tax' + i);
       tax_value = $('#tax' + i).val();
 
-      if (vale === "[KL] Kerala") {
+      if (vale === "[KL]-Kerala") {
+        
+        document.getElementById('tr_cgst').style = ('display: block');
+        document.getElementById('tr_sgst').style = ('display: block');
+        document.getElementById('tr_igst').style = ('display: none');
         taxElement.find('optgroup[label="GST"]').show();
         taxElement.find('optgroup[label="IGST"]').hide();
         var select = document.getElementById(`tax${i}`);
@@ -2804,6 +2810,9 @@
 
 
       } else {
+        document.getElementById('tr_cgst').style = ('display: none');
+        document.getElementById('tr_sgst').style = ('display: none');
+        document.getElementById('tr_igst').style = ('display: block');
         taxElement.find('optgroup[label="GST"]').hide();
         taxElement.find('optgroup[label="IGST"]').show();
         var select = document.getElementById(`tax${i}`);
@@ -2900,11 +2909,10 @@
         stock = response.stock
         hsn = response.hsn
         document.getElementById(`hsn${id}`).value = hsn
-        document.getElementById(`stock_data${id}`).innerHTML = stock
         document.getElementById(`rate${id}`).value = data
 
-        var qty = parseFloat(parseFloat(data));
-        var rate = parseFloat($(`#rate${id}`).val());
+        var rate = parseFloat(data);
+        var qty = parseFloat($(`#qty${id}`).val());
         var tax = parseFloat($(`#tax${id}`).val());
         var discount = parseFloat($(`#discount${id}`).val());
         var rowAmount = (qty * rate) - discount;
@@ -2940,10 +2948,11 @@
         $('#total_taxamount').val(totalTaxAmount.toFixed(2));
 
 
-        var checkbox = document.getElementById("srcofsupply");
-        var vale = checkbox.value;
-        var srcofsupply = vale; // Replace with the actual value of srcofsupply
-        var companyState = "[KL] Kerala"; // Replace with the actual value of company state
+        var checkbox = document.getElementById("srcofsupply").value;
+        var srcofsupply = checkbox; // Replace with the actual value of srcofsupply
+        console.log(srcofsupply);
+        var companyState = data3; // Replace with the actual value of company state
+        console.log(companyState);
         var subtotal = parseFloat(document.getElementById("subtotal").value);
         var shipping = parseFloat(document.getElementById("shipping").value);
         var tax = parseFloat(document.getElementById("total_taxamount").value);
