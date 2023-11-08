@@ -944,11 +944,11 @@ urlpatterns = [
     path('product_graphview',views.product_graphview,name='product_graphview'),
     path('product_graphview_btn/<str:pk>',views.product_graphview_btn,name='product_graphview_btn'),
     #End
-    
-    re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
-    
-    
-    
+    path('convert_to_recinvoice/<int:pk>',views.convert_to_recinvoice,name='convert_to_recinvoice'),
+
+
+
+    re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),    
     
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

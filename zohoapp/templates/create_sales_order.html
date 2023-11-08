@@ -2730,7 +2730,7 @@
     var checkbox = document.getElementById("srcofsupply");
     var vale = checkbox.value;
     var srcofsupply = vale; // Replace with the actual value of srcofsupply
-    var companyState = "[KL] Kerala"; // Replace with the actual value of company state
+    var companyState = "[KL]-Kerala"; // Replace with the actual value of company state
 
     var subtotal = parseFloat(document.getElementById("subtotal").value);
     var shipping = parseFloat(document.getElementById("shipping").value);
@@ -2793,10 +2793,6 @@
       tax_value = $('#tax' + i).val();
 
       if (vale === "[KL]-Kerala") {
-        
-        document.getElementById('tr_cgst').style = ('display: block');
-        document.getElementById('tr_sgst').style = ('display: block');
-        document.getElementById('tr_igst').style = ('display: none');
         taxElement.find('optgroup[label="GST"]').show();
         taxElement.find('optgroup[label="IGST"]').hide();
         var select = document.getElementById(`tax${i}`);
@@ -2810,9 +2806,6 @@
 
 
       } else {
-        document.getElementById('tr_cgst').style = ('display: none');
-        document.getElementById('tr_sgst').style = ('display: none');
-        document.getElementById('tr_igst').style = ('display: block');
         taxElement.find('optgroup[label="GST"]').hide();
         taxElement.find('optgroup[label="IGST"]').show();
         var select = document.getElementById(`tax${i}`);
@@ -2827,7 +2820,7 @@
     }
   }
 
-  function test(taxamount) {
+ /*function test(taxamount) {
     console.log('test333');
     console.log(taxamount)
     d = 0;
@@ -2881,7 +2874,7 @@
       document.getElementById('tr_sgst').style = ('display: block');
       document.getElementById('tr_igst').style = ('display: none');
     }
-  }
+  }*/
 
 </script>
 

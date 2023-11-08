@@ -2795,6 +2795,60 @@ def convert_to_invoice(request,pk):
     sale.save()
 
     return redirect('view_sales_order')
+
+def convert_to_recinvoice(request,pk):
+    sale = SalesOrder.objects.get(id=pk)
+    recinv_id = Recurring_invoice.objects.last()
+    user = User.objects.get(id = request.user.id)
+    custo = customer.objects.get(id=sale.customer.id)
+    item =sales_item.objects.filter(sale_id=sale)
+
+
+    if recinv_id == None:
+        reinvoiceno = "REC-01"
+        order_num = 1
+    else:
+        if (recinv_id.id<10):
+            reinvoiceno = "REC-0"+str(recinv_id.id+1)
+            order_num = str(recinv_id.id+1)
+        else:
+            reinvoiceno = "REC-"+str(recinv_id.id+1)
+            order_num = str(recinv_id.id+1)
+
+    customer_name = sale.customer.customerName
+    customer_email = sale.customer.customerEmail
+    customer_address = sale.customer.Address1
+    gst_treatment = sale.customer.GSTTreatment
+    gst_number = sale.customer.GSTIN
+    place_of_supply = sale.sos
+    entry_type = sale.customer.Taxpreference
+    inv_date = sale.sales_date
+    due_date = sale.ship_date
+    terms = sale.terms.id
+    cxnote = sale.cxnote
+    terms_conditions = sale.terms_condition
+    file = sale.file
+    status = sale.status
+    subtotal = sale.subtotal
+    igst = sale.igst
+    sgst = sale.sgst
+    cgst = sale.cgst
+    totaltax = sale.t_tax
+    sh_charge =sale.sh_charge
+    adjust = sale.adjust
+    t_total = sale.grandtotal
+    advance = sale.advance
+    balance = sale.balance
+    pay_method = sale.pay_method
+   
+
+    recinv=Recurring_invoice(cname=customer_name,cemail=customer_email,cadrs=customer_address,gsttr=gst_treatment,gstnum=gst_number,p_supply=place_of_supply,entry_type=entry_type,reinvoiceno=reinvoiceno,order_num=order_num,start=inv_date,end=due_date,terms=terms,cust_note=cxnote,conditions=terms_conditions,attachment=file,status=status,sub_total=subtotal,igst=igst,sgst=sgst,cgst=cgst,tax_amount=totaltax,shipping_charge=sh_charge,adjustment=adjust,total=t_total,paid=advance,balance=balance,payment_method=pay_method,cust_name=custo,user=user)
+    recinv.save()
+
+    sale.complete_status = -1
+    sale.save()
+
+    return redirect('view_sales_order')
     
 def convert_view(request,pk):
     sale=SalesOrder.objects.get(id=pk)
