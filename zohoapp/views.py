@@ -2790,9 +2790,15 @@ def convert_to_invoice(request,pk):
                 cxnote=cxnote,subtotal=subtotal,igst=igst,cgst=cgst,sgst=sgst,t_tax=totaltax,grandtotal=t_total,status=status,
                 terms_condition=tc,file=file)
     inv.save()
+    invitem_id = invoice.objects.last()
+
 
     sale.complete_status = 1
     sale.save()
+    item =sales_item.objects.filter(sale_id=sale)
+    for i in item:
+        invitem=invoice_item(product=i.product,quantity=i.quantity,hsn=i.hsn,tax=i.tax,total=i.total,discount=i.desc,rate=i.rate,inv_id=invitem_id.id)
+        invitem.save()
 
     return redirect('view_sales_order')
 
@@ -2801,8 +2807,6 @@ def convert_to_recinvoice(request,pk):
     recinv_id = Recurring_invoice.objects.last()
     user = User.objects.get(id = request.user.id)
     custo = customer.objects.get(id=sale.customer.id)
-    item =sales_item.objects.filter(sale_id=sale)
-
 
     if recinv_id == None:
         reinvoiceno = "REC-01"
@@ -2844,11 +2848,21 @@ def convert_to_recinvoice(request,pk):
 
     recinv=Recurring_invoice(cname=customer_name,cemail=customer_email,cadrs=customer_address,gsttr=gst_treatment,gstnum=gst_number,p_supply=place_of_supply,entry_type=entry_type,reinvoiceno=reinvoiceno,order_num=order_num,start=inv_date,end=due_date,terms=terms,cust_note=cxnote,conditions=terms_conditions,attachment=file,status=status,sub_total=subtotal,igst=igst,sgst=sgst,cgst=cgst,tax_amount=totaltax,shipping_charge=sh_charge,adjustment=adjust,total=t_total,paid=advance,balance=balance,payment_method=pay_method,cust_name=custo,user=user)
     recinv.save()
+    recitem_id = Recurring_invoice.objects.last()
+
 
     sale.complete_status = -1
     sale.save()
+    item =sales_item.objects.filter(sale_id=sale)
+    for i in item:
+        recitem =recur_itemtable(iname=i.product,hsncode=i.hsn,quantity=i.quantity,rate=i.rate,discount=i.desc,tax=i.tax,amt=i.total,ri_id=recitem_id.id)
+       
+        recitem.save()
+
 
     return redirect('view_sales_order')
+
+
     
 def convert_view(request,pk):
     sale=SalesOrder.objects.get(id=pk)

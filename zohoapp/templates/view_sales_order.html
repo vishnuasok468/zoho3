@@ -105,18 +105,8 @@
                         Invoice</a>
                     </div>
                 </td>
-                {% endif %}
-                {% if i.complete_status == 1 %}
-                <td style="text-align: center;">
-                  <a class="btn btn-outline-warning" href="#">Convert to Reccurring
-                    Invoice</a>
-                </td>
-
-                {% endif %}
-                {% if i.complete_status == -1 %}
-                <td style="text-align: center;"> <a class="btn btn-outline-warning" href="#">Convert to Invoice</a>
-                </td>
-
+                {% else %}
+                <td style="text-align: center;" class="text-success m-2">Completed</td>
                 {% endif %}
 
 
@@ -181,7 +171,7 @@
 
 <script>
   jQuery(document).ready(function ($) {
-    $(".clickable-row td:not(:last-child)").click(function () {
+    $(".clickable-row").click(function () {
       window.location = $(this).data("href");
     });
   });
