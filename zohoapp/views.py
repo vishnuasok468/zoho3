@@ -3790,6 +3790,7 @@ def create_sales_order(request):
     if last_record ==None:
         reford = '01'
         reference = 'SO-01'
+        remaining_characters=''
     else:
         reference = 'SO-01'
         lastSalesNo = last_record.sales_no
@@ -6045,6 +6046,7 @@ def get_customerdet(request):
     cust = customer.objects.get(user=company.user_id,id=id)
     email = cust.customerEmail
     cust_id=id
+    cust_address=cust.Address1
     cust_place_supply=cust.placeofsupply
     gstin = cust.GSTIN
     gsttr = cust.GSTTreatment
@@ -6053,7 +6055,7 @@ def get_customerdet(request):
     print(gstin)
     print(id)
     state = 'Not Specified' if cstate == "" else cstate
-    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'state' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply},safe=False)
+    return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'state' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
 
 
 @login_required(login_url='login')
