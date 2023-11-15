@@ -1215,15 +1215,30 @@ def retainer_invoice(request):
 @login_required(login_url='login')
 def add_invoice(request):
     company=company_details.objects.get(user_id=request.user)
+    unit=Unit.objects.all()
     payments=payment_terms.objects.all()
     bank=Bankcreation.objects.all()
     customer1=customer.objects.all()   
-    if  RetainerInvoice.objects.all().exists():
-        ret_invoice_count = RetainerInvoice.objects.last().id
-        count=ret_invoice_count+1 
+    last_record = SalesOrder.objects.last()
+    if last_record ==None:
+        reford = '01'
+        reference = 'RET-01'
+        remaining_characters='RET-'
     else:
-        count=1 
-    context={'customer1':customer1,'count':count,'payments':payments,'company':company,'bank':bank}    
+        reference = 'RET-01'
+        lastSalesNo = last_record.sales_no
+        last_two_numbers = int(lastSalesNo[-2:])+1
+        remaining_characters = lastSalesNo[:-2]  
+        if last_two_numbers < 10:
+            reference = remaining_characters+'0'+str(last_two_numbers)
+        else:
+            reference = remaining_characters+str(last_two_numbers)
+        if last_record.id+1 < 10:
+            reford = '0'+ str(int(last_record.reference)+1)
+        else:
+            reford = str(int(last_record.reference)+1)
+
+    context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,}    
     return render(request,'add_invoice.html',context)
 
 @login_required(login_url='login')

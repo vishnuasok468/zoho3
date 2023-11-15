@@ -15,6 +15,15 @@
     overflow: scroll;
   }
 
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+
   /* width */
   ::-webkit-scrollbar {
     width: 10px;
@@ -33,6 +42,11 @@
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: #555;
+  }
+
+  label {
+    padding: 12px 12px 12px 0;
+    display: inline-block;
   }
 </style>
 
@@ -107,8 +121,8 @@
 
       <div class="row mt-2 d-none" id="cgstno_row">
         <div class="col-md-3"><label for="">GST Number</label></div>
-        <div class="col-md-6"><input type="text" id="customer_gstno" name=""
-            class="form-control text-dark" value="" readonly>
+        <div class="col-md-6"><input type="text" id="customer_gstno" name="" class="form-control text-dark" value=""
+            readonly>
 
         </div>
       </div>
@@ -166,14 +180,15 @@
       <div class="row mt-2">
         <label class="col-md-3">Retainer Invoice Number*</label>
         <div class="col-md-6">
-          <input type="text" class="form-control bg-light text-dark" name="retainer-invoice-number" id="invoice-number"
-            value="RET-00{{count}}" required>
+          <input type="text" class="form-control bg-light text-dark" name="retainer-invoice-number" id="prof_name"
+            value="{{remaining_characters}}" required>
+          <label id="order_label" style="display: none;"></label>
         </div>
       </div>
       <div class="row mt-2">
         <label class="col-md-3">Reference</label>
         <div class="col-md-6">
-          <input type="text" class="form-control bg-light text-dark" name="references">
+          <input type="text" class="form-control bg-light text-dark" name="references" value="{{reford}}" readonly>
         </div>
       </div>
       <div class="row mt-2">
@@ -232,42 +247,55 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-10 ">
+      <div class="row mt-2">
+        <div class="col-md-12 mt-3">
 
-          <table id="retainer-table" class="table table-bordered" style="background-color: #b6b3b36b;">
+          <table id="retainer-table" class="table table-bordered table-responsive"
+            style="background-color: rgba(58, 57, 57, 0.8);">
             <thead>
               <tr>
-                <th style="font-weight: bold;color: rgb(245, 154, 36);">Description</th>
-                <th style="font-weight: bold;color: rgb(245, 154, 36);">Amount</th>
+                <th>Item<a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
+                <th class="text-right">Description</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Amount</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><input type="text" class="form-control bg-transparent border-0 bg-light text-light"
+                <td>
+                  <select class='form-control border-0 bg-transparent text-white item_select itm' name='item[]'
+                    id='item1' onchange="itemfunction(this.id)">
+                    <option value="" selected hidden>Select Item</option>
+                    {% for i in itm %}
+                    <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td><input type="text" class="form-control bg-transparent border-0 bg-light text-light border-0"
                     name="description[]" style="width: 350px;" required /></td>
-                <td><input type="number" class="form-control bg-transparent border-0 bg-light text-light"
-                    name="amount[]" style="width: 100px;" step="0.01" required /></td>
-                <td><a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle"><i
-                      class="fas fa-times"></i></a>
-                  <a href="#" class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle"><i
-                      class="fas fa-clone"></i></a>
+                <td><input type="number" name="quantity[]"
+                    class="form-control bg-transparent text-white border-0 text-right"
+                    style="border: none;width: 100px;">
+                </td>
+                <td><input type="number" class="form-control bg-transparent border-0 bg-light text-light border-0"
+                    name="amount[]" style="width: 150px;" step="0.01" required /></td>
+                <td class="text-center" style="display: grid;"><a href="#"
+                    class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle text-danger"
+                    style="width: 30px;"><i class="fas fa-times"></i></a><br>
+                  <a href="#"
+                    class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle text-primary"
+                    style="width: 30px;"><i class="fas fa-clone"></i></a>
                 </td>
               </tr>
             </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="2">
-                  <a href="#" id="add-another-line" style="background-color: rgb(210, 132, 30) ;" class="btn"><i
-                      class="fa-solid  fa fa-plus rounded"
-                      style="color: white; background-color: rgb(210, 132, 30);height: 20px;"></i></a>
-                </td>
-                <td style="font-weight: bold;color: rgb(245, 154, 36);">Total: <span id="total-amount"
-                    class="text-light">0</span></td>
-              </tr>
-            </tfoot>
           </table>
+
+          <br>
+          <button type="button" class="btn btn-sm text-white" style="background-color: rgb(210, 132, 30);"
+            id="add-another-line">
+            Add another line
+          </button>
 
           <input type="hidden" id="hidden-total-amount" name="total" value="">
 
@@ -276,120 +304,68 @@
         <div class="col-md-2"></div>
 
       </div>
+      <br><br>
 
-      <div class="row  mt-4">
-        <div class="col-sm-6 col-md-6 col-lg-6">
-          <label for="" class="form-label">Customer Notes</label>
-          <textarea class="form-control   text-dark" style="height: 50%;" cols="5" rows="10" name="customer_notes"
-            id="floatingTextarea"></textarea>
+      <div class="row  border-bottom pb-5">
+        <div class="col-sm-5 d-flex flex-column mt-auto">
+          <label for="">Customer Notes</label>
+          <textarea cols="8" rows="13" name="customer_notes" id="floatingTextarea"></textarea>
 
         </div>
-        <div class="col-sm-6 col-md-4 col-lg-4">
-          <div class="p-2" id="div_bal" style="width: 100%;height: 180px;background-color: #979797b2;">
-            <table>
-              <tr>
-                <th>
-                  <label for="" class="mt-4">
-                    <h4 class="text-black">Paid:</h4>
-                </th>
-                <td>
-                  <input type="number" name="paid" id="paid" class="form-control mt-3 text-black" onchange="show_bal()"
-                    style="width: 100%;" value="">
-
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="" class="mt-4">
-                    <h4 class="text-black">Balance :</h4>
-                  </label>
-                </th>
-                <td>
-                  <input type="number" name="balance" id="balance" class="form-control mt-3 text-black"
-                    style="width: 100%;" value="0" readonly>
-
-                </td>
-              </tr>
-            </table>
+        <div class="col-sm-6 mt-4">
+          <table class="table text-white" style="background-color: rgba(58, 57, 57, 0.8);">
+            <tr>
+              <td>Total</td>
+              <td></td>
+              <td><input type="number" name="" id="total-amount"
+                  class="form-control bg-transparent border-0 text-right text-white" style="text-align: right;"
+                  readonly></td>
+            </tr>
+            <tr>
+              <td>Paid</td>
+              <td></td>
+              <td><input type="number" name="paid" id="paid"
+                  class="form-control bg-transparent border-0 text-right subtotal text-white" onchange="show_bal()"
+                  style="text-align: right;" value="0" readonly></td>
+            </tr>
+            <tr>
+              <td>Balance</td>
+              <td></td>
+              <td><input type="number" name="balance" id="balance"
+                  class="form-control bg-transparent border-0 text-right text-white" style="text-align: right;"
+                  value="0" readonly></td>
+            </tr>
+          </table>
 
 
-          </div>
+
 
         </div>
       </div>
 
 
-      <div class="row mb-4">
-        <div class="col-sm-6 col-md-6 col-lg-6">
-          <label for="" class="form-label">Terms and Conditions</label>
-          <textarea class="form-control  bg-light text-dark" style="height: 50%;" cols="5" rows="10" name="terms"
-            id="floatingTextarea"></textarea>
-
-        </div>
-        <div class="col-sm-4 col-md-4 col-lg-4">
-          <div class="p-3 mt-4 pb-4" style="width: 100%;background-color: #888888a9;">
-            <div class="row">
-              <div class="col-sm-12 col-md-12 col-lg-12">
-                <label for="" class="text-black"><b>Payment Method</b></label>
-                <select name="pay_method" id="pay_method" class="form-control text-dark" onclick="payment_method()">
-                  <option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-------- SELECT
-                    --------
-                  </option>
-                  <option value="0 UPI">UPI</option>
-                  <option value="0 Cash">Cash</option>
-                  <option value="0 Cheque">Cheque</option>
-                  {% for i in bank %}
-                  <option value="{{ i.id }} {{ i.name }}">{{ i.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <fieldset1 style="display: none;" id="bank_row">
-              <div class="row">
-                <div class="col-sm-12 col-md-12 col-lg-12">
-
-                  <label for="" class="text-black">Account No:</label>
-                  <input type="text" name="acc_no" id="acc_no" class="form-control text-dark" readonly>
-                </div>
-
-              </div>
-            </fieldset1>
-            <div class="row" style="display: none;" id="chq_row">
-              <div class="col-sm-12 col-md-12 col-lg-12">
-                <label for="" class="text-black">Cheque No:</label>
-                <input type="text" name="chq_no" id="chq_no" class="form-control text-dark">
-                <label for="" id="chq_label"></label>
-              </div>
-            </div>
-            <div class="row" style="display: none;" id="upi_row">
-              <div class="col-sm-12 col-md-12 col-lg-12">
-                <label for="" class="text-black">UPI Id:</label>
-                <input type="text" name="upi_id" id="upi_id" class="form-control text-dark">
-                <label for="" id="upi_label"></label>
-              </div>
-            </div>
-
-          </div>
+      <div class="row border-bottom">
+        <div class="col-md-8 d-flex flex-column text-white mb-5">
+          <label for="">Terms & Conditions</label>
+          <textarea cols="20" rows="7" name="terms" id="floatingTextarea"></textarea>
 
         </div>
 
       </div>
 
 
-      <div class="submit">
-        <button class="btn" type="submit" name="action" value="draft" style="background-color:  rgb(210, 132, 30) ;"
-          onclick="savedraft()">Draft</button>
-        <button class="btn" type="submit" name="action" value="send" style="background-color: rgb(210, 132, 30);"
-          onclick="savesend()">Send</button>
-        <button class="btn" style="background-color:  rgb(210, 132, 30) ;" type="reset">Cancel</button><br><br>
+      <div class="submit row mt-5 mb-3">
+        <button class="btn mt-2" type="submit" name="action" value="draft"
+          style="width: 150px;margin-right: 1vh; background-color: chocolate;" onclick="savedraft()">Draft</button>
+        <button class="btn mt-2" type="submit" name="action" value="send"
+          style="width: 150px;margin-right: 1vh; background-color: chocolate;" onclick="savesend()">Send</button>
+        <button class="btn mt-2" style="width: 150px; background-color: chocolate;" type="reset">Cancel</button><br><br>
       </div>
 
 
     </form>
 
-    <!-- ......................customer modal ........................................ -->
-
-
+    <!-- customer modal -->
     <div class="modal fade" id="newcustomer">
       <div class="modal-dialog modal-xl">
         <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
@@ -402,7 +378,6 @@
           <div class="modal-body" style="background: rgb(32, 35, 37);">
             <div class="card p-3 m-3">
               <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalCustomer">
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="">Customer Type</label><br>
@@ -425,7 +400,7 @@
                     <label for="ctitle">Title</label>
                   </div>
                   <div class="col-md-3">
-                    <select name="ctitle" id="ctitle" class="form-control text-dark bg-light">
+                    <select name="ctitle" id="ctitle" class="form-control bg-light text-dark">
                       <option value="Mr." selected>Mr.</option>
                       <option value="Mrs.">Mrs.</option>
                       <option value="Ms.">Ms.</option>
@@ -439,7 +414,7 @@
                     <label for="cfname">First name</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="cfname" name="cfirstname" required>
+                    <input type="text" class="form-control bg-light text-dark" id="cfname" name="cfirstname" required>
                   </div>
                 </div>
                 <div class="row mt-2">
@@ -448,44 +423,39 @@
                     <label id="cdisplayname" name="cdisplayname" hidden></label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="clname" name="clastname">
+                    <input type="text" class="form-control bg-light text-dark" id="clname" name="clastname">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="ccompany">Company Name</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="ccompany" name="ccompany_name">
+                    <input type="text" class="form-control bg-light text-dark" id="ccompany" name="ccompany_name">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="cemail">Customer Email</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="email" class="form-control text-dark bg-light" id="cemail" name="cemail"
+                    <input type="email" class="form-control bg-light text-dark" id="cemail" name="cemail"
                       placeholder="example@gmail.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="email">Customer Phone</label>
                   </div>
                   <div class="col-md-3 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="cw_mobile" placeholder="Work Number"
+                    <input type="text" class="form-control bg-light text-dark" id="cw_mobile" placeholder="Work Number"
                       maxlength="10" name="cw_mobile">
                   </div>
                   <div class="col-md-3 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="cp_mobile"
+                    <input type="text" class="form-control bg-light text-dark" id="cp_mobile"
                       placeholder="Personal Number" maxlength="10" name="cp_mobile">
                   </div>
                 </div>
-
-
                 <hr>
                 <center>
                   <h4 class="text-uppercase mb-3"><b>Other Details</b></h4>
@@ -495,7 +465,7 @@
                     <label for="facebook">Facebook</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="facebook"
+                    <input type="text" class="form-control bg-light text-dark" id="facebook"
                       placeholder="www.example.com" name="facebook">
                   </div>
                 </div>
@@ -504,63 +474,56 @@
                     <label for="twitter">Twitter</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="twitter"
+                    <input type="text" class="form-control bg-light text-dark" id="twitter"
                       placeholder="www.example.com" name="twitter">
                   </div>
                 </div>
-
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="website">Website</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="website"
+                    <input type="text" class="form-control bg-light text-dark" id="website"
                       placeholder="www.example.com" name="website">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="cskype">Skype name/Number</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="cskype" name="cskype">
+                    <input type="text" class="form-control bg-light text-dark" id="cskype" name="cskype">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_desg">Designation</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="c_desg" name="c_desg">
+                    <input type="text" class="form-control bg-light text-dark" id="c_desg" name="c_desg">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_dpt">Department</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="c_dpt" name="c_dpt">
+                    <input type="text" class="form-control bg-light text-dark" id="c_dpt" name="c_dpt">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_gsttype" style="color:rgb(190, 88, 88);">GST Treatment *</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <select class="form-control text-dark bg-light" id="c_gsttype" name="c_gsttype" required>
-                      <option value="value" selected>Select a Gst Treatment</option>
+                    <select class="form-control bg-light text-dark" id="c_gsttype" name="c_gsttype" required>
+                      <option value="value" selected hidden>Select a Gst Treatment</option>
                       <option value="Registered Business-Regular Business that is registered under GST">Registered
                         Business-Regular Business that is registered under GST</option>
                       <option
                         value="Registered Business-Composition Business that is registered under the Composition scheme in GST">
                         Registered Business-Composition Business that is registered under the Composition scheme in
-                        GST
-                      </option>
+                        GST</option>
                       <option value="Unregistered Business-not Registered under GST">Unregistered Business-not
                         Registered under GST</option>
                       <option value="Consumer- A customer who is a regular Consumer">Consumer- A customer who is a
@@ -576,23 +539,30 @@
                     <label id="glbl" style="color:rgb(190, 88, 88);">GSTIN/UIN *</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="c_gstin" name="c_gstin"
+                    <input type="text" class="form-control text-dark" id="c_gstin" name="c_gstin"
                       placeholder="29APPCK7465F1Z1">
-                    <label id="gst_label"></label>
+                    <label id="gst_label" style="display: none;"></label>
                   </div>
                 </div>
-
-
-
+                <div class="row">
+                  <div class="col-md-3 mt-2">
+                    <label for="c_pan">PAN Number</label>
+                  </div>
+                  <div class="col-md-6 mt-2">
+                    <input type="text" class="form-control text-dark" id="c_pan" name="c_pan" placeholder="APPCK7465F">
+                    <label id="pan_label" style="display: none;"></label>
+                  </div>
+                </div>
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="" style="color: rgb(190, 88, 88);">Place of Supply *</label>
                   </div>
                   <div class="col-md-6 mt-2">
-                    <select class="form-control text-dark bg-light" id="placesupply" name="placesupply">
+                    <select class="form-control bg-light text-dark" id="placesupply" name="placesupply">
+                      <option value="Nill" hidden></option>
                       <option value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
-                      <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
-                      <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
+                      <option value="[AD]-Andhra Pradhesh">[AD] Andhra Pradhesh</option>
+                      <option value="[AR]-Arunachal Pradesh">[AR] Arunachal Pradesh</option>
                       <option value="[AS]-Assam">[AS] Assam</option>
                       <option value="[BR]-Bihar">[BR] Bihar</option>
                       <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
@@ -603,14 +573,14 @@
                       <option value="[GA]-Goa">[GA] Goa</option>
                       <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
                       <option value="[HR]-Haryana">[HR] Haryana</option>
-                      <option value="[HP]-Himachal Predesh">[HP] Himachal Predesh</option>
+                      <option value="[HP]-Himachal Pradesh">[HP] Himachal Pradesh</option>
                       <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
                       <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
                       <option value="[KA]-Karnataka">[KA] Karnataka</option>
                       <option value="[KL]-Kerala">[KL] Kerala</option>
                       <option value="[LA]-Ladakh">[LA] Ladakh</option>
                       <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
-                      <option value="[MP]-Madhya Predesh">[MP] Madhya Predesh</option>
+                      <option value="[MP]-Madhya Pradesh">[MP] Madhya Pradesh</option>
                       <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
                       <option value="[MN]-Manipur">[MN] Manipur</option>
                       <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
@@ -624,81 +594,103 @@
                       <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
                       <option value="[TS]-Telangana">[TS] Telangana</option>
                       <option value="[TR]-Tripura">[TR] Tripura</option>
-                      <option value="[UP]-Uttar Predesh">[UP] Uttar Predesh</option>
+                      <option value="[UP]-Uttar Pradesh">[UP] Uttar Pradesh</option>
                       <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
                       <option value="[WB]-West Bengal">[WB] West Bengal</option>
                       <option value="[OT]-Other Territory">[OT] Other Territory</option>
                     </select>
                   </div>
                 </div>
-
                 <div class="row mt-2">
-                  <div class="col-md-3 mt-2">
-                    <label for="c_tax" style="color: rgb(190, 88, 88);">Tax Preference* </label>
+                  <div class="col-md-3">
+                    <label for="c_tax" style="color: rgb(190, 88, 88);">Tax Preference * </label>
                   </div>
-                  <div class="col-md-6 mt-2">
+                  <div class="col-md-6">
                     <div class="d-flex">
                       <div class="radio_opt mx-5 mt-2">
-                        <input type="radio" id="custtax1" name="radioCust1" value="Taxable">
-                        <label for="option1">Taxable</label>
+                        <input type="radio" id="item-tax3" name="radioOption2" value="Taxable">
+                        <label for="option3">Taxable</label>
                       </div>
                       <div class="radio_opt mx-4 mt-2">
-                        <input type="radio" id="custtax2" name="radioCust1" value="Tax-exempt">
-                        <label for="option2">Tax-exempt</label>
+                        <input type="radio" id="item-tax4" name="radioOption2" value="Tax-exempt">
+                        <label for="option4">Tax-exempt</label>
                       </div>
                     </div>
                   </div>
                 </div>
-
+                <div class="row mt-2 mb-4 d-none inter-intra">
+                  <div class="col-md-3">
+                    <label for="intra">Intra-State TAX</label>
+                  </div>
+                  <div class="col-md-6">
+                    <select name="intra" class="form-control bg-light text-dark" id="intra1">
+                      <option value="" hidden>Select GST</option>
+                      <option value="GST0[0%]">GST0[0%]</option>
+                      <option value="GST3[3%]">GST3[3%]</option>
+                      <option value="GST5[5%]">GST5[5%]</option>
+                      <option value="GST12[12%]">GST12[12%]</option>
+                      <option value="GST18[18%]">GST18[18%]</option>
+                      <option value="GST28[28%]">GST28[28%]</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3"></div>
+                  <div class="col-md-3">
+                    <label for="inter">Inter-State TAX</label>
+                  </div><br>
+                  <div class="col-md-6">
+                    <select name="inter" class="form-control bg-light text-dark" id="inter1">
+                      <option value="" hidden>Select GST</option>
+                      <option value="IGST0[0%]">IGST0[0%]</option>
+                      <option value="GST3[3%]">GST3[3%]</option>
+                      <option value="IGST5[5%]">IGST5[5%]</option>
+                      <option value="IGST12[12%]">IGST12[12%]</option>
+                      <option value="IGST18[18%]">IGST18[18%]]</option>
+                      <option value="IGST28[28%]">IGST28[28%]</option>
+                    </select>
+                  </div>
+                  <div class="col-md-1"></div>
+                </div>
+                <hr>
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_curn">Currency </label>
                   </div>
                   <div class="col-md-3 mt-2">
-                    <select class="form-control text-dark bg-light" id="c_curn" name="c_curn" required>
-                      <option selected disabled value="">Choose..</option>
+                    <select class="form-control bg-light text-dark" id="c_curn" name="c_curn" required>
+                      <option selected disabled value="" hidden>Choose..</option>
                       <option value="INR">INR</option>
                     </select>
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_open">Opening Balance</label>
                   </div>
-                  <div class="col-md-6 mt-2">
-                    <input type="text" class="form-control text-dark bg-light" id="c_open" name="c_open">
+                  <div class="col-md-6 mt-2 d-flex">
+                    <select name="bal" id="bal" style="width: 35%; height: 80%;"
+                      class="form-gr form-select text-dark bg-light">
+                      <option value="credit">Credit</option>
+                      <option value="debit">Debit</option>
+                    </select>
+                    <input type="text" class="form-control bg-light text-dark" id="c_open" name="c_open">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="c_terms">Payment Terms</label>
                   </div>
                   <div class="col-md-6 mt-2">
                     <div class="d-flex">
-                      <select class="form-control text-dark bg-light" id="c_terms" name="c_terms" required>
-                        <!-- <option selected value="15">NET 15</option>
-                        <option value="30">NET 30</option>
-                        <option value="45">NET 45</option>
-                        <option value="60">NET 60</option>
-                        <option value="90">NET 90</option>
-                        <option value="">Due end of the month</option>
-                        <option value="recpt">Due on receipt</option> -->
-                        {% for p in payments %}
+                      <select class="form-control bg-light text-dark" id="c_terms" name="c_terms" required>
+                        {% for p in pay %}
                         <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
                         {% endfor %}
                       </select>
-                      <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment"
-                        data-toggle="modal">+</a>
                     </div>
                   </div>
                 </div>
-
-
                 <hr>
-
-                <div class="row mt-2">
+                <div class="row">
                   <div class="col-md-6 mt-5 text-center text-uppercase">
                     <h4 class="mb-0">Billing Address</h4>
                   </div>
@@ -707,56 +699,35 @@
                   </div>
                 </div>
                 <div class="row mt-2 m-0 p-0 mb-2">
-                  <div class="col-md-9"> </div>
-                  <div class="col-md-3 text-right  m-0 p-0">
-                    <input type="checkbox" onclick="addressSame()" id="csokay" name="csokay">
-                    <label for="csokay" style="color: #909091;">Same As Billing Address</label>
+                  <div class="col-md-8"> </div>
+                  <div class="col-md-4" style="margin-left: -5vh;">
+                    <input type="checkbox" onclick="address()" id="voka" name="vokay">
+                    <label for="voka" style="color: #909091;">Same As Billing Address</label>
                   </div>
-                </div>
-
-                <div class="row mt-5">
-                  <div class="col-md-1">
-                    <label for="cstreet1">Address 1</label>
-                  </div>
-                  <div class="col-md-4">
-                    <textarea class="form-control street text-dark bg-light" id="cstreet1" name="cstreet1"></textarea>
-                  </div>
-                  <div class="col-md-1"></div>
-
-                  <div class="col-md-1">
-                    <label for="csstreet1">Address 1</label>
-                  </div>
-                  <div class="col-md-4 ">
-                    <textarea class="form-control street text-dark bg-light" id="csstreet1" name="csstreet1"></textarea>
-                  </div>
-                  <div class="col-md-1"></div>
-
                 </div>
                 <div class="row mt-5">
                   <div class="col-md-1">
-                    <label for="cstreet2">Address 2</label>
+                    <label for="cstreet">Address</label>
                   </div>
                   <div class="col-md-4">
-                    <textarea class="form-control street text-dark bg-light" id="cstreet2" name="cstreet2"></textarea>
+                    <textarea class="form-control bg-light text-dark street" id="cstreet" name="vstreet"></textarea>
                   </div>
                   <div class="col-md-1"></div>
 
                   <div class="col-md-1">
-                    <label for="csstreet2">Address 2</label>
+                    <label for="csstreet">Address</label>
                   </div>
                   <div class="col-md-4 ">
-                    <textarea class="form-control street text-dark bg-light" id="csstreet2" name="csstreet2"></textarea>
+                    <textarea class="form-control bg-light text-dark street" id="csstreet" name="vsstreet"></textarea>
                   </div>
                   <div class="col-md-1"></div>
-
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-1">
                     <label for="ccity">City</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="ccity" name="ccity"
+                    <input type="text" class="form-control bg-light text-dark" id="ccity" name="vcity"
                       placeholder="City">
                   </div>
                   <div class="col-md-1">
@@ -765,24 +736,23 @@
                     <label for="cscity">City</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cscity" name="cscity"
+                    <input type="text" class="form-control bg-light text-dark" id="cscity" name="cscity"
                       placeholder="City">
                   </div>
                   <div class="col-md-1">
                   </div>
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-1">
                     <label for="cstate">State</label>
                   </div>
                   <div class="col-md-4">
-                    <select type="text" class="form-control text-dark bg-light" id="cstate" name="cstate">
-                      <option value="" selected>Choose</option>
+                    <select type="text" class="form-control bg-light text-dark" id="cstate" name="vstate">
+                      <option value="" selected hidden>Choose</option>
                       <option value="None Of This">None Of This</option>
                       <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
-                      <option value="Andhra Predhesh">Andhra Predhesh</option>
-                      <option value="Arunachal Predesh">Arunachal Predesh</option>
+                      <option value="Andhra Pradhesh">Andhra Pradhesh</option>
+                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
                       <option value="Assam">Assam</option>
                       <option value="Bihar">Bihar</option>
                       <option value="Chandigarh">Chandigarh</option>
@@ -793,14 +763,14 @@
                       <option value="Goa">Goa</option>
                       <option value="Gujarat">Gujarat</option>
                       <option value="Haryana">Haryana</option>
-                      <option value="Himachal Predesh">Himachal Predesh</option>
+                      <option value="Himachal Pradesh">Himachal Pradesh</option>
                       <option value="Jammu and Kashmir">Jammu and Kashmir</option>
                       <option value="Jharkhand">Jharkhand</option>
                       <option value="Karnataka">Karnataka</option>
                       <option value="Kerala">Kerala</option>
                       <option value="Ladakh">Ladakh</option>
                       <option value="Lakshadweep">Lakshadweep</option>
-                      <option value="Madhya Predesh">Madhya Predesh</option>
+                      <option value="Madhya Pradesh">Madhya Pradesh</option>
                       <option value="Maharashtra">Maharashtra</option>
                       <option value="Manipur">Manipur</option>
                       <option value="Meghalaya">Meghalaya</option>
@@ -814,25 +784,23 @@
                       <option value="Tamil Nadu">Tamil Nadu</option>
                       <option value="Telangana">Telangana</option>
                       <option value="Tripura">Tripura</option>
-                      <option value="Uttar Predesh">Uttar Predesh</option>
+                      <option value="Uttar Pradesh">Uttar Pradesh</option>
                       <option value="Uttarakhand">Uttarakhand</option>
                       <option value="West Bengal">West Bengal</option>
                       <option value="Other Territory">Other Territory</option>
                     </select>
                   </div>
                   <div class="col-md-1"></div>
-
                   <div class="col-md-1">
                     <label for="csstate">State</label>
                   </div>
                   <div class="col-md-4 ">
-                    <select type="text" class="form-control text-dark bg-light" id="csstate" name="csstate">
-                      <option value="" selected>Choose</option>
+                    <select type="text" class="form-control bg-light text-dark" id="csstate" name="vsstate">
+                      <option value="" selected hidden>Choose</option>
                       <option value="None Of This">None Of This</option>
-                      <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads
-                      </option>
-                      <option value="Andhra Predhesh">Andhra Predhesh</option>
-                      <option value="Arunachal Predesh">Arunachal Predesh</option>
+                      <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
+                      <option value="Andhra Pradhesh">Andhra Pradhesh</option>
+                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
                       <option value="Assam">Assam</option>
                       <option value="Bihar">Bihar</option>
                       <option value="Chandigarh">Chandigarh</option>
@@ -843,14 +811,14 @@
                       <option value="Goa">Goa</option>
                       <option value="Gujarat">Gujarat</option>
                       <option value="Haryana">Haryana</option>
-                      <option value="Himachal Predesh">Himachal Predesh</option>
+                      <option value="Himachal Pradesh">Himachal Pradesh</option>
                       <option value="Jammu and Kashmir">Jammu and Kashmir</option>
                       <option value="Jharkhand">Jharkhand</option>
                       <option value="Karnataka">Karnataka</option>
                       <option value="Kerala">Kerala</option>
                       <option value="Ladakh">Ladakh</option>
                       <option value="Lakshadweep">Lakshadweep</option>
-                      <option value="Madhya Predesh">Madhya Predesh</option>
+                      <option value="Madhya Pradesh">Madhya Pradesh</option>
                       <option value="Maharashtra">Maharashtra</option>
                       <option value="Manipur">Manipur</option>
                       <option value="Meghalaya">Meghalaya</option>
@@ -864,103 +832,85 @@
                       <option value="Tamil Nadu">Tamil Nadu</option>
                       <option value="Telangana">Telangana</option>
                       <option value="Tripura">Tripura</option>
-                      <option value="Uttar Predesh">Uttar Predesh</option>
+                      <option value="Uttar Pradesh">Uttar Pradesh</option>
                       <option value="Uttarakhand">Uttarakhand</option>
                       <option value="West Bengal">West Bengal</option>
                       <option value="Other Territory">Other Territory</option>
                     </select>
                   </div>
-
                   <div class="col-md-1"></div>
-
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-1">
                     <label for="ccountry">Country</label>
                   </div>
                   <div class="col-md-4 ">
-                    <input type="text" class="form-control text-dark bg-light" id="ccountry" name="ccountry"
+                    <input type="text" class="form-control bg-light text-dark" id="ccountry" name="vcountry"
                       placeholder="Country">
                   </div>
                   <div class="col-md-1"></div>
-
                   <div class="col-md-1">
                     <label for="cscountry">Country</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cscountry" name="cscountry"
+                    <input type="text" class="form-control bg-light text-dark" id="cscountry" name="vscountry"
                       placeholder="Country">
                   </div>
                   <div class="col-md-1 "></div>
-
                 </div>
-
                 <div class="row mt-2">
-
                   <div class="col-md-1">
                     <label for="cpincode">Pincode</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cpincode" name="cpincode"
+                    <input type="text" class="form-control bg-light text-dark" id="cpincode" name="vpincode"
                       maxlength="6" placeholder="PIN Code">
                   </div>
                   <div class="col-md-1"></div>
-
                   <div class="col-md-1">
                     <label for="cspincode">Pincode</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cspincode" name="cspincode"
+                    <input type="text" class="form-control bg-light text-dark" id="cspincode" name="vspincode"
                       maxlength="6" placeholder="PIN Code">
                   </div>
                   <div class="col-md-1"></div>
-
                 </div>
-
                 <div class="row mt-2">
-
                   <div class="col-md-1">
                     <label for="cphone">Phone</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cphone" name="cphone"
+                    <input type="text" class="form-control bg-light text-dark" id="cphone" name="vphone"
                       placeholder="Phone">
                   </div>
                   <div class="col-md-1"></div>
-
                   <div class="col-md-1">
                     <label for="csphone">Phone</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="csphone" name="csphone"
+                    <input type="text" class="form-control bg-light text-dark" id="csphone" name="vsphone"
                       placeholder="Phone">
                   </div>
                   <div class="col-md-1"></div>
-
                 </div>
-
                 <div class="row mt-2">
-
                   <div class="col-md-1">
                     <label for="cfax">Fax</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="cfax" name="cfax" placeholder="FAX">
+                    <input type="text" class="form-control bg-light text-dark" id="cfax" name="vfax" placeholder="FAX">
                   </div>
                   <div class="col-md-1"></div>
-
                   <div class="col-md-1">
                     <label for="csfax">Fax</label>
                   </div>
                   <div class="col-md-4">
-                    <input type="text" class="form-control text-dark bg-light" id="csfax" name="csfax"
+                    <input type="text" class="form-control bg-light text-dark" id="csfax" name="vsfax"
                       placeholder="FAX">
                   </div>
                   <div class="col-md-1"></div>
-
                 </div>
-
                 <div class="row mt-2">
                   <div class="col-md-6">
                     <input type="checkbox" value="" id="invalidCheck" name="invalidCheck" required>
@@ -973,9 +923,9 @@
                   <div class="col-md-4">
                     <div class="d-flex">
                       <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
-                        data-dismiss="modal" id="customerSave">Submit
+                        data-dismiss="modal" id="customersave">
+                        Submit
                       </button>
-
                       <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4"
                         data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">Cancel</span>
@@ -1073,6 +1023,351 @@
 
 </div>
 
+<!-- item modal -->
+
+<div class="modal fade" id="newitem">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+      <div class="modal-header " style="background: rgb(32, 35, 37);">
+        <h3 class="m-3 text-uppercase">New Item</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background: rgb(32, 35, 37);">
+        <div class="card p-3 m-3">
+          <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalItem">
+
+            <div class="row mt-2">
+              <div class="col-md-3 mr-0">
+                <label class="col-form-label p-0">Type</label>
+              </div>
+              <div class="col-md-6 ml-0 d-flex">
+                <div class="radio_opt mx-5 ">
+                  <input type="radio" id="item_type1" name="radioOption" value="Goods">
+                  <label for="option1">Goods</label>
+                </div>
+                <div class="radio_opt mx-5 ">
+                  <input type="radio" id="item_type2" name="radioOption" value="Services">
+                  <label for="option2">Services</label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-3">
+                <label for="name" style="color: rgb(190, 88, 88);">Name *</label>
+              </div>
+              <div class="col-md-6">
+                <input type="text" class="form-control bg-light text-dark" id="item_name" name="item_name" required>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-3 ">
+                <label for="units">Unit</label>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex">
+                  <select class="form-control bg-light text-dark" id="item_units" name="item_units" required>
+                    <option value="" hidden>Select Unit</option>
+                    {% for u in unit %}
+                    <option value="{{u.id}}">{{u.unit}}</option>
+                    {% endfor %}
+                  </select>
+                  <a href="#" class="btn" data-target="#newunit" data-toggle="modal"
+                    style="background-color: chocolate; color: black; margin-left: 2vh; font-size: large; padding-top: 1vh;">+</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2">
+              <div class="col-md-3 ">
+                <label for="">HSN Code</label>
+              </div>
+              <div class="col-md-6">
+                <input type="number" class="form-control bg-light text-dark" id="hsn" name="hsn" required>
+                <label id="hsn_war" style="display: none;"></label>
+              </div>
+            </div>
+
+            <div class="row mt-2">
+              <div class="col-md-3">
+                <label for="c_tax" style="color: rgb(190, 88, 88);">Tax Preference * </label>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex">
+                  <div class="radio_opt mx-5 mt-2">
+                    <input type="radio" id="item-tax1" name="radioOption1" value="Taxable">
+                    <label for="option1">Taxable</label>
+                  </div>
+                  <div class="radio_opt mx-4 mt-2">
+                    <input type="radio" id="item-tax2" name="radioOption1" value="Tax-exempt">
+                    <label for="option2">Tax-exempt</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2 mb-4 d-none inter-intra">
+              <div class="col-md-3">
+                <label for="intra">Intra-State TAX</label>
+              </div>
+              <div class="col-md-6">
+                <select name="intra" class="form-control bg-light text-dark" id="intra">
+                  <option value="" hidden>Select GST</option>
+
+                  <option value="GST0[0%]">GST0[0%]</option>
+                  <option value="GST3[3%]">GST3[3%]</option>
+                  <option value="GST5[5%]">GST5[5%]</option>
+                  <option value="GST12[12%]">GST12[12%]</option>
+                  <option value="GST18[18%]">GST18[18%]</option>
+                  <option value="GST28[28%]">GST28[28%]</option>
+                </select>
+              </div>
+
+              <div class="col-md-3"></div>
+              <div class="col-md-3">
+                <label for="inter">Inter-State TAX</label>
+              </div>
+              <div class="col-md-6">
+                <select name="inter" class="form-control bg-light text-dark" id="inter">
+                  <option value="" hidden>Select GST</option>
+
+                  <option value="IGST0[0%]">IGST0[0%]</option>
+                  <option value="GST3[3%]">GST3[3%]</option>
+                  <option value="IGST5[5%]">IGST5[5%]</option>
+                  <option value="IGST12[12%]">IGST12[12%]</option>
+                  <option value="IGST18[18%]">IGST18[18%]]</option>
+                  <option value="IGST28[28%]">IGST28[28%]</option>
+                </select>
+              </div>
+              <div class="col-md-1"></div>
+
+            </div>
+
+            <hr>
+
+            <div class="row mt-5 text-center">
+              <div class="col-md-6 d-flex text-center">
+                <input type="checkbox" name="selling" checked class="mx-2 my-0">
+                <h6 class="m-0">Selling Information</h6>
+              </div>
+              <div class="col-md-6 d-flex text-center">
+                <input type="checkbox" name="purchase" checked class="mx-2 my-0">
+                <h6 class="m-0">Purchase Information</h6>
+              </div>
+            </div>
+
+            <div class="row mt-4">
+
+              <div class="col-md-6">
+                <div class="input-group mb-2">
+                  <label for="sell_price" style="margin-right:3vh;">Selling Price *</label>
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">INR</div>
+                  </div>
+                  <input required type="text" class="form-control bg-light text-dark" name="sell_price" id="sell_price">
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <label for="cost_price">Cost Price *</label>
+              </div>
+              <div class="col-md-4 ">
+                <div class="input-group mb-2">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">INR</div>
+                  </div>
+                  <input required type="text" class="form-control bg-light text-dark" name="cost_price" id="cost_price">
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2">
+              <div class="col-md-2">
+                <label for="vcity">Account</label>
+              </div>
+              <div class="col-md-4">
+                <select name="sell_acc" id="sell_acc" class="form-control bg-light text-dark">
+                  <option value="" hidden>Select Account</option>
+
+                  <option value="" disabled class="btn btn-dark text-white"><b>SALES</b></option>
+                  {% for s in sales %}
+                  <option value="{{s.id}}">{{ s.Account_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="cost_acc">Account</label>
+              </div>
+              <div class="col-md-4">
+                <select name="cost_acc" class="form-control bg-light text-dark" id="cost_acc">
+                  <option value="" hidden>Select Account</option>
+                  <option value="" disabled class="btn btn-dark text-white"><b>PURCHASE</b></option>
+                  {% for p in purchase %}
+                  <option value="{{p.id}}">{{ p.Account_name }}</option>
+                  {% endfor %}
+
+                </select>
+              </div>
+            </div>
+
+            <div class="row mt-2">
+              <div class="col-md-2">
+                <label for="sell_desc">Description</label>
+              </div>
+              <div class="col-md-4">
+                <input type="text" name="sell_desc" class="form-control bg-light text-dark" id="sell_desc">
+              </div>
+
+              <div class="col-md-2">
+                <label for="cost_desc">Description</label>
+              </div>
+              <div class="col-md-4 ">
+                <input type="text" name="cost_desc" class="form-control bg-light text-dark" id="cost_desc">
+              </div>
+
+            </div> <br>
+
+            <div class="col-md-5">
+              <input type="checkbox" id="track" onclick="trackinventory()"> Track Inventory for this item
+            </div>
+
+            <div class="row mt-2 " id="trackdiv1" style="display: none;">
+              <div class="d-flex">
+                <div class="col-md-4">
+                  <label for="name">Inventory Account *</label>
+                </div>
+                <div class="col-md-6">
+                  <select class="form-control bg-light text-dark" id="invasset" name="invasset" required>
+                    <option value="0" hidden> Choose ..</option>
+                    <option value="inventory assets">Inventory Asset</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2 " id="trackdiv2" style="display: none;">
+              <div class="d-flex">
+                <div class="col-md-4">
+                  <label for="name">Opening Stock </label>
+                </div>
+                <div class="col-md-6">
+                  <input type="number" class="form-control bg-light text-dark" id="opening_stock" name="opening_stock"
+                    value="0" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2 " id="trackdiv3" style="display: none;">
+              <div class="d-flex">
+                <div class="col-md-4">
+                  <label for="name">Opening Stock Rate per unit</label>
+                </div>
+                <div class="col-md-6">
+                  <input type="number" class="form-control bg-light text-dark" id="opening_stock_unit"
+                    name="opening_stock_unit" value="0" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2" id="trackdiv4" style="display: none;">
+              <div class="col-md-4 mr-0">
+                <label class="col-form-label p-0">Activation Type</label>
+              </div>
+              <div class="col-md-7 ml-0 d-flex">
+                <div class="mx-5 ">
+                  <input type="radio" id="active" name="activation" value="active">
+                  <label>Active</label>
+                </div>
+                <div class="mx-5 ">
+                  <input type="radio" id="nonactive" name="activation" value="nonactive">
+                  <label>Non-Active</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <input type="checkbox" value="" id="invalidCheck" name="invalidCheck" required>
+                <label for="invalidCheck" style="color: #909091;">Agree to terms and conditions</label>
+                <div class="invalid-feedback text-warning">You must agree before submitting.</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit" data-dismiss="modal"
+                    id="itemSave">Submit
+                  </button>
+
+                  <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">Cancel</span>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- unit modal -->
+
+<div class="modal fade" id="newunit">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+      <div class="modal-header " style="background: rgb(32, 35, 37);">
+        <h3 class="m-3 text-uppercase">Add Unit</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background: rgb(32, 35, 37);">
+        <div class="card p-3 m-3">
+          <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalUnit">
+            <div class="row mt-2">
+              <div class="col-md-3 mt-2"></div>
+              <div class="col-md-1 mt-2">
+                <label for="unit" style="color: rgb(190, 88, 88);">Unit</label>
+              </div>
+
+              <div class="col-md-4 mt-2">
+                <input type="text" class="form-control bg-light text-dark" id="unit" name="unit" required>
+              </div>
+              <div class="col-md-4 mt-2"></div>
+            </div>
+
+            <div class="row mt-5">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit" data-dismiss="modal"
+                    id="unitSave">Save
+                  </button>
+
+
+
+                  <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">Cancel</span>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 <script>
@@ -1082,6 +1377,73 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <script>
+
+$(document).ready(function () {
+    $("#item-tax3").click(function () {
+      //  console.log($("#item_units").val().split(' ')[0]);
+      $(".inter-intra").removeClass('d-none');
+      $(".inter-intra").addClass('d-flex');
+    });
+
+    $("#item-tax4").click(function () {
+
+      $(".inter-intra").removeClass('d-flex');
+      $(".inter-intra").addClass("d-none");
+    });
+  });
+
+  $(document).ready(function () {
+    $("#item-tax1").click(function () {
+      //  console.log($("#item_units").val().split(' ')[0]);
+      $(".inter-intra").removeClass('d-none');
+      $(".inter-intra").addClass('d-flex');
+    });
+
+    $("#item-tax2").click(function () {
+
+      $(".inter-intra").removeClass('d-flex');
+      $(".inter-intra").addClass("d-none");
+    });
+  });
+
+  function address() {
+    var chkbtn = document.getElementById('voka');
+    if (chkbtn.checked == true) {
+      document.getElementById('csstreet').value = document.getElementById('cstreet').value;
+      document.getElementById('cscity').value = document.getElementById('ccity').value;
+      document.getElementById('cspincode').value = document.getElementById('cpincode').value;
+      document.getElementById('cscountry').value = document.getElementById('ccountry').value;
+      document.getElementById('csstate').value = document.getElementById('cstate').value;
+      document.getElementById('csphone').value = document.getElementById('cphone').value;
+      document.getElementById('csfax').value = document.getElementById('cfax').value;
+    }
+    else {
+      document.getElementById('csstreet').value = '';
+      document.getElementById('cscity').value = '';
+      document.getElementById('csstate').value = '';
+      document.getElementById('cspincode').value = '';
+      document.getElementById('cscountry').value = '';
+      document.getElementById('csphone').value = '';
+      document.getElementById('csfax').value = '';
+    }
+  }
+  $(document).ready(function () {
+    $("#prof_name").keyup(function () {
+      var x = $('#prof_name').val();
+      reford = "{{reference}}"
+      if (reford != x) {
+        document.getElementById("order_label").style.display = "block"
+        document.getElementById("order_label").style.color = "yellow"
+        document.getElementById("order_label").innerHTML = "Sale Order is not Continuous"
+      } else {
+        document.getElementById("order_label").style.display = "block"
+        document.getElementById("order_label").style.color = "green"
+        document.getElementById("order_label").innerHTML = "Sale Order is now Continuous"
+      }
+    });
+  });
+
+
 
 
   $(document).ready(function () {
@@ -1255,11 +1617,11 @@
       custType = $('#individual').val();
     }
 
-    if ($('input[name="radioCust1"]:checked').val() == 'Taxable') {
-      cust_tax = $('#custtax1').val();
+    if ($('input[name="radioOption2"]:checked').val() == 'Taxable') {
+      cust_tax = $('#item-tax3').val();
     }
     else {
-      cust_tax = $('#custtax2').val();
+      cust_tax = $('#item-tax4').val();
     }
     $.ajax({
 
@@ -1267,34 +1629,45 @@
       url: "{% url 'new_estimate_customer' %}",
 
       data: {
-        customer_type: custType,
+        tax_preference:cust_tax,
+        customer_type:custType,
+        title: $("#ctitle").val(),
+        firstname: $("#cfname").val(),
+        lastname: $("#clname").val(),
+        company_name: $("#ccompany").val(),
         display_name: $('#cdisplayname').text(),
-        company_name: $('#ccompany').val(),
         email: $("#cemail").val(),
+        website: $("#cwsite").val(),
         work_mobile: $("#cw_mobile").val(),
         pers_mobile: $("#cp_mobile").val(),
+        skype: $("#cskype").val(),
         facebook: $("#facebook").val(),
         twitter: $("#twitter").val(),
-        website: $("#website").val(),
-        skype: $("#cskype").val(),
         desg: $("#c_desg").val(),
         dpt: $("#c_dpt").val(),
         gsttype: $("#c_gsttype").val(),
-        gstno: $("#c_gstin").val(),
-        placeofsupply: $("#placesupply").val(),
-        tax_preference: cust_tax,
+        gstin: $("#c_gstin").val(),
+        panno: $("#c_pan").val(),
+        placesupply: $("#placesupply").val(),
         currency: $("#c_curn").val(),
-        openingbalance: $("#c_open").val(),
+        openingbalance: openbal,
         paymentterms: $("#c_terms").val(),
-        street1: $("#cstreet1").val(),
-        street2: $("#cstreet2").val(),
+        street: $("#cstreet").val(),
         city: $("#ccity").val(),
         state: $("#cstate").val(),
         pincode: $("#cpincode").val(),
         fax: $("#cfax").val(),
         phone: $("#cphone").val(),
-        country: $("ccountry").val(),
-        csrfmiddlewaretoken: '{{ csrf_token }}'
+        country: $("#ccountry").val(),
+        shipstreet: $("csstreet").val(),
+        shipcity: $("#cscity").val(),
+        shipstate: $("#csstate").val(),
+        shippincode: $("#cspincode").val(),
+        shipcountry: $("#cscountry").val(),
+        shipfax: $("#csfax").val(),
+        shipphone: $("#csphone").val(),
+        radioCust: $("input[name='radioCust']:checked").val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
 
       },
 
