@@ -18062,73 +18062,72 @@ def new_estimate_item(request):
 
 
 def new_estimate_customer(request):
-    company = company_details.objects.get(user = request.user)
+    if request.user.is_authenticated:
+        if request.method=='POST':
+            tax = request.POST.get('tax_preference')
+            cust_type = request.POST.get('customer_type')
+            # title=request.POST.get('title')
+            first_name=request.POST.get('firstname')
+            last_name=request.POST.get('lastname')
+            comp_name = request.POST.get('company_name')
+            name = request.POST.get('display_name')
+            email=request.POST.get('email')
+            website=request.POST.get('website')
+            w_mobile=request.POST.get('work_mobile')
+            p_mobile=request.POST.get('pers_mobile')
+            skype = request.POST.get('skype')
+            fb = request.POST.get('facebook')
+            twitter = request.POST.get('twitter')
+            desg = request.POST.get('desg')
+            dpt = request.POST.get('dpt')
+            gsttype=request.POST.get('gsttype')
+            gstin=request.POST.get('gstin')
+            panno=request.POST.get('panno')
+            supply=request.POST.get('placesupply')
+            currency=request.POST.get('currency')
+            balance=request.POST.get('openingbalance')
+            payment=request.POST.get('paymentterms')
 
-    if request.method=='POST':
 
-        # title=request.POST.get('title')
-        # first_name=request.POST.get('firstname')
-        # last_name=request.POST.get('lastname')
-        # comp=request.POST.get('company_name')
-        cust_type = request.POST.get('customer_type')
-        name1 = request.POST.get('display_name')
-        name=name1.upper()
-        comp_name = request.POST.get('company_name')
-        email=request.POST.get('email')
-        website=request.POST.get('website')
-        w_mobile=request.POST.get('work_mobile')
-        p_mobile=request.POST.get('pers_mobile')
-        fb = request.POST.get('facebook')
-        twitter = request.POST.get('twitter')
-        skype = request.POST.get('skype')
-        desg = request.POST.get('desg')
-        dpt = request.POST.get('dpt')
-        gsttype=request.POST.get('gsttype')
-        gstin=request.POST.get('gstno')
-        # panno=request.POST.get('panno')
-        supply=request.POST.get('placeofsupply')
-        tax = request.POST.get('tax_preference')
-        currency=request.POST.get('currency')
-        balance=request.POST.get('openingbalance')
-        payment=request.POST.get('paymentterms')
-        street1=request.POST.get('street1')
-        street2=request.POST.get('street2')
-        city=request.POST.get('city')
-        state=request.POST.get('state')
-        pincode=request.POST.get('pincode')
-        country=request.POST.get('country')
-        fax=request.POST.get('fax')
-        phone=request.POST.get('phone')
-        sAddress1=request.POST.get('sstreet1')
-        sAddress2=request.POST.get('sstreet2')
-        scity=request.POST.get('scity')
-        sstate=request.POST.get('sstate')
-        scountry=request.POST.get('scountry')
-        szipcode=request.POST.get('spincode')
-        sphone1=request.POST.get('sphone')
-        sfax=request.POST.get('sfax')
+            street1=request.POST.get('street')
+            street2=request.POST.get('street')
+            city=request.POST.get('city')
+            state=request.POST.get('state')
+            pincode=request.POST.get('pincode')
+            country=request.POST.get('country')
+            fax=request.POST.get('fax')
+            phone=request.POST.get('phone')
+            sAddress1=request.POST.get('shipstreet')
+            sAddress2=request.POST.get('shipstreet')
+            scity=request.POST.get('shipcity')
+            sstate=request.POST.get('shipstate')
+            scountry=request.POST.get('shipcountry')
+            szipcode=request.POST.get('shippincode')
+            sphone1=request.POST.get('shipphone')
+            sfax=request.POST.get('shipfax')
 
-        # shipstreet1=request.POST.get('shipstreet1')
-        # shipstreet2=request.POST.get('shipstreet2')
-        # shipcity=request.POST.get('shipcity')
-        # shipstate=request.POST.get('shipstate')
-        # shippincode=request.POST.get('shippincode')
-        # shipcountry=request.POST.get('shipcountry')
-        # shipfax=request.POST.get('shipfax')
-        # shipphone=request.POST.get('shipphone')
+            # shipstreet1=request.POST.get('shipstreet1')
+            # shipstreet2=request.POST.get('shipstreet2')
+            # shipcity=request.POST.get('shipcity')
+            # shipstate=request.POST.get('shipstate')
+            # shippincode=request.POST.get('shippincode')
+            # shipcountry=request.POST.get('shipcountry')
+            # shipfax=request.POST.get('shipfax')
+            # shipphone=request.POST.get('shipphone')
 
-        u = User.objects.get(id = request.user.id)
+            u = User.objects.get(id = request.user.id)
 
-        cust = customer(customerName = name,customerType = cust_type, companyName= comp_name, GSTTreatment=gsttype,GSTIN=gstin, 
-                        customerWorkPhone = w_mobile,customerMobile = p_mobile, customerEmail=email,skype = skype,Facebook = fb, 
-                        Twitter = twitter,placeofsupply=supply,Taxpreference = tax,currency=currency, website=website, 
-                        designation = desg, department = dpt,OpeningBalance=balance,Address1=street1,Address2=street2, city=city, 
-                        state=state, PaymentTerms=payment,zipcode=pincode,country=country,  fax = fax,  phone1 = phone,
-                        sAddress1=sAddress1,sAddress2=sAddress2,scity=scity,sstate=sstate,scountry=scountry,szipcode=szipcode,
-                        sphone1=sphone1,sfax=sfax,user=u)
-        cust.save()
+            cust = customer(Taxpreference = tax, customerType = cust_type, Fname=first_name, Lname=last_name, companyName= comp_name, customerName = name, customerEmail=email,  GSTTreatment=gsttype, GSTIN=gstin, 
+                            customerWorkPhone = w_mobile, customerMobile = p_mobile, skype = skype,Facebook = fb, 
+                            Twitter = twitter, placeofsupply=supply, currency=currency, website=website, 
+                            designation = desg, department = dpt,OpeningBalance=balance,Address1=street1,Address2=street2, city=city, 
+                            state=state, PaymentTerms=payment,zipcode=pincode,country=country,fax = fax,  phone1 = phone,
+                            sAddress1=sAddress1,sAddress2=sAddress2,scity=scity,sstate=sstate,scountry=scountry,szipcode=szipcode,
+                            sphone1=sphone1,sfax=sfax,user=u,pan_no=panno)
+            cust.save()
+            print('success')
 
-        return HttpResponse({"message": "success"})
+            return HttpResponse({"message": "success"})
         
 
 def est_sort_by_estno(request):

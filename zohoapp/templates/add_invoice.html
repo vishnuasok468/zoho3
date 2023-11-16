@@ -378,6 +378,7 @@
           <div class="modal-body" style="background: rgb(32, 35, 37);">
             <div class="card p-3 m-3">
               <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalCustomer">
+                {% csrf_token %}
                 <div class="row mt-2">
                   <div class="col-md-3 mt-2">
                     <label for="">Customer Type</label><br>
@@ -1378,7 +1379,7 @@
 
 <script>
 
-$(document).ready(function () {
+  $(document).ready(function () {
     $("#item-tax3").click(function () {
       //  console.log($("#item_units").val().split(' ')[0]);
       $(".inter-intra").removeClass('d-none');
@@ -1599,7 +1600,7 @@ $(document).ready(function () {
 
 
   $(document).ready(function () {
-    $("#cfname, #clname").change(function () {
+    $("#cfname, #clname,#ctitle").change(function () {
       $("#cdisplayname").text($("#ctitle").val() + " " + $("#cfname").val() + " " + $("#clname").val());
     });
   });
@@ -1623,21 +1624,27 @@ $(document).ready(function () {
     else {
       cust_tax = $('#item-tax4').val();
     }
+    if ($('#bal').val() == 'credit') {
+      openbal = $("#c_open").val()
+      openbal = -openbal
+    } else {
+      openbal = $("#c_open").val()
+    }
     $.ajax({
 
       type: 'POST',
       url: "{% url 'new_estimate_customer' %}",
 
       data: {
-        tax_preference:cust_tax,
-        customer_type:custType,
+        tax_preference: cust_tax,
+        customer_type: custType,
         title: $("#ctitle").val(),
         firstname: $("#cfname").val(),
         lastname: $("#clname").val(),
         company_name: $("#ccompany").val(),
         display_name: $('#cdisplayname').text(),
         email: $("#cemail").val(),
-        website: $("#cwsite").val(),
+        website: $("#website").val(),
         work_mobile: $("#cw_mobile").val(),
         pers_mobile: $("#cp_mobile").val(),
         skype: $("#cskype").val(),
@@ -1659,7 +1666,7 @@ $(document).ready(function () {
         fax: $("#cfax").val(),
         phone: $("#cphone").val(),
         country: $("#ccountry").val(),
-        shipstreet: $("csstreet").val(),
+        shipstreet: $("#csstreet").val(),
         shipcity: $("#cscity").val(),
         shipstate: $("#csstate").val(),
         shippincode: $("#cspincode").val(),
@@ -1670,6 +1677,7 @@ $(document).ready(function () {
         csrfmiddlewaretoken: '{{ csrf_token }}',
 
       },
+    
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
