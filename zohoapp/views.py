@@ -1220,6 +1220,10 @@ def add_invoice(request):
     bank=Bankcreation.objects.all()
     customer1=customer.objects.all()   
     last_record = SalesOrder.objects.last()
+    sales=Sales.objects.all()
+    itm=AddItem.objects.all()
+
+
     if last_record ==None:
         reford = '01'
         reference = 'RET-01'
@@ -1234,11 +1238,11 @@ def add_invoice(request):
         else:
             reference = remaining_characters+str(last_two_numbers)
         if last_record.id+1 < 10:
-            reford = '0'+ str(int(last_record.reference)+1)
+            reford = '0'+ str(int(last_record.id)+1)
         else:
-            reford = str(int(last_record.reference)+1)
+            reford = str(int(last_record.id)+1)
 
-    context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,}    
+    context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,'sales':itm}    
     return render(request,'add_invoice.html',context)
 
 @login_required(login_url='login')
@@ -2770,6 +2774,37 @@ def itemdata(request):
         return JsonResponse({"status":" not",'mail':mail,'desc':desc,'place':place,'rate':rate,'pos':place_of_supply,'gst':gst,'igst':igst,
                             'stock':stock,'hsn':hsn})
 
+@login_required(login_url='login')
+def itemdata_ri(request):
+    cur_user = request.user.id
+    user = User.objects.get(id=cur_user)
+    company = company_details.objects.get(user = user)
+    id = request.GET.get('id')
+
+    try:
+        item = AddItem.objects.get(Name=id)
+        rate = item.s_price
+        place=company.state
+        gst = item.intrastate
+        igst = item.interstate
+        desc=item.s_desc
+        stock=item.stock
+        hsn=item.hsn
+
+        return JsonResponse({"status":" not",'desc':desc,'place':place,'rate':rate,'gst':gst,'igst':igst,
+                            'stock':stock,'hsn':hsn})
+    except AddItem.DoesNotExist:
+        rate = 0
+        place=''
+        gst = 0
+        igst = 0
+        desc=0
+        mail=''
+        stock=0
+        hsn=0
+        return JsonResponse({"status":" not",'desc':desc,'place':place,'rate':rate,'gst':gst,'igst':igst,
+                            'stock':stock,'hsn':hsn})
+
 def convert_to_invoice(request,pk):
     sale = SalesOrder.objects.get(id=pk)
     inv_id = invoice.objects.last()
@@ -3838,7 +3873,6 @@ def create_sales_order(request):
     
 @login_required(login_url='login')
 def add_customer_for_sorder(request):
-    if request.user.is_authenticated:
         if request.method=='POST':
             tax=request.POST.get('tax')
             type=request.POST.get('title')
@@ -18128,6 +18162,8 @@ def new_estimate_customer(request):
             print('success')
 
             return HttpResponse({"message": "success"})
+
+
         
 
 def est_sort_by_estno(request):

@@ -257,6 +257,7 @@
                 <th>Item<a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
                 <th class="text-right">Description</th>
                 <th class="text-right">Quantity</th>
+                <th>rate</th>
                 <th class="text-right">Amount</th>
                 <th></th>
               </tr>
@@ -267,19 +268,22 @@
                   <select class='form-control border-0 bg-transparent text-white item_select itm' name='item[]'
                     id='item1' onchange="itemfunction(this.id)">
                     <option value="" selected hidden>Select Item</option>
-                    {% for i in itm %}
+                    {% for i in sales %}
                     <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
                     {% endfor %}
                   </select>
                 </td>
                 <td><input type="text" class="form-control bg-transparent border-0 bg-light text-light border-0"
                     name="description[]" style="width: 350px;" required /></td>
-                <td><input type="number" name="quantity[]"
-                    class="form-control bg-transparent text-white border-0 text-right"
+                <td><input type="number" name="quantity[]" id="qty1"
+                    class="form-control bg-transparent text-white border-0 text-right qty"
                     style="border: none;width: 100px;">
                 </td>
-                <td><input type="number" class="form-control bg-transparent border-0 bg-light text-light border-0"
-                    name="amount[]" style="width: 150px;" step="0.01" required /></td>
+                <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0"
+                    name="" style="width: 150px;" step="0.01" required id="rate1" /></td>
+                <td><input type="number"
+                    class="amount form-control bg-transparent border-0 bg-light text-light border-0" name="amount[]"
+                    style="width: 150px;" step="0.01" required id="amount1" /></td>
                 <td class="text-center" style="display: grid;"><a href="#"
                     class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle text-danger"
                     style="width: 30px;"><i class="fas fa-times"></i></a><br>
@@ -518,7 +522,7 @@
                   </div>
                   <div class="col-md-6 mt-2">
                     <select class="form-control bg-light text-dark" id="c_gsttype" name="c_gsttype" required>
-                      <option value="value" selected hidden>Select a Gst Treatment</option>
+                      <option value="" selected hidden>Select a Gst Treatment</option>
                       <option value="Registered Business-Regular Business that is registered under GST">Registered
                         Business-Regular Business that is registered under GST</option>
                       <option
@@ -914,9 +918,9 @@
                 </div>
                 <div class="row mt-2">
                   <div class="col-md-6">
-                    <input type="checkbox" value="" id="invalidCheck" name="invalidCheck" required>
+                    <input type="checkbox" value="1" id="invalidCheck" name="invalidCheck" required>
                     <label for="invalidCheck" style="color: #909091;">Agree to terms and conditions</label>
-                    <div class="invalid-feedback text-warning">You must agree before submitting.</div>
+                    <div class="invalid-feedback text-warning">{{msg}}</div>
                   </div>
                 </div>
                 <div class="row mt-5">
@@ -924,7 +928,7 @@
                   <div class="col-md-4">
                     <div class="d-flex">
                       <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
-                        data-dismiss="modal" id="customersave">
+                        id="customersave">
                         Submit
                       </button>
                       <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4"
@@ -1677,7 +1681,7 @@
         csrfmiddlewaretoken: '{{ csrf_token }}',
 
       },
-    
+
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
@@ -1967,7 +1971,7 @@
   // Add Another Line
   var addAnotherLine = document.getElementById('add-another-line');
   var tableBody = document.querySelector('#retainer-table tbody');
-  var newRow = '<tr><td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" /></td><td><input type="number" class="form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 100px;" /></td><td><a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" ><i class="fas fa-times"></i></a><a href="#" class="delete-row btn btn-transparent btn-outline-primary btn-sm rounded-circle" ><i class="fas fa-clone"></i></a></td></tr>';
+  var newRow = '<tr><td><select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item1" onchange="itemfunction(this.id)"><option value="" selected hidden>Select Item</option>{% for i in itm %}<option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>{% endfor %}</select></td><td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" /></td> <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="" style="width: 150px;" step="0.01" required id="rate1" /></td><td><input type="number"<td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;"></td><td><input type="number" class="amount form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 150px;" /></td><td class="text-center" style="display: grid;"><a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" style="width: 30px;"><i class="fas fa-times"></i></a><a href="#" class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle" style="width: 30px;"><i class="fas fa-clone"></i></a></td></tr>';
   addAnotherLine.addEventListener('click', function (e) {
     e.preventDefault();
     tableBody.insertAdjacentHTML('beforeend', newRow);
@@ -1982,6 +1986,7 @@
   //     }
   // });
   $('#retainer-table').on('click', '.delete-row', function () {
+    event.preventDefault();
     $(this).closest('tr').remove();
     updateTotalAmount();
   });
@@ -1991,9 +1996,10 @@
 
   var rowCount = 1;
   $('#retainer-table').on('click', '.clone-row', function () {
+    event.preventDefault();
     var row = $(this).closest('tr');
     var clonedRow = row.clone(); // Clone the current row
-    var newRowId = 'row' + rowCount; // Generate a new ID for the cloned row
+    var newRowId = 'item' + rowCount; // Generate a new ID for the cloned row
     clonedRow.attr('id', newRowId); // Set the new ID for the cloned row
 
     rowCount++; // Increment row counter
@@ -2001,6 +2007,7 @@
     $('#retainer-table tbody').append(clonedRow);
     var row = $(this).closest('tr');
     updateTotalAmount();
+    calculateProduct(row);
 
 
   });
@@ -2096,6 +2103,61 @@
     })
   })()
 </script>
+
+<script>
+  function itemfunction(id_str) {
+    id = id_str.split("item")[1]
+
+
+    select = $(`#item${id}`).val();
+    //customer = $('#customer_sel').val();
+    $.ajax({
+      type: "GET",
+      url: "{% url 'itemdata_ri' %}",
+      data: {
+        id: select,
+        //cust: customer
+      },
+      success: function (response) {
+        data = response.rate
+        document.getElementById(`rate${id}`).value = data
+
+      }
+    });
+  }
+  
+    const rateInput = document.querySelector('.rate');
+    const qtyInput = document.querySelector('.qty');
+    const amountInput = document.querySelector('.amount');
+
+    rateInput.addEventListener('keyup', calculateProduct);
+    qtyInput.addEventListener('keyup', calculateProduct);
+
+  // Function to calculate the product and update the amount field
+  function calculateProduct() {
+    
+    const num1 = parseFloat(rateInput.value);
+    const num2 = parseFloat(qtyInput.value);
+    console.log(num1);
+    console.log(num2);
+
+    // Check if both numbers are valid
+    if (!isNaN(num1) && !isNaN(num2)) {
+      const product = num1 * num2;
+      amountInput.value = product;
+    } else {
+      amountInput.value = 0;
+    }
+  }
+
+
+  calculateProduct();
+
+
+
+</script>
+
+
 
 
 
