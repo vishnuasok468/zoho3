@@ -1222,6 +1222,8 @@ def add_invoice(request):
     last_record = SalesOrder.objects.last()
     sales=Sales.objects.all()
     itm=AddItem.objects.all()
+    purchase=Purchase.objects.all()
+
 
 
     if last_record ==None:
@@ -1242,7 +1244,7 @@ def add_invoice(request):
         else:
             reford = str(int(last_record.id)+1)
 
-    context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,'sales':itm}    
+    context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,'itm':itm,'sales':sales,'purchase':purchase}    
     return render(request,'add_invoice.html',context)
 
 @login_required(login_url='login')

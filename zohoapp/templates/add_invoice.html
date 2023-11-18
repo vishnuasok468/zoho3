@@ -10,6 +10,10 @@
 
 
 <style>
+  .itm option {
+    color: black;
+  }
+
   .modal {
     z-index: 9999;
     overflow: scroll;
@@ -257,33 +261,34 @@
                 <th>Item<a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
                 <th class="text-right">Description</th>
                 <th class="text-right">Quantity</th>
-                <th>rate</th>
+                <th style="display: none;">rate</th>
                 <th class="text-right">Amount</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr id="row1">
                 <td>
                   <select class='form-control border-0 bg-transparent text-white item_select itm' name='item[]'
                     id='item1' onchange="itemfunction(this.id)">
                     <option value="" selected hidden>Select Item</option>
-                    {% for i in sales %}
+                    {% for i in itm %}
                     <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
                     {% endfor %}
                   </select>
                 </td>
                 <td><input type="text" class="form-control bg-transparent border-0 bg-light text-light border-0"
-                    name="description[]" style="width: 350px;" required /></td>
+                    name="description[]" style="width: 350px;" required id="description1" /></td>
                 <td><input type="number" name="quantity[]" id="qty1"
                     class="form-control bg-transparent text-white border-0 text-right qty"
-                    style="border: none;width: 100px;">
+                    style="border: none;width: 100px;" onchange="calculateAmount(1)">
                 </td>
-                <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0"
-                    name="" style="width: 150px;" step="0.01" required id="rate1" /></td>
+                <td style="display: none;"><input type="number"
+                    class="rate form-control bg-transparent border-0 bg-light text-light border-0" name=""
+                    style="width: 150px;" step="0.01" required id="rate1" onchange="calculateAmount(1)" readonly /></td>
                 <td><input type="number"
                     class="amount form-control bg-transparent border-0 bg-light text-light border-0" name="amount[]"
-                    style="width: 150px;" step="0.01" required id="amount1" /></td>
+                    style="width: 150px;" step="0.01" required id="amount1" readonly /></td>
                 <td class="text-center" style="display: grid;"><a href="#"
                     class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle text-danger"
                     style="width: 30px;"><i class="fas fa-times"></i></a><br>
@@ -330,7 +335,9 @@
               <td></td>
               <td><input type="number" name="paid" id="paid"
                   class="form-control bg-transparent border-0 text-right subtotal text-white" onchange="show_bal()"
-                  style="text-align: right;" value="0" readonly></td>
+                  style="text-align: right;" value="0">
+                  <label for="" id="pay-warning" style="display: none;text-align: right;" class="text-warning"></label>
+              </td>
             </tr>
             <tr>
               <td>Balance</td>
@@ -362,7 +369,7 @@
         <button class="btn mt-2" type="submit" name="action" value="draft"
           style="width: 150px;margin-right: 1vh; background-color: chocolate;" onclick="savedraft()">Draft</button>
         <button class="btn mt-2" type="submit" name="action" value="send"
-          style="width: 150px;margin-right: 1vh; background-color: chocolate;" onclick="savesend()">Send</button>
+          style="width: 150px;margin-right: 1vh; background-color: chocolate;" onclick="savesend()">Save</button>
         <button class="btn mt-2" style="width: 150px; background-color: chocolate;" type="reset">Cancel</button><br><br>
       </div>
 
@@ -1597,6 +1604,18 @@
 
 <script>
 
+  function trackinventory() {
+    $("#trackdiv1").toggle();
+    $("#trackdiv2").toggle();
+    $("#trackdiv3").toggle();
+    $("#trackdiv4").toggle();
+    document.getElementById("invasset").value = "0"
+    document.getElementById("opening_stock").value = 0
+    document.getElementById("opening_stock_unit").value = 0
+    document.getElementById("active").checked = false
+    document.getElementById("nonactive").checked = false
+  }
+
 
   //---------modal customer-----
 
@@ -1612,43 +1631,48 @@
 
   // ######################################################################
 
-  $(document).on("click", "#customerSave", function () {
+  //------customer create 
 
+  $(document).on("click", "#customersave", function () {
     if ($('input[name="radioCust"]:checked').val() == 'Business') {
 
-      custType = $('#business').val();
+      itemtype = $('#business').val();
     }
     else {
-      custType = $('#individual').val();
+      itemtype = $('#individual').val();
     }
 
     if ($('input[name="radioOption2"]:checked').val() == 'Taxable') {
-      cust_tax = $('#item-tax3').val();
+      inte = $('#item-tax3').val();
+
     }
     else {
-      cust_tax = $('#item-tax4').val();
+      inte = $('#item-tax4').val();
     }
+
     if ($('#bal').val() == 'credit') {
       openbal = $("#c_open").val()
       openbal = -openbal
     } else {
       openbal = $("#c_open").val()
     }
+
+
     $.ajax({
 
       type: 'POST',
-      url: "{% url 'new_estimate_customer' %}",
+      url: "{% url 'add_customer_for_sorder' %}",
 
       data: {
-        tax_preference: cust_tax,
-        customer_type: custType,
+        tax: inte,
+        itemtype: itemtype,
         title: $("#ctitle").val(),
         firstname: $("#cfname").val(),
         lastname: $("#clname").val(),
         company_name: $("#ccompany").val(),
         display_name: $('#cdisplayname').text(),
         email: $("#cemail").val(),
-        website: $("#website").val(),
+        website: $("#cwsite").val(),
         work_mobile: $("#cw_mobile").val(),
         pers_mobile: $("#cp_mobile").val(),
         skype: $("#cskype").val(),
@@ -1670,7 +1694,7 @@
         fax: $("#cfax").val(),
         phone: $("#cphone").val(),
         country: $("#ccountry").val(),
-        shipstreet: $("#csstreet").val(),
+        shipstreet: $("csstreet").val(),
         shipcity: $("#cscity").val(),
         shipstate: $("#csstate").val(),
         shippincode: $("#cspincode").val(),
@@ -1679,39 +1703,18 @@
         shipphone: $("#csphone").val(),
         radioCust: $("input[name='radioCust']:checked").val(),
         csrfmiddlewaretoken: '{{ csrf_token }}',
-
       },
-
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
-        reloadCustomer();
+        location.reload();
+
+        //reloadcustomer();
+
       },
     });
   });
 
-  function reloadCustomer() {
-
-    $.ajax({
-      url: "{% url 'customer_dropdown' %}",
-      type: "GET",
-      dataType: "json",
-      data: $(this).serialize(),
-      csrfmiddlewaretoken: '{{ csrf_token }}',
-
-      success: function (data) {
-        var dropdown = $('#customer_sel');
-        dropdown.empty();
-        $.each(data, function (key, value) {
-          // dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + ' ' + value[1]));
-          dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error(xhr.responseText);
-      }
-    });
-  }
 
   $(document).ready(function () {
     $('#customer_sel').change(function () {
@@ -1775,6 +1778,152 @@
         }
 
       });
+    });
+  });
+
+
+  //--unit create
+  $(document).on("click", "#unitSave", function () {
+    $.ajax({
+
+      type: 'POST',
+      url: "{% url 'purchase_unit' %}",
+
+      data: {
+        unit: $("#unit").val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+
+      },
+
+      success: function (response) {
+        document.getElementById("modalUnit").reset();
+        reloadUnit();
+      },
+    });
+  });
+
+
+  function reloadUnit() {
+
+    $.ajax({
+      url: "{% url 'purchase_unit_dropdown' %}",
+      type: "GET",
+      dataType: "json",
+      data: $(this).serialize(),
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+
+      success: function (data) {
+        var dropdown = $('#item_units');
+        dropdown.empty();
+
+        $.each(data, function (key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+        });
+      },
+      error: function (xhr, status, error) {
+        console.error(xhr.responseText);
+      }
+    });
+  }
+
+  //item save
+  $(document).on("click", "#itemSave", function () {
+
+    if ($('input[name="radioOption"]:checked').val() == 'Goods') {
+
+      itemtype = $('#item_type1').val();
+    }
+    else {
+      itemtype = $('#item_type2').val();
+    }
+
+    if ($('input[name="radioOption1"]:checked').val() == 'Taxable') {
+      inter = $('#inter').val();
+      intra = $('#intra').val();
+    }
+    else {
+      inter = 0;
+      intra = 0;
+    }
+
+    if ($('input[name="activation"]:checked').val() == 'active') {
+
+      active_type = "active"
+    }
+    else {
+      active_type = "nonactive"
+    }
+
+    $.ajax({
+
+      type: 'POST',
+      url: "{% url 'purchase_item' %}",
+
+      data: {
+        type: itemtype,
+        name: $("#item_name").val(),
+        unit: $("#item_units").val(),
+        hsn: $("#hsn").val(),
+        inter: inter,
+        intra: intra,
+        sell_price: $("#sell_price").val(),
+        cost_price: $("#cost_price").val(),
+        sell_acc: $("#sell_acc").val(),
+        cost_acc: $("#cost_acc").val(),
+        sell_desc: $("#sell_desc").val(),
+        cost_desc: $("#cost_desc").val(),
+        active_type: active_type,
+        invasset: $("#invasset").val(),
+        opening_stock: $("#opening_stock").val(),
+        opening_stock_unit: $("#opening_stock_unit").val(),
+
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+
+      },
+
+      success: function (response) {
+        document.getElementById("modalItem").reset();
+        reloadItem();
+      },
+    });
+  });
+
+
+  function reloadItem() {
+    $.ajax({
+      url: "{% url 'purchase_item_dropdown' %}",
+      type: "GET",
+      dataType: "json",
+      data: $(this).serialize(),
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+
+      success: function (data) {
+        var dropdown = $('.itm');
+        dropdown.empty();
+
+        dropdown.append($('<option value="" selected hidden>Select Item</option>'));
+        $.each(data, function (key, value) {
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+        });
+      },
+      error: function (xhr, status, error) {
+        console.error(xhr.responseText);
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    $("#hsn").keyup(function () {
+      var x = String($('#hsn').val());
+      if (x.length != 6) {
+        document.getElementById("hsn_war").style.display = "block"
+        document.getElementById("hsn_war").style.color = "red"
+        document.getElementById("hsn_war").innerHTML = "HSN should be of length 6"
+      }
+      if (x.length == 6) {
+        document.getElementById("hsn_war").style.color = "green"
+        document.getElementById("hsn_war").innerHTML = "HSN is valid"
+      }
     });
   });
 
@@ -1968,23 +2117,9 @@
 
 
 <script>
-  // Add Another Line
-  var addAnotherLine = document.getElementById('add-another-line');
-  var tableBody = document.querySelector('#retainer-table tbody');
-  var newRow = '<tr><td><select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item1" onchange="itemfunction(this.id)"><option value="" selected hidden>Select Item</option>{% for i in itm %}<option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>{% endfor %}</select></td><td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" /></td> <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="" style="width: 150px;" step="0.01" required id="rate1" /></td><td><input type="number"<td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;"></td><td><input type="number" class="amount form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 150px;" /></td><td class="text-center" style="display: grid;"><a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" style="width: 30px;"><i class="fas fa-times"></i></a><a href="#" class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle" style="width: 30px;"><i class="fas fa-clone"></i></a></td></tr>';
-  addAnotherLine.addEventListener('click', function (e) {
-    e.preventDefault();
-    tableBody.insertAdjacentHTML('beforeend', newRow);
-  });
 
-  // Delete Row
-  // tableBody.addEventListener('click', function(e) {
-  //     if(e.target.classList.contains('delete-row')) {
-  //         e.preventDefault();
-  //         e.target.closest('tr').remove();
-  //         updateTotalAmount();
-  //     }
-  // });
+  var rowCount = 1;
+
   $('#retainer-table').on('click', '.delete-row', function () {
     event.preventDefault();
     $(this).closest('tr').remove();
@@ -1994,68 +2129,144 @@
 
   // Event handler for clone button  .... TABLE 1
 
-  var rowCount = 1;
   $('#retainer-table').on('click', '.clone-row', function () {
-    event.preventDefault();
-    var row = $(this).closest('tr');
-    var clonedRow = row.clone(); // Clone the current row
-    var newRowId = 'item' + rowCount; // Generate a new ID for the cloned row
-    clonedRow.attr('id', newRowId); // Set the new ID for the cloned row
 
     rowCount++; // Increment row counter
+    var row = $(this).closest('tr');
+    var clonedRow = row.clone(); // Clone the current row
+    var newRowId = 'row' + rowCount; // Generate a new ID for the cloned row
+    clonedRow.attr('id', newRowId); // Set the new ID for the cloned row
+
+
+    // Clone the options for tax, account, and item
+    var currentItem = row.find('.item_select').val();
+    clonedRow.find('.item_select').val(currentItem);
 
     $('#retainer-table tbody').append(clonedRow);
-    var row = $(this).closest('tr');
-    updateTotalAmount();
-    calculateProduct(row);
 
+    document.getElementById(`row${rowCount}`).querySelectorAll("select")[0].id = `item${rowCount}`;
+    document.getElementById(`row${rowCount}`).querySelectorAll("input")[0].id = `description${rowCount}`;
+    document.getElementById(`row${rowCount}`).querySelectorAll("input")[1].id = `qty${rowCount}`;
+    document.getElementById(`row${rowCount}`).querySelectorAll("input")[2].id = `rate${rowCount}`;
+    document.getElementById(`row${rowCount}`).querySelectorAll("input")[3].id = `amount${rowCount}`;
+
+    clonedRow.find("input[name='quantity[]']").on('input', handleInput);
+    clonedRow.find("input[name='rate[]']").on('input', handleInput);
+
+    // Trigger input event to update the calculated amount in the cloned row
+    clonedRow.find('.qty').trigger('input');
+    clonedRow.find('.rate').trigger('input');
+    calculateTotalAmount();
 
   });
 
+  function calculateAmount(rowId) {
+    var quantity = parseFloat(document.getElementById('qty' + rowId).value);
+    var rate = parseFloat(document.getElementById('rate' + rowId).value);
+    var amount = quantity * rate;
 
-  // Update Total Amount
-  function updateTotalAmount() {
-    var amountFields = document.querySelectorAll('#retainer-table tbody input[type="number"]');
-    var totalAmount = 0;
-    amountFields.forEach(function (amountField) {
-      totalAmount += parseFloat(amountField.value) || 0;
-    });
-    document.getElementById('total-amount').textContent = totalAmount.toFixed(2);
+    document.getElementById('amount' + rowId).value = amount.toFixed(2);
   }
 
-  // Update Total Amount on Input Change
-  tableBody.addEventListener('input', function (e) {
-    if (e.target.matches('input[type="number"]')) {
-      updateTotalAmount();
-    }
+  $('#add-another-line').click(function () {
+    rowCount++; // Increment row counter
+    console.log()
+    var newRow = `
+      <tr id="row${rowCount}">
+        <td>
+          <select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item${rowCount}" onchange="itemfunction(this.id)">
+            <option value="" selected hidden>Select Item</option>
+              {% for i in itm %}
+              <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
+              {% endfor %}
+          </select>
+        </td>
+        <td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" id="description${rowCount}"/></td> 
+        <td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;" id="qty${rowCount}" onchange="calculateAmount(${rowCount})"></td>
+        <td style="display:none;"><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="" style="width: 150px;" step="0.01" required id="rate${rowCount}" onchange="calculateAmount(${rowCount})" readonly/></td>
+        <td><input type="number" class="amount form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 150px;" id="amount${rowCount}" readonly/></td>
+        <td class="text-center" style="display: grid;">
+          <a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" style="width: 30px;">
+            <i class="fas fa-times"></i>
+          </a>
+          <a href="#" class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle" style="width: 30px;"> 
+            <i class="fas fa-clone"></i>
+          </a>
+          </td>
+      </tr>`;
+    $('#retainer-table tbody').append(newRow);
+
+    // Add event listeners to the quantity and rate inputs in the newly added row
+    $('#qty' + rowCount).on('input', handleInput);
+    $('#rate' + rowCount).on('input', handleInput);
   });
+
+
+  // Add event listeners to the quantity and rate inputs
+  var quantityInputs = document.querySelectorAll('[id^="qty"]');
+  var rateInputs = document.querySelectorAll('[id^="rate"]');
+
+  for (var i = 0; i < quantityInputs.length; i++) {
+    quantityInputs[i].addEventListener('input', handleInput);
+    rateInputs[i].addEventListener('input', handleInput);
+  }
+
+  function handleInput(event) {
+    var rowId = event.target.id.slice(-1);
+    calculateAmount(rowId);
+    calculateTotalAmount();
+  }
+
+  function calculateTotalAmount() {
+    var total = 0;
+
+    $('.amount').each(function () {
+      var amount = parseFloat($(this).val());
+      if (!isNaN(amount)) {
+        total += amount;
+        console.log(total);
+      }
+    });
+
+    document.getElementById('total-amount').value = total.toFixed(2);
+  }
+
+  $(document).ready(function () {
+    // Add event listeners to the 'Paid Off' and 'Total Amount' fields
+    $('#paid').on('input', show_bal);
+    $('#total-amount').on('input', show_bal);
+
+    // Function to calculate and display the balance
+    function show_bal() {
+      var paid_off = parseFloat($('#paid').val());
+      var total_amount = parseFloat($('#total-amount').val());
+      var bal = total_amount - paid_off;
+
+      // Ensure balance is shown as a positive number
+      if (bal < 0) {
+        bal = 0;
+        document.getElementById('pay-warning').style.display=""
+        $('#pay-warning').text("Paid amount cannot be greater than the total*.");
+      }
+      else{
+        document.getElementById('pay-warning').style.display="none"
+
+      }
+
+      $('#balance').val(bal.toFixed(2));
+    }
+
+    // Call the show_bal() function initially to display the initial balance
+    show_bal();
+  });
+
+
+
 </script>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 
-<script>
-  function show_bal() {
-    var paid_off = $('#paid').val();
-    var total_amount = $('#hidden-total-amount').val();
-    var balance = $('#balance').val();
-    var bal = total_amount - paid_off;
-    $('#balance').val(bal);
 
 
-  }
-</script>
-
-
-<script>
-
-  const totalAmountElement = document.getElementById('total-amount');
-  const inputField = document.getElementById('hidden-total-amount');
-
-  totalAmountElement.addEventListener('DOMSubtreeModified', () => {
-    inputField.value = totalAmountElement.innerText.replace('$', '');
-    // document.getElementById("paid").value=totalAmountElement.innerText.replace('$', '');
-  });
-
-</script>
 
 <script>
 
@@ -2081,7 +2292,7 @@
 
 </script>
 
-<script>
+<!--<script>
 
   // Example starter JavaScript for disabling form submissions if there are invalid fields
   (() => {
@@ -2102,7 +2313,7 @@
       }, false)
     })
   })()
-</script>
+</script>-->
 
 <script>
   function itemfunction(id_str) {
@@ -2125,35 +2336,6 @@
       }
     });
   }
-  
-    const rateInput = document.querySelector('.rate');
-    const qtyInput = document.querySelector('.qty');
-    const amountInput = document.querySelector('.amount');
-
-    rateInput.addEventListener('keyup', calculateProduct);
-    qtyInput.addEventListener('keyup', calculateProduct);
-
-  // Function to calculate the product and update the amount field
-  function calculateProduct() {
-    
-    const num1 = parseFloat(rateInput.value);
-    const num2 = parseFloat(qtyInput.value);
-    console.log(num1);
-    console.log(num2);
-
-    // Check if both numbers are valid
-    if (!isNaN(num1) && !isNaN(num2)) {
-      const product = num1 * num2;
-      amountInput.value = product;
-    } else {
-      amountInput.value = 0;
-    }
-  }
-
-
-  calculateProduct();
-
-
 
 </script>
 
