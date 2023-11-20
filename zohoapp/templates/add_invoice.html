@@ -208,7 +208,7 @@
 
         <div class="col-md-6">
           <div class="d-flex">
-            <select class="form-control bg-light text-dark my-select" id="pay_method" name="method">
+            <select class="form-control bg-light text-dark my-select" id="pay_method" name="pay_method">
               <option value="" selected hidden>Select Payment Method</option>
               <option value="cash">Cash</option>
               <option value="cheque">Cheque</option>
@@ -226,7 +226,7 @@
         </div>
 
         <div class="col-md-6">
-          <input type="text" class="form-control text-black" name="cheque_id" id="cheque_id"
+          <input type="text" class="form-control text-black" name="chq_no" id="cheque_id"
             placeholder="Enter Cheque Number">
         </div>
       </div>
@@ -247,7 +247,7 @@
         </div>
 
         <div class="col-md-6">
-          <input type="text" class="form-control text-black" name="bnk_id" id="bnk_id" readonly>
+          <input type="text" class="form-control text-black" name="acc_no" id="bnk_id" readonly>
         </div>
       </div>
 
@@ -326,7 +326,7 @@
             <tr>
               <td>Total</td>
               <td></td>
-              <td><input type="number" name="" id="total-amount"
+              <td><input type="number" name="total" id="total-amount"
                   class="form-control bg-transparent border-0 text-right text-white" style="text-align: right;"
                   readonly></td>
             </tr>
@@ -336,7 +336,7 @@
               <td><input type="number" name="paid" id="paid"
                   class="form-control bg-transparent border-0 text-right subtotal text-white" onchange="show_bal()"
                   style="text-align: right;" value="0">
-                  <label for="" id="pay-warning" style="display: none;text-align: right;" class="text-warning"></label>
+                <label for="" id="pay-warning" style="display: none;text-align: right;" class="text-warning"></label>
               </td>
             </tr>
             <tr>
@@ -2123,13 +2123,14 @@
   $('#retainer-table').on('click', '.delete-row', function () {
     event.preventDefault();
     $(this).closest('tr').remove();
-    updateTotalAmount();
+    calculateTotalAmount();
   });
 
 
   // Event handler for clone button  .... TABLE 1
 
   $('#retainer-table').on('click', '.clone-row', function () {
+    event.preventDefault();
 
     rowCount++; // Increment row counter
     var row = $(this).closest('tr');
@@ -2229,6 +2230,8 @@
     });
 
     document.getElementById('total-amount').value = total.toFixed(2);
+    $('#balance').val(total.toFixed(2));
+
   }
 
   $(document).ready(function () {
@@ -2245,11 +2248,11 @@
       // Ensure balance is shown as a positive number
       if (bal < 0) {
         bal = 0;
-        document.getElementById('pay-warning').style.display=""
+        document.getElementById('pay-warning').style.display = ""
         $('#pay-warning').text("Paid amount cannot be greater than the total*.");
       }
-      else{
-        document.getElementById('pay-warning').style.display="none"
+      else {
+        document.getElementById('pay-warning').style.display = "none"
 
       }
 

@@ -2726,159 +2726,73 @@
     });
 
   });
-  function calculateTaxAmount() {
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-    var srcofsupply = vale; // Replace with the actual value of srcofsupply
-    var companyState = "[KL]-Kerala"; // Replace with the actual value of company state
-
-    var subtotal = parseFloat(document.getElementById("subtotal").value);
-    var shipping = parseFloat(document.getElementById("shipping").value);
-    var tax = parseFloat(document.getElementById("total_taxamount").value);
-    adjust = parseFloat(document.getElementById('adjust').value)
-    advance = parseFloat(document.getElementById('advance').value)
-    console.log(tax)
-    var tax_rate = 0.0; // Default tax rate for IGST
 
 
-    var total_taxamount = tax;
-
-    var cgst = 0.00;
-    var sgst = 0.00;
-    var igst = 0.00;
-
-    if (srcofsupply === companyState) {
-      cgst = total_taxamount / 2;
-      sgst = total_taxamount / 2;
-    } else {
-      igst = tax;
-    }
-
-    document.getElementById("cgst").value = cgst.toFixed(2);
-    document.getElementById("sgst").value = sgst.toFixed(2);
-    document.getElementById("igst").value = igst.toFixed(2);
-
-    if (srcofsupply === companyState) {
-      document.getElementById("tr_igst").style.display = "none";
-      document.getElementById("tr_cgst").style.display = "";
-      document.getElementById("tr_sgst").style.display = "";
-    } else {
-      document.getElementById("tr_igst").style.display = "";
-      document.getElementById("tr_cgst").style.display = "none";
-      document.getElementById("tr_sgst").style.display = "none";
-    }
-
-    document.getElementById("total_taxamount").value = total_taxamount.toFixed(2);
-    var grandtotal = subtotal + total_taxamount + shipping + adjust;
-    // Calculate and display the difference
-    balance = grandtotal - advance
-    document.getElementById("grandtotal").value = grandtotal.toFixed(2);
-    document.getElementById("balance").value = balance.toFixed(2);
-  }
-
-  // Call the function initially on page load
 
 
-  // Add event listeners to update tax amounts when subtotal or shipping changes
-  document.getElementById("subtotal").addEventListener("input", calculateTaxAmount);
-  document.getElementById("shipping").addEventListener("input", calculateTaxAmount);
-
-
-  function toggleDateInput() {
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-
-    for (var i = 1; i <= rowCount; i++) {
-      var taxElement = $('#tax' + i);
-      tax_value = $('#tax' + i).val();
-
-      if (vale === "[KL]-Kerala") {
-        taxElement.find('optgroup[label="GST"]').show();
-        taxElement.find('optgroup[label="IGST"]').hide();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[0].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === tax_value) {
-            options[j].selected = true;
-          }
-        }
-
-
-      } else {
-        taxElement.find('optgroup[label="GST"]').hide();
-        taxElement.find('optgroup[label="IGST"]').show();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[1].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === tax_value) {
-            options[j].selected = true;
-          }
-        }
-      }
-    }
-  }
-
- /*function test(taxamount) {
-    console.log('test333');
-    console.log(taxamount)
-    d = 0;
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-    console.log(pos)
-    console.log('state')
-    console.log(state)
-    console.log('state')
-    console.log('----------')
-    if (vale === "[KL] Kerala") {
-      console.log(pos);
-      console.log(state);
-      console.log(taxamount);
-      gst = taxamount / 2;
-      console.log(gst);
-      $('#cgst').val(parseFloat(gst.toFixed(2)));
-      $('#sgst').val(parseFloat(gst.toFixed(2)));
-      $('#igst').val(parseFloat(d.toFixed(2)));
-
-      // document.getElementById('tr_cgst').style= ('display: flex');
-
-      // document.getElementById('tr_sgst').style= ('display: flex');
-      // document.getElementById('tr_igst').style= ('display: none');
-
-
-    }
-    else {
-      gst = taxamount;
-      console.log(gst);
-      $('#cgst').val(parseFloat(d.toFixed(2)));
-      $('#sgst').val(parseFloat(d.toFixed(2)));
-      $('#igst').val(parseFloat(gst.toFixed(2)));
-    }
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-    var pos = "[KL] Kerala"
-    if (vale == pos) {
-
-    }
-
-    if (vale != "[KL] Kerala") {
-      console.log(pos);
-      console.log(state);
-      document.getElementById('tr_cgst').style = ('display: none');
-      document.getElementById('tr_sgst').style = ('display: none');
-      document.getElementById('tr_igst').style = ('display: block');
-    }
-    else {
-      document.getElementById('tr_cgst').style = ('display: block');
-      document.getElementById('tr_sgst').style = ('display: block');
-      document.getElementById('tr_igst').style = ('display: none');
-    }
-  }*/
+  /*function test(taxamount) {
+     console.log('test333');
+     console.log(taxamount)
+     d = 0;
+     var checkbox = document.getElementById("srcofsupply");
+     var vale = checkbox.value;
+     console.log(pos)
+     console.log('state')
+     console.log(state)
+     console.log('state')
+     console.log('----------')
+     if (vale === "[KL] Kerala") {
+       console.log(pos);
+       console.log(state);
+       console.log(taxamount);
+       gst = taxamount / 2;
+       console.log(gst);
+       $('#cgst').val(parseFloat(gst.toFixed(2)));
+       $('#sgst').val(parseFloat(gst.toFixed(2)));
+       $('#igst').val(parseFloat(d.toFixed(2)));
+ 
+       // document.getElementById('tr_cgst').style= ('display: flex');
+ 
+       // document.getElementById('tr_sgst').style= ('display: flex');
+       // document.getElementById('tr_igst').style= ('display: none');
+ 
+ 
+     }
+     else {
+       gst = taxamount;
+       console.log(gst);
+       $('#cgst').val(parseFloat(d.toFixed(2)));
+       $('#sgst').val(parseFloat(d.toFixed(2)));
+       $('#igst').val(parseFloat(gst.toFixed(2)));
+     }
+     var checkbox = document.getElementById("srcofsupply");
+     var vale = checkbox.value;
+     var pos = "[KL] Kerala"
+     if (vale == pos) {
+ 
+     }
+ 
+     if (vale != "[KL] Kerala") {
+       console.log(pos);
+       console.log(state);
+       document.getElementById('tr_cgst').style = ('display: none');
+       document.getElementById('tr_sgst').style = ('display: none');
+       document.getElementById('tr_igst').style = ('display: block');
+     }
+     else {
+       document.getElementById('tr_cgst').style = ('display: block');
+       document.getElementById('tr_sgst').style = ('display: block');
+       document.getElementById('tr_igst').style = ('display: none');
+     }
+   }*/
 
 </script>
 
 <script>
+
+  var companyState;
+  var oxy_gst;
+  var oxy_igst;
 
   function itemfunction(id_str) {
     id = id_str.split("item")[1]
@@ -2901,6 +2815,8 @@
         data4 = response.place
         stock = response.stock
         hsn = response.hsn
+        oxy_gst = data1
+        oxy_igst = data2
         document.getElementById(`hsn${id}`).value = hsn
         document.getElementById(`rate${id}`).value = data
 
@@ -2943,9 +2859,17 @@
 
         var checkbox = document.getElementById("srcofsupply").value;
         var srcofsupply = checkbox; // Replace with the actual value of srcofsupply
-        console.log(srcofsupply);
-        var companyState = data3; // Replace with the actual value of company state
-        console.log(companyState);
+
+
+        // Find the index of the hyphen
+        var index = srcofsupply.indexOf("-");
+
+        // Remove the first letters before the hyphen
+        var result = srcofsupply.substring(index + 1);
+
+        companyState = data4; // Replace with the actual value of company state
+        toggleDateInput();
+        calculateTaxAmount();
         var subtotal = parseFloat(document.getElementById("subtotal").value);
         var shipping = parseFloat(document.getElementById("shipping").value);
         var tax = parseFloat(document.getElementById("total_taxamount").value);
@@ -2956,7 +2880,7 @@
         var cgst = 0.00;
         var sgst = 0.00;
         var igst = 0.00;
-        if (srcofsupply === companyState) {
+        if (result === companyState) {
           cgst = total_taxamount / 2;
           sgst = total_taxamount / 2;
         } else {
@@ -2965,7 +2889,7 @@
         document.getElementById("cgst").value = cgst.toFixed(2);
         document.getElementById("sgst").value = sgst.toFixed(2);
         document.getElementById("igst").value = igst.toFixed(2);
-        if (srcofsupply === companyState) {
+        if (result === companyState) {
           document.getElementById("tr_igst").style.display = "none";
           document.getElementById("tr_cgst").style.display = "";
           document.getElementById("tr_sgst").style.display = "";
@@ -2994,6 +2918,130 @@
 
 
   }
+
+
+  function toggleDateInput() {
+    var checkbox = document.getElementById("srcofsupply");
+    var vale = checkbox.value;
+    // Find the index of the hyphen
+    var index = vale.indexOf("-")
+    // Remove the first letters before the hyphen
+    var result = vale.substring(index + 1);
+    var c_state = companyState;
+    var gst = oxy_gst;
+    var igst = oxy_igst;
+
+    function extractNumber(squareBracketString) {
+      var regex = /\[(\d+[^[\]]*)\]/; // Matches one or more digits inside square brackets
+      var match = regex.exec(squareBracketString); // Searches the input string for a match
+
+      if (match && match[1]) {
+        var extractedNumber = match[1].replace(/%/g, ""); // Removes all occurrences of "%" symbol
+        return extractedNumber; // Returns the captured number inside the square brackets without "%"
+      } else {
+        return null; // Returns null if no match is found
+      }
+    }
+
+    var extractedGST = extractNumber(gst);
+    var extractedIGST = extractNumber(igst);
+
+    for (var i = 1; i <= rowCount; i++) {
+      var taxElement = $('#tax' + i);
+      tax_value = $('#tax' + i).val();
+
+      if (result === c_state) {
+        taxElement.find('optgroup[label="GST"]').show();
+        taxElement.find('optgroup[label="IGST"]').hide();
+        var select = document.getElementById(`tax${i}`);
+        var optgroups = select.getElementsByTagName("optgroup");
+        var options = optgroups[0].getElementsByTagName("option");
+        for (var j = 0; j < options.length; j++) {
+          if (options[j].value === extractedGST) {
+            options[j].selected = true;
+          }
+        }
+
+
+      } else {
+        taxElement.find('optgroup[label="GST"]').hide();
+        taxElement.find('optgroup[label="IGST"]').show();
+        var select = document.getElementById(`tax${i}`);
+        var optgroups = select.getElementsByTagName("optgroup");
+        var options = optgroups[1].getElementsByTagName("option");
+        for (var j = 0; j < options.length; j++) {
+          if (options[j].value === extractedIGST) {
+            options[j].selected = true;
+          }
+        }
+      }
+    }
+  }
+
+  function calculateTaxAmount() {
+    var checkbox = document.getElementById("srcofsupply");
+    var vale = checkbox.value;
+    // Find the index of the hyphen
+    var index = vale.indexOf("-");
+
+    // Remove the first letters before the hyphen
+    var result = vale.substring(index + 1);
+    console.log(result);
+    var c_state = companyState;
+    console.log(c_state);
+
+    var subtotal = parseFloat(document.getElementById("subtotal").value);
+    var shipping = parseFloat(document.getElementById("shipping").value);
+    var tax = parseFloat(document.getElementById("total_taxamount").value);
+    adjust = parseFloat(document.getElementById('adjust').value)
+    advance = parseFloat(document.getElementById('advance').value)
+    console.log(tax)
+    var tax_rate = 0.0; // Default tax rate for IGST
+
+
+    var total_taxamount = tax;
+
+    var cgst = 0.00;
+    var sgst = 0.00;
+    var igst = 0.00;
+
+    if (result === c_state) {
+      cgst = total_taxamount / 2;
+      sgst = total_taxamount / 2;
+    } else {
+      igst = tax;
+    }
+
+    document.getElementById("cgst").value = cgst.toFixed(2);
+    document.getElementById("sgst").value = sgst.toFixed(2);
+    document.getElementById("igst").value = igst.toFixed(2);
+
+    if (result === c_state) {
+      document.getElementById("tr_igst").style.display = "none";
+      document.getElementById("tr_cgst").style.display = "";
+      document.getElementById("tr_sgst").style.display = "";
+    } else {
+      document.getElementById("tr_igst").style.display = "";
+      document.getElementById("tr_cgst").style.display = "none";
+      document.getElementById("tr_sgst").style.display = "none";
+    }
+
+    document.getElementById("total_taxamount").value = total_taxamount.toFixed(2);
+    var grandtotal = subtotal + total_taxamount + shipping + adjust;
+    // Calculate and display the difference
+    balance = grandtotal - advance
+    document.getElementById("grandtotal").value = grandtotal.toFixed(2);
+    document.getElementById("balance").value = balance.toFixed(2);
+  }
+
+  // Call the function initially on page load
+
+
+  // Add event listeners to update tax amounts when subtotal or shipping changes
+  document.getElementById("subtotal").addEventListener("input", calculateTaxAmount);
+  document.getElementById("shipping").addEventListener("input", calculateTaxAmount);
+
+
 
 </script>
 {% endblock %}
