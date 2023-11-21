@@ -107,52 +107,32 @@
 </style>
 
 <section>
+    <div class="row" style="top:7rem;">
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-4">
-                    <section>
+        <div>
+            <div class="col-md-12" style="width: auto;">
+                <div class="row">
+                    <div class="col-md-4" style="border-right: 1px solid white; overflow-y: scroll; height: 84vh;">
                         <div class="row">
-                            <div class="col-md-6 col-lg-6 col-sm-12">
-                                <h3 style="font-size:large;" class="pt-2 mt-4">All <br> Retainer Invoices</h3>
+                            <a class="text-white" style="font-size: 1.5rem;">All Retainer Invoices</a>
+                            <div class="col-md-7">
+                                <input type="text" id="search" class="form-control text-dark bg-light mt-2"
+                                    placeholder="search......" autocomplete="off">
                             </div>
 
-                            <div class="col-md-2 col-lg-2 col-sm-6"></div>
-
-                            <div class="col-md-4 col-lg-4 col-sm-6">
-                                <div class="dropdown  mt-5 ms-1 pt-1">
-                                    <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href=""
-                                        data-toggle="dropdown">
-                                        <i style="color: chocolate;" class="fas fa-sort-alpha-down"></i>
-                                    </a>
-                                    <div class="dropdown-menu m-1">
-                                        <a class="dropdown-item" href="{% url 'invoice_view' invoice.id %}">All</a>
+                            <div class="col-md-2">
+                                <a class="btn btn btn-outline-warning text-right mt-2"
+                                    style="height: 38px; padding-top: 12px; padding-left: 17px;"
+                                    href="{% url 'add_invoice' %}"><i class="fa fa-plus "></i></a>
+                            </div>
 
 
-                                        <a class="dropdown-item"
-                                            href="{% url 'sort_retainer_view_name' invoice.id %}">Name</a>
-                                        <a class="dropdown-item" href="{% url 'sort_retainer_view_no' invoice.id %}">EST
-                                            No</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                <input type="text" id="search" class="form-control text-dark mb-2 mt-2"
-                                    placeholder="search......">
-                            </div>
-                            <div class="col-sm-2 col-md-2 col-lg-2">
-                                <a style="color: white; background-color: rgb(210, 132, 30);margin-top: 0.8rem;"
-                                    class="btn  p-2 ms-3 " href="{% url 'add_invoice' %}"><i
-                                        class="fas fa-plus"></i></a>
-                            </div>
-                            <div class="col-sm-4 col-md-4 col-lg-4 mt-2">
-                                <div class="dropdown ms-1 pt-1">
-                                    <a class="dropdown-toggle btn btn-secondary text-dark pt-2 pb-2" href=""
-                                        data-toggle="dropdown">
-                                        <i style="color: chocolate;" class="fa fa-filter"></i>
+                            <div class="col-md-2">
+                                <div class="dropdown">
+                                    <a class="btn text-center mt-2 btn-outline-warning" id="sortbutton"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        role="button" style="margin-left: 0px; height: 38px;">
+                                        <i class="fa fa-sort m-1"></i>
                                     </a>
                                     <div class="dropdown-menu m-1">
                                         <a class="dropdown-item" href="{% url 'invoice_view' invoice.id %}">All</a>
@@ -163,128 +143,90 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6"></div>
                         </div>
+                        <div class="scrollable-table">
+                            <table id="table" class="table text-white">
+                                <tbody>
+                                    {% for i in invoices %}
+
+                                    <tr class="clickable" id="{{i.id}}">
+
+                                        <td class="justify-content-between align-items-center ">
+                                            <p class="text-white"><b>{{i.retainer_invoice_number}}</b></p>
+                                            <label class="text-white">{{i.customer_name1}} </label>
+                                        </td>
+                                        <td><br><br>
+                                            <label class="text-end d-block text-white">₹{{i.total_amount}}</label>
+
+                                        </td>
+                                    </tr>
+
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <!-- .................................................................................................................. -->
+                    <div class="col-md-8 ml-1 mb-5">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="table-responsive"
-                                    style="height: 500px;overflow-y: scroll;overflow-x: hidden;">
-                                    <table id="table" class="table">
-                                        {% for i in invoices %}
-                                        <tr id="tr_data">
-                                            {% if i.is_draft == 1 %}
-                                            <td>
-                                                <p class="text-white mb-1"><span
-                                                        style="font-weight: bold;font-size: larger;"><a
-                                                            href="{% url 'invoice_view' i.id %}"
-                                                            style="color: rgb(218, 143, 5);">{{i.customer_name1}}</a></span>
-                                                    <br><br>
-                                                    <a href="{% url 'invoice_view' i.id %}"
-                                                        class="text-light">{{i.retainer_invoice_number}}</a> | <span
-                                                        style="color: rgb(218, 143, 5);">Draft</span>
-                                                </p>
-
-                                            </td>
-                                            {% elif i.is_draft == 0 and i.is_sent == 0 %}
-                                            <td>
-                                                <p class="text-white mb-1"><span
-                                                        style="font-weight: bold;font-size: larger;"><a
-                                                            href="{% url 'invoice_view' i.id %}"
-                                                            style="color: rgb(218, 143, 5);">{{i.customer_name1}}</a></span>
-                                                    <br><br>
-                                                    <a href="{% url 'invoice_view' i.id %}"
-                                                        class="text-light">{{i.retainer_invoice_number}}</a> | <span
-                                                        style="color: rgb(218, 143, 5);">Draft</span>
-                                                </p>
-
-                                            </td>
-                                            {% else %}
-                                            <td>
-                                                <p class="text-white mb-1"><span
-                                                        style="color: rgb(218, 143, 5);font-weight: bold;font-size: larger;"><a
-                                                            href="{% url 'invoice_view' i.id %}"
-                                                            style="color: rgb(218, 143, 5);">{{i.customer_name1}}</a></span>
-                                                    <br><br>
-                                                    <a href="{% url 'invoice_view' i.id %}"
-                                                        class="text-light">{{i.retainer_invoice_number}}</a> |<span
-                                                        style="color: rgb(218, 143, 5);">Send</span>
-                                                </p>
-
-                                            </td>
-
-                                            {% endif %}
-
-                                            <td>
-                                                <p class="text-white"
-                                                    style="color: rgb(218, 143, 5);font-weight: bold;">
-                                                    ₹{{i.total_amount}}</p>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </table>
-                                </div>
+                            <div class="col-md-7">
+                                <a class="text-white" style="font-size: 1.5rem;">
+                                    <h2>{{invoice.retainer_invoice_number}}</h2>
+                                </a>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button class="btn" onclick="overview_function()"
+                                    style="background-color:chocolate ;margin-left: 2vh;"><i
+                                        class="fa fa-eye"></i>overview</button>
+                                <button class="btn" onclick="template_function()"
+                                    style="background-color:white;color: black;margin-left: 2vh;"><i
+                                        class="fa fa-file-alt"></i>Template</button>
 
-                    </section>
-
-
-
-                </div>
-
-
-                <!-- .................................................................................................................. -->
-                <div class="col-sm-12 col-md-8 col-lg-8">
-                    <div class="row  mx-2 py-3" style="background-color: rgba(136, 136, 135, 0.5)">
-                        <div class="col-md-5 text-light" style="font-size: 1.5rem;font-weight: bold;">
-                            {{invoice.retainer_invoice_number}}
-                            <button class="btn btn-sm" onclick="overview_function()"
-                                style="background-color:rgb(212, 139, 3)  ;border-radius: 5px;height: 1.7rem;"
-                                title="Overview"><i class="fa fa-eye"></i></button>
-                            <button class="btn btn-sm" onclick="template_function()"
-                                style="background-color:rgb(212, 139, 3)  ;border-radius: 5px;height: 1.7rem;"
-                                title="Template"><i class="fa fa-file-word"></i></button>
-                            {% if invoice.is_draft == 1 %}
-                            <a href="{% url 'ret_invoice_status_edit' invoice.id %}" class="btn btn-sm"
-                                title="Save this draft"
-                                style="background-color:rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;"><i
-                                    class="fas fa-save"></i></a>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-7 text-white text-right my-auto " style="text-align: end;">
-                            <div class="btn-group" role="group" aria-label="Basic example">
-                                <!-- <a href="" class="btn btn-sm ms-1  text-white"
-                        style="background-color:  rgb(212, 139, 3);border-radius: 5px;" data-toggle="tooltip" title="Back">
-                        <i class="fas fa-arrow-left"></i></a> -->
-                                <a href="{% url 'retainer_edit_page' invoice.id %}" class="btn btn-sm ms-1  text-white"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                            </div>
+                            <div class="col-md-6" style="text-align: center;">
+                                {% if invoice.is_draft == 1 %}
+                                <a href="{% url 'ret_invoice_status_edit' invoice.id %}" class="btn btn-outline-warning"
+                                    title="Save"><i class="fas fa-save"></i></a>
+                                {% endif %}
+                                <a href="{% url 'retainer_edit_page' invoice.id %}" class="btn btn-outline-warning"
                                     data-toggle="tooltip" title="Edit">
-                                    <i class="fas fa-pencil-alt"></i> </a>
+                                    <i class="fas fa-edit"></i> </a>
+
+                                <a class="text-dark" data-toggle="dropdown">
+                                    <button class="btn btn-outline-warning " title="Share"><i
+                                            class="fas fa-share"></i></button>
+                                </a>
+                                <div class="dropdown-menu ">
+                                    <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
+                                    <a class="dropdown-item"
+                                        href="whatsapp://send?text=Check out this website: [Your URL]"
+                                        data-action="share/whatsapp/share">WhatsApp</a>
+                                </div>
 
                                 {% if setting_variable.pdf == 'yes' %}
-                                <a href="" class="btn btn-sm text-white ms-1 btn_print"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
-                                    data-toggle="tooltip" title="PDF" id="pdf">
+                                <a href="" class="btn btn-outline-warning btn_print" data-toggle="tooltip" title="PDF"
+                                    id="pdf">
                                     <i class="far fa-file-pdf"></i></a>
                                 {% else %}
-                                <a href="" class="btn btn-sm text-white ms-1 btn_print"
-                                    style="display: none; background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                                <a href="" class="btn btn-outline-warning btn_print" style="display: none;"
                                     data-toggle="tooltip" title="PDF" id="pdf">
                                     <i class="far fa-file-pdf"></i></a>
                                 {% endif %}
-                                <a href="{% url 'emailattachment' %}" class="btn btn-sm text-white ms-1"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;"
-                                    data-toggle="tooltip" title="Email">
-                                    <i class="fas fa-envelope"></i></a>
+
 
                                 {% if setting_variable.print_opt == 'yes' %}
-                                <button class="btn btn-sm text-white ms-1 print-button" onclick="printRetainerInvoice()"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
+                                <button class="btn btn-outline-warning print-button" onclick="printRetainerInvoice()"
                                     data-toggle="tooltip" title="Print">
                                     <i class="fa fa-print"></i></button>
                                 {% else %}
-                                <button class="btn btn-sm text-white ms-1 print-button" onclick="printRetainerInvoice()"
-                                    style="display: none; background-color:  rgb(212, 139, 3);border-radius: 5px;"
-                                    data-toggle="tooltip" title="Print">
+                                <button class="btn btn-outline-warning print-button" onclick="printRetainerInvoice()"
+                                    style="display: none;" data-toggle="tooltip" title="Print">
                                     <i class="fa fa-print"></i></button>
                                 {% endif %}
                                 <!-- <button  class="btn btn-sm text-white ms-1 attach-button"
@@ -305,682 +247,724 @@
                             </form> -->
 
                                 {% if setting_variable.slip == 'yes' %}
-                                <div class="dropdown m-0 p-0 ms-1" title="slip"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
-                                    <a href=" " class=" fas fa-receipt dropdown-toggle  btn-sm text-white ms-1"
-                                        data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                    </a>
 
-                                    <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                        <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
-                                                class="fas fa-eye"></i>View</a>
-                                        <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
-                                                class="fas fa-print"></i>&nbsp;Print</a>
 
-                                    </div>
+                                <a href=" " class=" fas fa-receipt  btn-outline-warning btn" data-bs-toggle="dropdown"
+                                    id="attachmentDropdown" aria-haspopup="true" aria-expanded="false">
+                                </a>
+
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
+                                            class="fas fa-eye"></i>View</a>
+                                    <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
+                                            class="fas fa-print"></i>&nbsp;Print</a>
+
                                 </div>
+
                                 {% else %}
-                                <div class="dropdown m-0 p-0 ms-1" title="slip"
-                                    style="display: none; background-color:  rgb(212, 139, 3);border-radius: 5px;height: 1.7rem;">
-                                    <a href=" " class=" fas fa-receipt dropdown-toggle  btn-sm text-white ms-1"
-                                        data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                    </a>
 
-                                    <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                        <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
-                                                class="fas fa-eye"></i>View</a>
-                                        <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
-                                                class="fas fa-print"></i>&nbsp;Print</a>
+                                <a href=" " class=" fas fa-receipt  btn-outline-warning btn" data-bs-toggle="dropdown"
+                                    id="attachmentDropdown" aria-haspopup="true" aria-expanded="false">
+                                </a>
 
-                                    </div>
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
+                                            class="fas fa-eye"></i>View</a>
+                                    <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
+                                            class="fas fa-print"></i>&nbsp;Print</a>
+
                                 </div>
+
                                 {% endif %}
 
-                                <div class="dropdown m-0 p-0 ms-1" title="comments"
-                                    style="background-color:  rgb(212, 139, 3);border-radius: 5px;">
-                                    <a href=" " class=" fas fa-comment-dots dropdown-toggle  btn-sm text-white ms-1"
-                                        data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                    </a>
 
-                                    <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                        <a id="add-comment-link" class="dropdown-item" style="cursor: pointer;"
-                                            data-toggle="modal" data-target="#cmnts"><i
-                                                class="fa-solid fa fa-plus"></i>Add</a>
-                                        <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
-                                            data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+                                <a href=" " class=" fas fa-comment-dots  btn-outline-warning btn"
+                                    data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                </a>
 
-                                    </div>
-                                </div>
-
-
-
-                            </div>
-
-
-                            <a href="{% url 'retainer_delete' invoice.id %}" class="btn btn-sm text-white pb-2"
-                                title="Delete" style="background-color:  rgb(212, 139, 3);border-radius: 5px;"
-                                onclick="return confirm('Do you want to Delete this Invoice?');"><i
-                                    class="fas fa-trash-alt"></i></a>
-                        </div>
-                    </div>
-
-                    <div id="div_estimate" class="mx-2 my-4 p-4 "
-                        style="background-color: rgba(124, 124, 123, 0.507);display: none;">
-                        <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
-                            style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
-                            <div class="row">
-                                <div class="col-sm-2 col-lg-2 col-md-2">
-                                    {% if invoice.is_draft == 1 %}
-                                    <h4 class="pt-2" style="color: rgb(192, 128, 8);">Draft</h4>
-                                    {% elif invoice.is_draft == 0 and invoice.is_sent == 0 %}
-                                    <h4 class="pt-2" style="color: rgb(192, 128, 8);">Draft</h4>
-                                    {% else %}
-                                    <h4 class="pt-2" style="color: rgb(192, 128, 8);">Sent</h4>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="row" style=" border-bottom:1px solid rgb(24, 24, 24);">
-                                <div class="col-md-12 col-lg-12 col-sm-12">
-                                    <h3 class="text-black" style="text-transform: uppercase;">{{ company.company_name }}
-                                    </h3>
-                                    <h6 class="text-dark" style="margin-top: 0%;">{{ company.address }} <br>{{
-                                        company.city }},{{ company.state }}</h6>
-                                    <!-- <h6 class="text-dark mb-5"></h6> -->
-
-                                    <h3 class="text-black" style="font-size: 1.6rem;margin-left:55%;margin-top: -10%; ">
-                                        RETAINER INVOICE</h3>
-                                    <h6 class="text-dark" style="margin-left: 60%;">Retainer Number : <span
-                                            class="text-black"
-                                            style="font-weight: bold;">{{invoice.retainer_invoice_number}}</span></h6>
-                                </div>
-                            </div>
-
-                            <div class="row " style="padding-top: 3%;">
-                                <div class="col-md-12  col-lg-12">
-                                    <h6 class="text-dark">Bill To</h6>
-                                    <h6 style="color: rgb(218, 142, 3);">{{invoice.customer_name.customerName}}
-                                        <br><span class="text-dark">{{ invoice.customer_name.customerEmail }}</span><br>
-                                        <span class="text-dark">{{invoice.customer_name.customerMobile}}</span>
-                                        {% if invoice.customer_name.GSTIN %}
-                                        <h6 class="text-dark ">GSTIN : {{ invoice.customer_name.GSTIN }}</h6>
-                                        {% endif %}
-                                    </h6>
-
-                                    <h6 class="text-dark " style="margin-left: 60%;margin-top: -10%;">Retainer
-                                        <br>Invoice Date : {{invoice.retainer_invoice_date}}</h6>
-                                </div>
-                            </div>
-                            <br>
-                            <table class="table mt-2 " style="border-color: black;">
-                                <thead>
-                                    <tr
-                                        style="border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black;">
-                                        <th style="color: black;">#</th>
-                                        <th style="width: 30rem;color: black;text-align: center;">Description</th>
-                                        <th class="text-right;" style="color: black;">Amount</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for i in item %}
-                                    <tr
-                                        style="border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black;">
-                                        <td style="border-bottom: 1px solid black;">{{ forloop.counter }}</td>
-                                        <td style="text-align: center;border-bottom: 1px solid black;">
-                                            <textarea name="" id="" cols="30" rows="3"
-                                                style="background-color: transparent;border: none;"
-                                                class="text-dark">{{i.description}}</textarea>
-                                        </td>
-                                        <td style="border-bottom: 1px solid black;">{{i.amount }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-
-
-
-
-                            <div class="row mt-3">
-
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <h6 class="text-warning"
-                                        style="font-weight: bold;color: rgb(204, 135, 6);margin-left: 80%;">Total: <span
-                                            style="font-weight: bold;color: black;">{{
-                                            invoice.total_amount|floatformat:1}}</span></h6>
-
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    <a id="add-comment-link" class="dropdown-item" style="cursor: pointer;"
+                                        data-toggle="modal" data-target="#cmnts"><i
+                                            class="fa-solid fa fa-plus"></i>Add</a>
+                                    <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal"
+                                        data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View
+                                        List</a>
 
                                 </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <div class='row'>
-                                        <div class=" col-sm-12 col-md-4 col-lg-4">
-                                            <b class="text-black">Customer Notes:</b>
-                                        </div>
-                                        <div class="col-sm-12 col-md-8 col-lg-8">
-                                            <textarea name="" id="" cols="60" rows="3"
-                                                style="background-color: transparent;border: none;"
-                                                class="text-dark border-0">{{invoice.customer_notes}}</textarea>
-                                        </div>
-                                    </div>
-                                    <div class='row'>
-                                        <div class="col-sm-12 col-md-4 col-lg-4">
-                                            <b class="text-black">Terms and Conditions:</b>
-                                        </div>
-                                        <div class="col-sm-12 col-md-8 col-lg-8">
-                                            <textarea name="" id="" cols="60" rows="3"
-                                                style="background-color: transparent;border: none;"
-                                                class="text-dark border-0">{{invoice.terms_and_conditions}}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-
+                                <a href="{% url 'retainer_delete' invoice.id %}" class="btn btn-outline-warning"
+                                    title="Delete" onclick="return confirm('Do you want to Delete this Invoice?');"><i
+                                        class="fas fa-trash-alt"></i></a>
+                            </div>
                         </div>
 
-                        <!-- <h4 class="text-light pt-5">More Information</h4>
-            <h6 class="text-light">Sales Person: Xyz</h6> -->
-                    </div>
-
-                    <fieldset id="fieldset1" class="mt-3">
-                        <div class="p-2" style="background-color: rgba(124, 124, 123, 0.507);">
-                            <div class="p-2" style="background-color: rgb(223, 221, 221);border-radius: 10px;">
+                        <div id="div_estimate" class="mx-2 my-4 p-4 "
+                            style="background-color: rgba(124, 124, 123, 0.507);display: none;">
+                            <div class="slip p-5 convert_to_pdf bg-light" id="whatToPrint"
+                                style="box-shadow: 5px 5px 10px rgb(45, 45, 45);">
                                 <div class="row">
-                                    <div class="col-sm-6 col-md-6 col-lg-6 text-dark">
-                                        <div class="row mt-3">
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <h2 style="text-align: center;">RETAINER INVOICE</h2>
-
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="" style="font-weight: 500;">Customer Name:</label>
-
-                                            </div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for=""
-                                                    style="color: rgb(197, 129, 3);"><b>{{invoice.customer_name.customerName}}</b></label>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="" style="font-weight: 500;">Customer Mail ID:</label>
-
-                                            </div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for=""
-                                                    style="color: rgb(197, 129, 3);width: 100%;word-break: break-all;"><b>{{invoice.customer_mailid}}</b></label>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="" style="font-weight: 500;">GST Treatment:</label>
-
-                                            </div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="">{{invoice.customer_name.GSTTreatment}}</label>
-                                            </div>
-                                        </div>
-                                        {% if invoice.customer_name.GSTIN %}
-                                        <div class="row mt-2">
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="" style="font-weight: 500;">GST Number:</label>
-
-                                            </div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for=""><b>{{invoice.customer_name.GSTIN}}</b></label>
-                                            </div>
-                                        </div>
+                                    <div class="col-sm-2 col-lg-2 col-md-2">
+                                        {% if invoice.is_draft == 1 %}
+                                        <h4 class="pt-2" style="color: rgb(192, 128, 8);">Draft</h4>
+                                        {% elif invoice.is_draft == 0 and invoice.is_sent == 0 %}
+                                        <h4 class="pt-2" style="color: rgb(192, 128, 8);">Draft</h4>
+                                        {% else %}
+                                        <h4 class="pt-2" style="color: rgb(192, 128, 8);">Sent</h4>
                                         {% endif %}
-                                        <div class="row mt-1  pb-4">
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="" style="font-weight: 500;">Place Of Supply:</label>
-
-                                            </div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <label for="">{{invoice.customer_placesupply}}</label>
-                                            </div>
-                                        </div>
-                                        <hr>
-
-                                        <div class="row mt-3">
-
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <label for="" style="font-weight: 500;">Customer Notes:</label>
-
-                                                <textarea name="" id="" cols="35" rows="3"
-                                                    style="border: transparent;background-color: transparent;">{{invoice.customer_notes}}</textarea>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-1">
-
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <label for="" style="font-weight: 500;">Terms & Conditions:</label>
-
-                                                <textarea name="" id="" cols="35" rows="3"
-                                                    style="border: transparent;background-color: transparent;">{{invoice.terms_and_conditions}}</textarea>
-
-                                            </div>
-                                        </div>
-
-                                        <hr>
-
                                     </div>
-                                    <div class="col-sm-6 col-md-6 col-lg-6 " style="padding-top: 5%;">
-                                        <div class="p-2"
-                                            style="width: 100%;height: 540px;background-color: rgba(46, 46, 46, 0.822);border-radius: 15px;">
-                                            <div class="row mt-3">
-                                                <div class="col-sm-8 col-md-8 col-lg-8 ">
-                                                    <label for="" style="font-weight: 500;">Retainer Invoice
-                                                        No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+                                </div>
+                                <div class="row" style=" border-bottom:1px solid rgb(24, 24, 24);">
+                                    <div class="col-md-12 col-lg-12 col-sm-12">
+                                        <h3 class="text-black" style="text-transform: uppercase;">
+                                            {{company.company_name}}</h3>
+                                        <h6 class="text-dark" style="margin-top: 0%;">{{company.address}}
+                                            <br>{{company.city}},{{ company.state }}
+                                        </h6>
+                                        <!-- <h6 class="text-dark mb-5"></h6> -->
 
-                                                </div>
-                                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                                    <label for="">{{invoice.retainer_invoice_number}}</label>
-
-                                                </div>
-
-                                            </div>
-                                            <div class="row mt-1">
-                                                <div class="col-sm-8 col-md-8 col-lg-8 ">
-                                                    <label for=""
-                                                        style="font-weight: 500;">Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-
-                                                </div>
-                                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                                    <label for="">{{invoice.refrences}}</label>
-
-                                                </div>
-
-                                            </div>
-                                            <div class="row mt-1">
-                                                <div class="col-sm-8 col-md-8 col-lg-8 ">
-                                                    <label for="" style="font-weight: 500;">Retainer Invoice
-                                                        Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-
-                                                </div>
-                                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                                    <label for="">{{invoice.retainer_invoice_date}}</label>
-
-                                                </div>
-
-                                            </div>
-
-                                            <hr>
-
-                                            <h4 style="color: rgb(233, 153, 5);text-align: center;">Details</h4>
-
-                                            <div class="row mt-4">
-                                                <div class="col-sm-8 col-md-8 col-lg-8 ">
-                                                    <label for="" style="font-weight: 500;">Total
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</label>
-
-                                                </div>
-                                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                                    <label for=""><b>{{invoice.total_amount}}</b></label>
-                                                </div>
-                                            </div>
-                                            <div class="row ">
-                                                <div class="col-sm-8 col-md-8 col-lg-8 ">
-                                                    <label for="" style="font-weight: 500;">Balance
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        &nbsp;&nbsp;&nbsp;&nbsp; :</label>
-
-                                                </div>
-                                                <div class="col-sm-4 col-md-4 col-lg-4">
-                                                    <label for=""><b>{{ invoice.balance }}</b></label>
-                                                </div>
-                                            </div>
-                                            <hr>
-                                            {% if ret_payments.payment_opt %}
-                                            <h4 style="color: rgb(233, 153, 5);text-align: center;">Payment Details</h4>
-                                            <div class="row">
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label class="text-light" for="" style="font-weight: 500;">Payment
-                                                        Method &nbsp;&nbsp;&nbsp;
-                                                        :</label>
-
-                                                </div>
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label for=""><b>{{ ret_payments.payment_opt }}</b></label>
-                                                </div>
-                                            </div>
-
-                                            {% if ret_payments.acc_no %}
-                                            <div class="row">
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label class="text-light" for="" style="font-weight: 500;">Ac/No
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</label>
-
-                                                </div>
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label for=""><b>{{ ret_payments.acc_no }}</b></label>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% if ret_payments.upi_id %}
-                                            <div class="row">
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label class="text-light" for="" style="font-weight: 500;">UPI Id
-                                                        &nbsp;&nbsp;&nbsp;
-                                                        :</label>
-
-                                                </div>
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label for=""><b>{{ ret_payments.upi_id }}</b></label>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% if ret_payments.cheque_no %}
-                                            <div class="row">
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label class="text-light" for="" style="font-weight: 500;">Cheque No
-                                                        &nbsp;&nbsp;&nbsp;
-                                                        :</label>
-
-                                                </div>
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <label for=""><b>{{ ret_payments.cheque_no }}</b></label>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                            {% endif %}
-
-                                        </div>
+                                        <h3 class="text-black"
+                                            style="font-size: 1.6rem;margin-left:55%;margin-top: -10%; ">
+                                            RETAINER INVOICE</h3>
+                                        <h6 class="text-dark" style="margin-left: 60%;">Retainer Number : <span
+                                                class="text-black"
+                                                style="font-weight: bold;">{{invoice.retainer_invoice_number}}</span>
+                                        </h6>
                                     </div>
                                 </div>
 
-                                <div class="row ">
-                                    {% for i in item %}
-                                    <div class="col-sm-12 col-md-4 col-lg-4 mt-1">
+                                <div class="row " style="padding-top: 3%;">
+                                    <div class="col-md-12  col-lg-12">
+                                        <h6 class="text-dark">Bill To</h6>
+                                        <h6 style="color: rgb(218, 142, 3);">{{invoice.customer_name.customerName}}
+                                            <br><span class="text-dark">{{ invoice.customer_name.customerEmail
+                                                }}</span><br>
+                                            <span class="text-dark">{{invoice.customer_name.customerMobile}}</span>
+                                            {% if invoice.customer_name.GSTIN %}
+                                            <h6 class="text-dark ">GSTIN : {{ invoice.customer_name.GSTIN }}</h6>
+                                            {% endif %}
+                                        </h6>
 
-                                        <div class="p-2"
-                                            style="width: 100%;height: 200px;background-color: rgb(49, 49, 49);border-radius: 15px;">
-                                            <div class="row">
-                                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                                    <h6 style="text-align: center;">{{ forloop.counter }}</h6>
-
-                                                </div>
-                                            </div>
-                                            <div class="row pt-1">
-                                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                                    <label class="text-warning" for=""
-                                                        style="font-weight: 400;">Description :</label>
-                                                    <textarea style="background-color: transparent;" name="" id=""
-                                                        cols="20" rows="4"
-                                                        class="text-light border-0">{{ i.description }}</textarea>
-
-                                                </div>
-
-                                            </div>
-                                            <div class="row mt-1">
-                                                <div class="col-sm-5 col-md-5 col-lg-5">
-                                                    <label class="text-warning" for="" style="font-weight: 400;">Amount
-                                                        :</label>
-
-                                                </div>
-                                                <div class="col-sm-7 col-md-7 col-lg-7">
-                                                    <label class="text-light" for="" style="font-weight: 400;">{{
-                                                        i.amount }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </fieldset>
-
-
-
-                    <fieldset2 id="est_slip" style="display: none;">
-                        <div class="p-3 mt-3" style="background-color: #8888889d;">
-                            <div class="row">
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <div id="outer"
-                                        style="width: 100%;border-radius: 15px;background-color: rgba(31, 31, 31, 0.774);">
-                                        <div class="row">
-                                            <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                                            <div class="col-sm-6 col-md-6 col-lg-6">
-                                                <div id="print_slip" class="p-1 pb-5"
-                                                    style="width: 100%;background-color: beige;">
-                                                    <div class="row">
-                                                        <div class="col-sm-12 col-lg-12 col-md-12">
-                                                            <h6 class="text-black" style="text-align: center;">RETAINER
-                                                                INVOICE</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-12 col-lg-12 col-md-12">
-                                                            <h6 class="text-dark mt-1"
-                                                                style="text-transform: uppercase;text-align: center;">{{
-                                                                company.company_name }}</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-12 col-lg-12 col-md-12">
-                                                            <p class="text-dark" style="text-align: center;"> {{
-                                                                company.address }} , {{ company.city }} ,{{
-                                                                company.state }} </p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-6 col-lg-6 col-md-6">
-                                                            <p class="text-dark" style="font-size: small;"><span
-                                                                    class="text-black" style="font-size:medium;">Bill to
-                                                                    :</span> <br>
-
-                                                                {{ invoice.customer_name1}} <br>{{
-                                                                invoice.customer_mailid }} <br><span class="text-black "
-                                                                    style="font-size: medium;">Retainer Invoice
-                                                                    Date:</span> <br> {{invoice.retainer_invoice_date }}
-                                                            </p>
-
-                                                        </div>
-                                                        <div class="col-sm-2 col-md-2 col-lg-2"></div>
-                                                        <div class="col-sm-4 col-md-4 col-lg-4">
-                                                            <p class="text-dark" style="font-size: small;"><span
-                                                                    class="text-black"
-                                                                    style="font-size: medium;">Retainer Invoice
-                                                                    no:</span><br>{{invoice.retainer_invoice_number }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="row">
-                                                        <div class="col-sm-12 col-md-12 col-lg-12">
-                                                            <table class="table-bordered mb-3">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th style="color: black;font-size: smaller;">#
-                                                                        </th>
-                                                                        <th
-                                                                            style="width: 30rem;color: black;font-size: smaller;">
-                                                                            Description</th>
-                                                                        <th class="text-right;"
-                                                                            style="color: black;font-size: smaller;">
-                                                                            Amount</th>
-
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {% for i in item %}
-                                                                    <tr>
-                                                                        <td style="color: black;font-size: smaller;">{{
-                                                                            forloop.counter }}</td>
-                                                                        <td style="color: black;font-size: smaller;">
-                                                                            <textarea name="" id="" cols="35" rows="3"
-                                                                                class="text-black border-0"
-                                                                                style="font-size: smaller;background-color: transparent;">{{ i.description }}</textarea>
-                                                                        </td>
-                                                                        <td class="text-right"
-                                                                            style="color: black;font-size: smaller;">{{
-                                                                            i.amount }}</td>
-
-                                                                    </tr>
-                                                                    {% endfor %}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-6 col-lg-6 col-md-6"></div>
-                                                        <div class="col-sm-6 col-lg-6 col-md-6">
-                                                            <table>
-                                                                <tr>
-                                                                    <td class=" text-dark" style="font-size: smaller;">
-                                                                        Total:</td>
-
-                                                                    <td class="text-right text-dark"
-                                                                        style="text-align: end;font-size: smaller;">
-                                                                        {{invoice.total_amount|floatformat:1}}</td>
-                                                                </tr>
-
-
-
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                                            </div>
-
-                                        </div>
-
+                                        <h6 class="text-dark " style="margin-left: 60%;margin-top: -10%;">Retainer
+                                            <br>Invoice Date : {{invoice.retainer_invoice_date}}
+                                        </h6>
                                     </div>
                                 </div>
-                            </div>
+                                <br>
+                                <table class="table mt-2 " style="border-color: black;">
+                                    <thead>
+                                        <tr
+                                            style="border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black;">
+                                            <th style="color: black;">#</th>
+                                            <th style="width: 30rem;color: black;text-align: center;">Description
+                                            </th>
+                                            <th class="text-right;" style="color: black;">Amount</th>
 
-                    </fieldset2>
-
-
-
-
-
-
-                </div>
-
-
-                <!-- ...................................................................         -->
-
-
-
-
-                <!-- ........................................................... -->
-
-
-                <!-- comment modal -->
-
-                <div class="modal fade " id="cmnts"
-                    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
-                    <div class="modal-dialog modal-xl m-5 p-5">
-                        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                            <div class="modal-header " style="background: rgb(32, 35, 37);">
-                                <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
-                                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                                    aria-label="Close">&times;</button>
-
-                            </div>
-                            <div class="modal-body"
-                                style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                                <form action="{% url 'add_ret_invoice_comment' invoice.id %}" method="post"
-                                    class="needs-validation" novalidate autocomplete="off" id="modalComment">
-                                    {% csrf_token %}
-                                    <div class="row mt-2">
-                                        <div class="col-md-6 mt-2">
-                                            <textarea class="form-control text-dark bg-light" name="comments" required
-                                                style="height: 200px; width: 520px;"></textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-5">
-                                        <div class="col-md-4"></div>
-                                        <div class="col-md-4">
-                                            <div class="d-flex">
-                                                <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
-                                                    type="submit">Save </button>
-                                                <button type="button"
-                                                    class="close btn save_btn rounded-pill text-grey w-50 my-4"
-                                                    data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">Cancel</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4"></div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in item %}
+                                        <tr
+                                            style="border-bottom: 1px solid black;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black;">
+                                            <td style="border-bottom: 1px solid black;">{{forloop.counter}}</td>
+                                            <td style="text-align: center;border-bottom: 1px solid black;">
+                                                <p>{{i.description}}</p>
+                                            </td>
+                                            <td style="border-bottom: 1px solid black;">{{i.amount}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
 
 
-            <!-- ....................................  comment list modal ................ -->
 
-            <div class="modal fade " id="cmt_list"
-                style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
-                <div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
-                    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                        <div class="modal-header " style="background: rgb(32, 35, 37);">
-                            <h5 class="m-3 text-uppercase text-light">LIST</h5>
-                            <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                                aria-label="Close">&times;</button>
-
-                        </div>
-                        <div class="modal-body"
-                            style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
-                            <div class="card p-0 m-0">
 
                                 <div class="row mt-3">
+
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <div class="p-2">
-                                            <table class="table table-bordered" style="table-layout: fixed;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="text-center"
-                                                            style="background-color:rgb(218, 143, 3) ;color: white;">
-                                                            Comments</th>
-                                                    </tr>
-                                                </thead>
-                                                {% for comt in ret_comments %}
-                                                <tbody>
-                                                    <tr>
-                                                        <!-- <td><input type="text" value="{{ comt.comments }}" style="width: 100%;height: 20px;"></td> -->
-                                                        <td><textarea name="" id="" cols="80" rows="5"
-                                                                style="border: none;background-color:transparent ;color: white;">{{ comt.comments }}</textarea>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                                {% endfor %}
-                                            </table>
+                                        <h6 class="text-warning"
+                                            style="font-weight: bold;color: rgb(204, 135, 6);margin-left: 80%;">
+                                            Total:
+                                            <span style="font-weight: bold;color: black;">{{
+                                                invoice.total_amount|floatformat:1}}</span>
+                                        </h6>
+
+
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <div class='row'>
+                                            <div class=" col-sm-12 col-md-4 col-lg-4">
+                                                <b class="text-black">Customer Notes:</b>
+                                            </div>
+                                            <div class="col-sm-12 col-md-8 col-lg-8">
+                                                <textarea name="" id="" cols="60" rows="3"
+                                                    style="background-color: transparent;border: none;"
+                                                    class="text-dark border-0">{{invoice.customer_notes}}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class='row'>
+                                            <div class="col-sm-12 col-md-4 col-lg-4">
+                                                <b class="text-black">Terms and Conditions:</b>
+                                            </div>
+                                            <div class="col-sm-12 col-md-8 col-lg-8">
+                                                <textarea name="" id="" cols="60" rows="3"
+                                                    style="background-color: transparent;border: none;"
+                                                    class="text-dark border-0">{{invoice.terms_and_conditions}}</textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
+
                             </div>
+
+                            <!-- <h4 class="text-light pt-5">More Information</h4>
+            <h6 class="text-light">Sales Person: Xyz</h6> -->
+                        </div>
+
+                        <fieldset id="fieldset1" class="mt-3">
+                            <div class="p-2" style="background-color: #ffddb0;">
+                                <div class="p-2" style="background-color: #ffddb0;border-radius: 10px;">
+                                    <div class="row">
+                                        <div class="col-sm-6 col-md-6 col-lg-6 text-dark">
+                                            <div class="row mt-3">
+                                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                                    <h2 style="text-align: center;">RETAINER INVOICE</h2>
+
+                                                </div>
+                                            </div>
+                                            <div class="row mt-3">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="" style="font-weight: 500;">Customer Name:</label>
+
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for=""
+                                                        style="color: #000000;"><b>{{invoice.customer_name.customerName}}</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="" style="font-weight: 500;">Customer Mail
+                                                        ID:</label>
+
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for=""
+                                                        style="color: #000000;width: 100%;word-break: break-all;"><b>{{invoice.customer_mailid}}</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="" style="font-weight: 500;">GST Treatment:</label>
+
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="">{{invoice.customer_name.GSTTreatment}}</label>
+                                                </div>
+                                            </div>
+                                            {% if invoice.customer_name.GSTIN %}
+                                            <div class="row mt-2">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="" style="font-weight: 500;">GST Number:</label>
+
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for=""><b>{{invoice.customer_name.GSTIN}}</b></label>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <div class="row mt-1  pb-4">
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="" style="font-weight: 500;">Place Of Supply:</label>
+
+                                                </div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <label for="">{{invoice.customer_placesupply}}</label>
+                                                </div>
+                                            </div>
+                                            <hr>
+
+                                            <div class="row mt-3">
+
+                                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                                    <label for="" style="font-weight: 500;">Customer Notes:</label>
+
+                                                    <textarea name="" id="" cols="35" rows="3"
+                                                        style="border: transparent;background-color: transparent;">{{invoice.customer_notes}}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-1">
+
+                                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                                    <label for="" style="font-weight: 500;">Terms &
+                                                        Conditions:</label>
+
+                                                    <textarea name="" id="" cols="35" rows="3"
+                                                        style="border: transparent;background-color: transparent;">{{invoice.terms_and_conditions}}</textarea>
+
+                                                </div>
+                                            </div>
+
+                                            <hr>
+
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-6 " style="padding-top: 5%;">
+                                            <div class="p-2"
+                                                style="width: 100%;background-color: rgb(110, 61, 46);border-radius: 5px;">
+                                                <div class="row mt-3">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for="" style="font-weight: 500;">Retainer Invoice
+                                                            No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for="">{{invoice.retainer_invoice_number}}</label>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row mt-1">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for=""
+                                                            style="font-weight: 500;">Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for="">{{invoice.refrences}}</label>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row mt-1">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for="" style="font-weight: 500;">Retainer Invoice
+                                                            Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for="">{{invoice.retainer_invoice_date}}</label>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <hr>
+
+                                                <h4 style="color: rgb(233, 153, 5);text-align: center;">Details</h4>
+
+                                                <div class="row mt-4">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for="" style="font-weight: 500;">Total
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for=""><b>{{invoice.total_amount}}</b></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row ">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for="" style="font-weight: 500;">Balance
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp; :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for=""><b>{{ invoice.balance }}</b></label>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                {% if ret_payments.payment_opt %}
+                                                <h4 style="color: rgb(233, 153, 5);text-align: center;">Payment
+                                                    Details
+                                                </h4>
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label class="text-light" for=""
+                                                            style="font-weight: 500;">Payment
+                                                            Method &nbsp;&nbsp;&nbsp;
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label for=""><b>{{ ret_payments.payment_opt }}</b></label>
+                                                    </div>
+                                                </div>
+
+                                                {% if ret_payments.acc_no %}
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label class="text-light" for="" style="font-weight: 500;">Ac/No
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label for=""><b>{{ ret_payments.acc_no }}</b></label>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if ret_payments.upi_id %}
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label class="text-light" for="" style="font-weight: 500;">UPI
+                                                            Id
+                                                            &nbsp;&nbsp;&nbsp;
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label for=""><b>{{ ret_payments.upi_id }}</b></label>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% if ret_payments.cheque_no %}
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label class="text-light" for=""
+                                                            style="font-weight: 500;">Cheque No
+                                                            &nbsp;&nbsp;&nbsp;
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                                        <label for=""><b>{{ ret_payments.cheque_no }}</b></label>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+                                        {% for i in item %}
+                                        <div class="col-sm-12 col-md-4 col-lg-4 mt-1">
+
+                                            <div class="p-2"
+                                                style="width: 100%;height: auto;background-color: rgb(110, 61, 46);border-radius: 5px;">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                                        <h6 style="text-align: center;">{{ forloop.counter }}</h6>
+
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                                        <label class="text-warning" for=""
+                                                            style="font-weight: 400;">Product Name :</label>
+                                                        <p>{{ i.itemname }}</p>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                                        <label class="text-warning" for=""
+                                                            style="font-weight: 400;">Description :</label>
+                                                        <p>{{ i.description }}</p>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                                        <label class="text-warning" for=""
+                                                            style="font-weight: 400;">Quantity :</label>
+                                                        <p>{{ i.quantity }}</p>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="row mt-1">
+                                                    <div class="col-sm-5 col-md-5 col-lg-5">
+                                                        <label class="text-warning" for=""
+                                                            style="font-weight: 400;">Amount
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-7 col-md-7 col-lg-7">
+                                                        <label class="text-light" for=""
+                                                            style="font-weight: 400;">{{i.amount }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </fieldset>
+
+
+
+                        <fieldset2 id="est_slip" style="display: none;">
+                            <div class="p-3 mt-3" style="background-color: #8888889d;">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <div id="outer"
+                                            style="width: 100%;border-radius: 15px;background-color: rgba(31, 31, 31, 0.774);">
+                                            <div class="row">
+                                                <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                                    <div id="print_slip" class="p-1 pb-5"
+                                                        style="width: 100%;background-color: beige;">
+                                                        <div class="row">
+                                                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                                                <h6 class="text-black" style="text-align: center;">
+                                                                    RETAINER
+                                                                    INVOICE</h6>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                                                <h6 class="text-dark mt-1"
+                                                                    style="text-transform: uppercase;text-align: center;">
+                                                                    {{company.company_name }}</h6>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                                                <p class="text-dark" style="text-align: center;">
+                                                                    {{company.address }} , {{ company.city }}
+                                                                    ,{{company.state }} </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-6 col-lg-6 col-md-6">
+                                                                <p class="text-dark" style="font-size: small;"><span
+                                                                        class="text-black"
+                                                                        style="font-size:medium;">Bill to
+                                                                        :</span> <br>
+
+                                                                    {{ invoice.customer_name1}}
+                                                                    <br>{{invoice.customer_mailid }} <br><span
+                                                                        class="text-black "
+                                                                        style="font-size: medium;">Retainer Invoice
+                                                                        Date:</span> <br>
+                                                                    {{invoice.retainer_invoice_date }}
+                                                                </p>
+
+                                                            </div>
+                                                            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+                                                            <div class="col-sm-4 col-md-4 col-lg-4">
+                                                                <p class="text-dark" style="font-size: small;"><span
+                                                                        class="text-black"
+                                                                        style="font-size: medium;">Retainer Invoice
+                                                                        no:</span><br>{{invoice.retainer_invoice_number}}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                                                <table class="table-bordered mb-3">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th
+                                                                                style="color: black;font-size: smaller;">
+                                                                                #
+                                                                            </th>
+                                                                            <th
+                                                                                style="width: 30rem;color: black;font-size: smaller;">
+                                                                                Product Name</th>
+                                                                            <th
+                                                                                style="width: 30rem;color: black;font-size: smaller;">
+                                                                                Description</th>
+                                                                            <th
+                                                                                style="width: 30rem;color: black;font-size: smaller;">
+                                                                                Quantity</th>
+                                                                            <th class="text-right;"
+                                                                                style="color: black;font-size: smaller;">
+                                                                                Amount</th>
+
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for i in item %}
+                                                                        <tr>
+                                                                            <td
+                                                                                style="color: black;font-size: smaller;">
+                                                                                {{forloop.counter }}</td>
+                                                                            <td
+                                                                                style="color: black;font-size: smaller;">
+                                                                                <p>{{ i.itemname }}</p>
+                                                                            </td>
+                                                                            <td
+                                                                                style="color: black;font-size: smaller;">
+                                                                                <p>{{ i.description }}</p>
+                                                                            </td>
+                                                                            <td
+                                                                                style="color: black;font-size: smaller;">
+                                                                                <p>{{ i.quantity }}</p>
+                                                                            </td>
+                                                                            <td class="text-right"
+                                                                                style="color: black;font-size: smaller;">
+                                                                                {{i.amount }}</td>
+
+                                                                        </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-6 col-lg-6 col-md-6"></div>
+                                                            <div class="col-sm-6 col-lg-6 col-md-6">
+                                                                <table>
+                                                                    <tr>
+                                                                        <td class=" text-dark"
+                                                                            style="font-size: smaller;">
+                                                                            Total:</td>
+
+                                                                        <td class="text-right text-dark"
+                                                                            style="text-align: end;font-size: smaller;">
+                                                                            {{invoice.total_amount|floatformat:1}}
+                                                                        </td>
+                                                                    </tr>
+
+
+
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                        </fieldset2>
+
+
+
+
+
+
+                    </div>
+
+
+                    <!-- ...................................................................         -->
+
+
+
+
+                    <!-- ........................................................... -->
+
+
+                    <!-- comment modal -->
+
+                    <div class="modal fade " id="cmnts"
+                        style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+                        <div class="modal-dialog modal-xl m-5 p-5">
+                            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                                <div class="modal-header " style="background: rgb(32, 35, 37);">
+                                    <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                                        aria-label="Close">&times;</button>
+
+                                </div>
+                                <div class="modal-body"
+                                    style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                                    <form action="{% url 'add_ret_invoice_comment' invoice.id %}" method="post"
+                                        class="needs-validation" novalidate autocomplete="off" id="modalComment">
+                                        {% csrf_token %}
+                                        <div class="row mt-2">
+                                            <div class="col-md-6 mt-2">
+                                                <textarea class="form-control text-dark bg-light" name="comments"
+                                                    required style="height: 200px; width: 520px;"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-5">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex">
+                                                    <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
+                                                        type="submit">Save </button>
+                                                    <button type="button"
+                                                        class="close btn save_btn rounded-pill text-grey w-50 my-4"
+                                                        data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">Cancel</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- ....................................  comment list modal ................ -->
+
+                    <div class="modal fade " id="cmt_list"
+                        style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+                        <div class="modal-dialog modal-dialog-scrollable modal-xl m-5 p-5">
+                            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                                <div class="modal-header " style="background: rgb(32, 35, 37);">
+                                    <h5 class="m-3 text-uppercase text-light">LIST</h5>
+                                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                                        aria-label="Close">&times;</button>
+
+                                </div>
+                                <div class="modal-body"
+                                    style="background: rgb(32, 35, 37); justify-content: center; overflow-x: hidden;">
+                                    <div class="card p-0 m-0">
+
+                                        <div class="row mt-3">
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                                <div class="p-2">
+                                                    <table class="table table-bordered" style="table-layout: fixed;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-center"
+                                                                    style="background-color:rgb(218, 143, 3) ;color: white;">
+                                                                    Comments</th>
+                                                            </tr>
+                                                        </thead>
+                                                        {% for comt in ret_comments %}
+                                                        <tbody>
+                                                            <tr>
+                                                                <!-- <td><input type="text" value="{{ comt.comments }}" style="width: 100%;height: 20px;"></td> -->
+                                                                <td><textarea name="" id="" cols="80" rows="5"
+                                                                        style="border: none;background-color:transparent ;color: white;">{{ comt.comments }}</textarea>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                </div>
-            </div>
 
-
-            <!-- ..................................................................................................................... -->
-            <!--     
+                    <!-- ..................................................................................................................... -->
+                    <!--     
                     <div class="col-md-8" style="border: 1px solid;border-color: white; height: 820px;">
 
                         <section>
@@ -1110,20 +1094,12 @@
                         </section>
 
     
-                    </div><br>
-     -->
-
+                    </div><br> -->
+                </div>
+            </div>
         </div>
-
-
-
-
     </div>
 
-
-    </div>
-
-    </div>
 
 </section>
 

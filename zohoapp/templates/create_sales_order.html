@@ -2709,7 +2709,6 @@
       calculateRowAmount(row);
       calculateSubtotal();
       calculateGrandTotal();
-      toggleDateInput();
       calculateTaxAmount();
       toggleDateInput();
     });
@@ -2921,62 +2920,70 @@
 
 
   function toggleDateInput() {
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-    // Find the index of the hyphen
-    var index = vale.indexOf("-")
-    // Remove the first letters before the hyphen
-    var result = vale.substring(index + 1);
-    var c_state = companyState;
-    var gst = oxy_gst;
-    var igst = oxy_igst;
+  var checkbox = document.getElementById("srcofsupply");
+  var vale = checkbox.value;
+  // Find the index of the hyphen
+  var index = vale.indexOf("-");
+  // Remove the first letters before the hyphen
+  var result = vale.substring(index + 1);
+  var c_state = companyState;
+  var gst = oxy_gst;
+  var igst = oxy_igst;
 
-    function extractNumber(squareBracketString) {
-      var regex = /\[(\d+[^[\]]*)\]/; // Matches one or more digits inside square brackets
-      var match = regex.exec(squareBracketString); // Searches the input string for a match
+  function extractNumber(squareBracketString) {
+    var regex = /\[(\d+[^[\]]*)\]/; // Matches one or more digits inside square brackets
+    var match = regex.exec(squareBracketString); // Searches the input string for a match
 
-      if (match && match[1]) {
-        var extractedNumber = match[1].replace(/%/g, ""); // Removes all occurrences of "%" symbol
-        return extractedNumber; // Returns the captured number inside the square brackets without "%"
-      } else {
-        return null; // Returns null if no match is found
-      }
-    }
-
-    var extractedGST = extractNumber(gst);
-    var extractedIGST = extractNumber(igst);
-
-    for (var i = 1; i <= rowCount; i++) {
-      var taxElement = $('#tax' + i);
-      tax_value = $('#tax' + i).val();
-
-      if (result === c_state) {
-        taxElement.find('optgroup[label="GST"]').show();
-        taxElement.find('optgroup[label="IGST"]').hide();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[0].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === extractedGST) {
-            options[j].selected = true;
-          }
-        }
-
-
-      } else {
-        taxElement.find('optgroup[label="GST"]').hide();
-        taxElement.find('optgroup[label="IGST"]').show();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[1].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === extractedIGST) {
-            options[j].selected = true;
-          }
-        }
-      }
+    if (match && match[1]) {
+      var extractedNumber = match[1].replace(/%/g, ""); // Removes all occurrences of "%" symbol
+      return extractedNumber; // Returns the captured number inside the square brackets without "%"
+    } else {
+      return null; // Returns null if no match is found
     }
   }
+
+  var extractedGST = extractNumber(gst);
+  var extractedIGST = extractNumber(igst);
+
+  for (var i = 1; i <= rowCount; i++) {
+    var taxElement = $('#tax' + i);
+    tax_value = $('#tax' + i).val();
+
+    if (result === c_state) {
+      taxElement.find('optgroup[label="GST"]').show();
+      taxElement.find('optgroup[label="IGST"]').hide();
+      var select = document.getElementById(`tax${i}`);
+      var optgroups = select.getElementsByTagName("optgroup");
+      var options = optgroups[0].getElementsByTagName("option");
+      for (var j = 0; j < options.length; j++) {
+        if (options[j].value === extractedGST) {
+          options[j].selected = true; // Select the desired option
+        } else {
+          options[j].selected = false; // Deselect other options
+        }
+      }
+    } else {
+      taxElement.find('optgroup[label="GST"]').hide();
+      taxElement.find('optgroup[label="IGST"]').show();
+      var select = document.getElementById(`tax${i}`);
+      var optgroups = select.getElementsByTagName("optgroup");
+      var options = optgroups[1].getElementsByTagName("option");
+      for (var j = 0; j < options.length; j++) {
+        if (options[j].value === extractedIGST) {
+          options[j].selected = true; // Select the desired option
+        } else {
+          options[j].selected = false; // Deselect other options
+        }
+      }
+    }
+
+    // Trigger the change event to update the displayed selected option
+    //$('#tax' + i).change();
+  }
+}
+
+
+
 
   function calculateTaxAmount() {
     var checkbox = document.getElementById("srcofsupply");

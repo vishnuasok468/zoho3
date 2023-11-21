@@ -1303,11 +1303,13 @@ def create_invoice_draft(request):
 
         description = request.POST.getlist('description[]')
         amount =request.POST.getlist('amount[]')
-        if len(description)==len(amount):
-            mapped = zip(description,amount)
+        itm=request.POST.getlist('item[]')
+        qty=request.POST.getlist('quantity[]')
+        if len(description)==len(amount)==len(itm)==len(qty):
+            mapped = zip(description,amount,itm,qty)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1], retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3] ,retainer=retainer_invoice)
         else:
             pass
 
@@ -1376,12 +1378,14 @@ def create_invoice_send(request):
                 ret_payment.save()
 
         description = request.POST.getlist('description[]')
-        amount = request.POST.getlist('amount[]')
-        if len(description)==len(amount):
-            mapped = zip(description,amount)
+        amount =request.POST.getlist('amount[]')
+        itm=request.POST.getlist('item[]')
+        qty=request.POST.getlist('quantity[]')
+        if len(description)==len(amount)==len(itm)==len(qty):
+            mapped = zip(description,amount,itm,qty)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1], retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3] ,retainer=retainer_invoice)
         else:
             pass
         # return redirect('invoice_view',pk=retainer_invoice.id)
