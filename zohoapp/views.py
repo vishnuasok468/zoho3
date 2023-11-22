@@ -1404,16 +1404,17 @@ def create_invoice_send(request):
 def invoice_view(request,pk):
     user=request.user
     company=company_details.objects.get(user=user)
-    invoices=RetainerInvoice.objects.all()
     invoice=RetainerInvoice.objects.get(id=pk)
+    cust=customer.objects.get(id=invoice.customer_name.id)
+    invoices=RetainerInvoice.objects.all()
     item=Retaineritems.objects.filter(retainer=pk)
     ret_comments=retainer_invoice_comments.objects.filter(retainer=invoice.id,user=user)
 
     if retainer_payment_details.objects.filter(retainer=invoice.id,user=user).exists():
         ret_payments=retainer_payment_details.objects.get(retainer=invoice.id)
-        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'ret_payments':ret_payments}
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'ret_payments':ret_payments,'cust':cust}
     else:
-        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments}
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'cust':cust}
 
     return render(request,'invoice_view.html',context)
 

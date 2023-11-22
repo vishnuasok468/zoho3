@@ -53,25 +53,222 @@
 
 <script>
 
-
-    function printSelectedArea1() {
-        var selectedArea = document.getElementById("print_slip");
-        var printWindow = window.open('', 'PrintWindow');
-        printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
-        printWindow.print();
-        printWindow.close();
-    }
-
-
-
     $(function () {
         $("#slip").click(printSelectedArea1);
     });
+
+
 </script>
 
 
 
 <style>
+    @media print {
+    .unwanted,.sidebar,.sectionhtml{
+        display: none !important;
+    }
+    body{
+        visibility: hidden!important;
+    }
+    html{
+        overflow: hidden! important;
+        visibility: hidden!important;
+    }
+    
+
+    .printContainer {
+      visibility: visible !important;
+      /* Override the rule above to only show the printables*/
+      z-index: 99999;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+    }
+
+  }
+
+    .slip-page {
+        background: #ffffff;
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    }
+
+    .slip-page[size="A4"] {
+        width: 21cm;
+        height: 29.7cm;
+        overflow: hidden;
+    }
+
+    .equal-length-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        /* Make the container fill the height of the column */
+        margin-left: 2vh;
+        margin-right: 2vh;
+    }
+
+    .equal-length-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .store-user {
+        padding-bottom: 25px;
+    }
+
+    .store-user p {
+        margin: 0;
+        font-weight: 600;
+        color: #000000;
+    }
+
+    .store-user .address {
+        font-weight: 400;
+    }
+
+    .store-user h5 {
+        color: #22b8d1;
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    .bb {
+        border-bottom: 3px solid #ccc;
+    }
+
+    .top-content {
+        padding-bottom: 15px;
+    }
+
+    .ribbon .ribbon-inner {
+        text-align: center;
+        color: #fff;
+        top: -20px;
+        left: -90px;
+        width: 120px;
+        padding: 3px;
+
+    }
+
+    .ribbon .ribbon-open {
+        background-color: #268ddd;
+        border-color: #1c72b4;
+    }
+
+    .template .ribbon .ribbon-open {
+        background-color: #616263;
+        border-color: #616263;
+    }
+
+    .top-left p {
+        margin: 0;
+        color: #000000;
+    }
+
+    .top-left .graphic-path {
+        height: 40px;
+        position: relative;
+    }
+
+    .top-left .graphic-path::before {
+        content: "";
+        height: 20px;
+        background-color: #615c60;
+        position: absolute;
+        left: 15px;
+        right: 0;
+        top: -15px;
+        z-index: 2;
+    }
+
+    .top-left .graphic-path::after {
+        content: "";
+        height: 22px;
+        width: 17px;
+        background: #000000;
+        position: absolute;
+        top: -13px;
+        left: 6px;
+        transform: rotate(45deg);
+    }
+
+    .template3 .top-left .graphic-path::before {
+        background-color: #bbbbbb;
+    }
+
+    .template3 .top-left .graphic-path::after {
+        background: #616263b3;
+    }
+
+    .top-left .graphic-path p {
+        height: 40px;
+        left: 0;
+        right: 0;
+        text-transform: uppercase;
+        background-color: #22b8d1;
+        font: 26px;
+        z-index: 3;
+        position: absolute;
+        padding-left: 10px;
+    }
+
+    .template3 .top-left .graphic-path p {
+        background-color: #616263;
+        color: white;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+    }
+
+    .logo img {
+        max-height: 100px;
+    }
+
+    .company-info h2 {
+        margin: 0;
+        font-size: 2em;
+    }
+
+    .i.invoice-box {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .invoice-box h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .invoice-details p,
+    .client-details p {
+        margin: 5px 0;
+    }
+
+    .company-info p {
+        margin: 0;
+        line-height: 1.5;
+    }
+
     .dropdown-item:hover {
         color: rgb(226, 149, 5);
     }
@@ -81,25 +278,20 @@
         overflow: scroll;
     }
 
-    /* width */
-    ::-webkit-scrollbar {
-        width: 10px;
+    footer {
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        font-size: 0.8em;
+        color: #888;
+        margin-top: 20px;
     }
 
-    /* Track */
-    ::-webkit-scrollbar-track {
-        background: rgb(252, 236, 217);
+    footer p {
+        margin: 5px 0;
     }
 
-    /* Handle */
-    ::-webkit-scrollbar-thumb {
-        background: #888;
-    }
-
-    /* Handle on hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
 
     #tr_data:hover {
         background-color: #757575;
@@ -107,7 +299,7 @@
 </style>
 
 <section>
-    <div class="row" style="top:7rem;">
+    <div class="row unwanted" style="top:7rem;">
 
         <div>
             <div class="col-md-12" style="width: auto;">
@@ -136,10 +328,9 @@
                                     </a>
                                     <div class="dropdown-menu m-1">
                                         <a class="dropdown-item" href="{% url 'invoice_view' invoice.id %}">All</a>
-                                        <a class="dropdown-item"
-                                            href="{% url 'filter_retainer_view_draft' invoice.id %}">Draft</a>
-                                        <a class="dropdown-item"
-                                            href="{% url 'filter_retainer_view_sent' invoice.id %}">Sent</a>
+                                        <a class="dropdown-item" onclick="sortTable()">Name</a>
+                                        <a class="dropdown-item" onclick="sortTablebybillno()">Retainer Invoice
+                                            Number</a>
                                     </div>
                                 </div>
                             </div>
@@ -184,9 +375,22 @@
                                 <button class="btn" onclick="overview_function()"
                                     style="background-color:chocolate ;margin-left: 2vh;"><i
                                         class="fa fa-eye"></i>overview</button>
-                                <button class="btn" onclick="template_function()"
-                                    style="background-color:white;color: black;margin-left: 2vh;"><i
-                                        class="fa fa-file-alt"></i>Template</button>
+
+                                <a href=" " class=" btn fa fa-file-alt" data-bs-toggle="dropdown"
+                                    id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="background-color: white; color: black; margin-right: 2vh;"> Templates
+                                </a>
+
+                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
+                                    <a class="dropdown-item" onclick="template_function()"><i
+                                            class="fa fa-file-alt"></i> Template 1</a>
+
+                                    <a class="dropdown-item" onclick="show_template2()"><i class="fa fa-file-alt"></i>
+                                        Template 2</a>
+
+                                    <a class="dropdown-item" onclick="show_template3()"><i class="fa fa-file-alt"></i>
+                                        Template 3</a>
+                                </div>
 
                             </div>
                             <div class="col-md-6" style="text-align: center;">
@@ -220,15 +424,11 @@
                                 {% endif %}
 
 
-                                {% if setting_variable.print_opt == 'yes' %}
-                                <button class="btn btn-outline-warning print-button" onclick="printRetainerInvoice()"
+
+                                <button class="btn btn-outline-warning print-button" onclick="printSelectedArea()"
                                     data-toggle="tooltip" title="Print">
                                     <i class="fa fa-print"></i></button>
-                                {% else %}
-                                <button class="btn btn-outline-warning print-button" onclick="printRetainerInvoice()"
-                                    style="display: none;" data-toggle="tooltip" title="Print">
-                                    <i class="fa fa-print"></i></button>
-                                {% endif %}
+
                                 <!-- <button  class="btn btn-sm text-white ms-1 attach-button"
                         style="background-color:  rgb(212, 139, 3);border-radius: 5px;" id="attach-button" data-toggle="tooltip" title="Email">
                             <i class="fas fa-paperclip"></i></button>
@@ -706,153 +906,555 @@
                             </div>
                         </fieldset>
 
-
-
-                        <fieldset2 id="est_slip" style="display: none;">
-                            <div class="p-3 mt-3" style="background-color: #8888889d;">
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <div id="outer"
-                                            style="width: 100%;border-radius: 15px;background-color: rgba(31, 31, 31, 0.774);">
-                                            <div class="row">
-                                                <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                                                <div class="col-sm-6 col-md-6 col-lg-6">
-                                                    <div id="print_slip" class="p-1 pb-5"
-                                                        style="width: 100%;background-color: beige;">
-                                                        <div class="row">
-                                                            <div class="col-sm-12 col-lg-12 col-md-12">
-                                                                <h6 class="text-black" style="text-align: center;">
-                                                                    RETAINER
-                                                                    INVOICE</h6>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-sm-12 col-lg-12 col-md-12">
-                                                                <h6 class="text-dark mt-1"
-                                                                    style="text-transform: uppercase;text-align: center;">
-                                                                    {{company.company_name }}</h6>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-sm-12 col-lg-12 col-md-12">
-                                                                <p class="text-dark" style="text-align: center;">
-                                                                    {{company.address }} , {{ company.city }}
-                                                                    ,{{company.state }} </p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-sm-6 col-lg-6 col-md-6">
-                                                                <p class="text-dark" style="font-size: small;"><span
-                                                                        class="text-black"
-                                                                        style="font-size:medium;">Bill to
-                                                                        :</span> <br>
-
-                                                                    {{ invoice.customer_name1}}
-                                                                    <br>{{invoice.customer_mailid }} <br><span
-                                                                        class="text-black "
-                                                                        style="font-size: medium;">Retainer Invoice
-                                                                        Date:</span> <br>
-                                                                    {{invoice.retainer_invoice_date }}
-                                                                </p>
-
-                                                            </div>
-                                                            <div class="col-sm-2 col-md-2 col-lg-2"></div>
-                                                            <div class="col-sm-4 col-md-4 col-lg-4">
-                                                                <p class="text-dark" style="font-size: small;"><span
-                                                                        class="text-black"
-                                                                        style="font-size: medium;">Retainer Invoice
-                                                                        no:</span><br>{{invoice.retainer_invoice_number}}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                                <table class="table-bordered mb-3">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th
-                                                                                style="color: black;font-size: smaller;">
-                                                                                #
-                                                                            </th>
-                                                                            <th
-                                                                                style="width: 30rem;color: black;font-size: smaller;">
-                                                                                Product Name</th>
-                                                                            <th
-                                                                                style="width: 30rem;color: black;font-size: smaller;">
-                                                                                Description</th>
-                                                                            <th
-                                                                                style="width: 30rem;color: black;font-size: smaller;">
-                                                                                Quantity</th>
-                                                                            <th class="text-right;"
-                                                                                style="color: black;font-size: smaller;">
-                                                                                Amount</th>
-
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {% for i in item %}
-                                                                        <tr>
-                                                                            <td
-                                                                                style="color: black;font-size: smaller;">
-                                                                                {{forloop.counter }}</td>
-                                                                            <td
-                                                                                style="color: black;font-size: smaller;">
-                                                                                <p>{{ i.itemname }}</p>
-                                                                            </td>
-                                                                            <td
-                                                                                style="color: black;font-size: smaller;">
-                                                                                <p>{{ i.description }}</p>
-                                                                            </td>
-                                                                            <td
-                                                                                style="color: black;font-size: smaller;">
-                                                                                <p>{{ i.quantity }}</p>
-                                                                            </td>
-                                                                            <td class="text-right"
-                                                                                style="color: black;font-size: smaller;">
-                                                                                {{i.amount }}</td>
-
-                                                                        </tr>
-                                                                        {% endfor %}
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-sm-6 col-lg-6 col-md-6"></div>
-                                                            <div class="col-sm-6 col-lg-6 col-md-6">
-                                                                <table>
-                                                                    <tr>
-                                                                        <td class=" text-dark"
-                                                                            style="font-size: smaller;">
-                                                                            Total:</td>
-
-                                                                        <td class="text-right text-dark"
-                                                                            style="text-align: end;font-size: smaller;">
-                                                                            {{invoice.total_amount|floatformat:1}}
-                                                                        </td>
-                                                                    </tr>
-
-
-
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                        <div id="template1" style="display: none;" class="printTemplates template1">
+                            <div class="my-3 page" size="A4" style="background-color: rgb(255, 221, 176);"
+                                id="selected-area">
+                                <div class="p-5">
+                                    <div style="background-color: #8b3131;border-radius: 1rem;padding: 20px;">
+                                        <center class="h3"><b>RETAINER INVOICE</b></center>
+                                    </div>
+                                    <div class="row mt-5">
+                                        <div class="col-md-8">
+                                            <h4 class="text-secondary" style="font-weight: bold;">{{company.company_name
+                                                }}</h4>
+                                            <p class="address" style="font-weight: bold;color: #000;">
+                                                {{company.address}}<br>
+                                                {{company.city}},
+                                                {{company.state}}<br>
+                                                {{company.pincode}}<br>
+                                                {{company.company_email}}<br>
+                                                {{company.contact_number}}<br>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="top-left">
+                                                <div class="graphic-path">
+                                                    <p>Retainer Invoice #:<b>{{invoice.retainer_invoice_number }}</b>
+                                                    </p>
                                                 </div>
+                                                <div class="mt-2">
 
+                                                    <p style="color: #000;">Date:
+                                                        <b>{{ invoice.retainer_invoice_date | date:'d-m-Y'}}</b>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <section class="top-content bb d-flex justify-content-between">
+                                        <div class="logo">
+
+                                        </div>
+
+                                    </section>
+
+                                    <section class="store-user">
+                                        <div class="col-12">
+                                            <div class="row bb pb-2 mt-3">
+                                                <div class="col-4 pl-0">
+                                                    <label class="text-white bg-secondary w-100 p-1"><b>BILL
+                                                            TO</b></label>
+                                                    <h5 class="" style="font-weight: bold; color: #8b3131;">
+                                                        {{invoice.customer_name1}}</h5>
+                                                    <p class="address" style="font-weight: bold;color: #000;">
+                                                        {{cust.customerEmail}}
+                                                        <br>
+                                                        {{cust.Address1}}
+                                                        <br>
+
+                                                        <span>Mob: </span><b>{{cust.phone1}}</b>
+                                                    </p>
+                                                </div>
+                                                <div class="col-4"></div>
+                                                <div class="col-4 pr-0">
+                                                    <label class="text-white bg-secondary w-100 p-1"><b>GST
+                                                            Details</b></label>
+                                                    <h5 class="" style="font-weight: bold; color: #8b3131;">
+                                                        {{cust.GSTTreatment}}</h5>
+                                                    <p class="address" style="font-weight: bold;color: #000;">
+                                                        {{ cust.GSTIN}}
+                                                    </p>
+                                                </div>
                                             </div>
 
                                         </div>
+                                    </section>
+
+                                    <section class="product-area mt-2">
+                                        <table class="table table-hover table-bordered table-secondary">
+                                            <thead>
+                                                <tr class="">
+                                                    <th class="text-center" style="color:#8b3131;">Items</th>
+                                                    <th class="text-center" style="color:#8b3131;">description</th>
+                                                    <th class="text-center" style="color:#8b3131;">Quantity</th>
+                                                    <th class="text-center" style="color:#8b3131;">amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for itm in item %}
+                                                <tr>
+                                                    <td class="text-center" style="color:#000">{{ itm.itemname }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.description }}
+                                                    </td>
+                                                    <td class="text-center" style="color:#000">{{ itm.quantity }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.amount }}</td>
+
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </section>
+
+                                    <section class="balance-info">
+                                        <div class="row mt-3">
+                                            <div class="col-4">
+                                                <table class="table table-borderless">
+                                                    <tbody>
+
+                                                        <!-- <tr >
+                                                            <td style="color: #000;text-align: left;">Payment Type</td>
+                                                            <td style="color: #000;text-align: left;">:</td>
+                                                            {% if bank %}
+                                                            <th style="color: #000;text-align: center;">{{bank.bankname}}</th>
+                                                            {% else %}
+                                                            <th style="color: #000;text-align: center;">{{pbill.payment_type}}</th>
+                                                            {% endif %}
+                                                        </tr>
+                                                        <tr>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            
+                                                        </tr> -->
+                                                        {% if ewbill.note %}
+                                                        <tr>
+                                                            <td style="color: #000;text-align: left;">Note</td>
+                                                            <td style="color: #000;text-align: left;">:</td>
+                                                            <th style="color: #000;text-align: center;">{{ewbill.note}}
+                                                            </th>
+                                                        </tr>
+                                                        {% endif %}
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-4"></div>
+                                            <div class="col-4">
+                                                <table class="table table-borderless">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="color: #000;">Sub Total</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-center" style="color: #000;">
+                                                                {{invoice.total_amount}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                        <footer class="mb-5">
+                                            <p class="text-dark">&copy; Zho Books 2023 | Info park kakkanad kochi,
+                                                Ernamkulam,
+                                                kerala India 12345
+                                                | Phone: (123) 456-7890 | Email: info@zohodjango.com</p>
+                                        </footer>
+                                    </section>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3" id="template2"
+                            style="display: none;height: auto;width: 100%; margin-left: -1vh">
+
+                            <section id="" style="background-color: rgb(255, 221, 176);" class=" p-2 m-2">
+                                <header style="	background-color: #8b3131;border-radius: 1rem;">
+                                    <div class="logo">
+                                        <img class="ml-2" width="100rem" style="border-radius: 50%;"
+                                            src="{% static 'images/zlogo.png' %}" alt="Company Logo">
                                     </div>
+                                    <div style="background: #8b3131;color: white;" class="company-info">
+                                        <h2 class="text-white">{{company.company_name}}</h2>
+                                        <p class="text-white"> {{company.address}}<br>{{company.city}}</p>
+                                        <p> {{company.contact_number}}</p>
+                                        <p>{{company.company_email}}</p>
+                                    </div>
+                                </header>
+                                <div class="invoice-box">
+                                    <h1 class="text-dark">SalesOrder</h1>
+                                    <div class="invoice-header">
+                                        <div class="invoice-details text-dark">
+                                            <table>
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">Retainer
+                                                        No#
+                                                    </td>
+                                                    <td class="table-cell text-black" style="border: none;">:</td>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        {{invoice.retainer_invoice_number}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">Retainer
+                                                        Invoice
+                                                        Date
+                                                    </td>
+                                                    <td class="table-cell text-black" style="border: none;">:</td>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        {{invoice.retainer_invoice_date|date:'d-m-Y'}}</td>
+                                                </tr>
+
+                                            </table>
+                                        </div>
+                                        <div class="client-details" style="width: 50vh;">
+                                            <table>
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        <b>{{invoice.customer_name1}}</b>
+                                                    </td>
+                                                </tr>
+                                                {% if cust.Address1 %}
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        {{cust.Address1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        {{cust.GSTTreatment}}</td>
+                                                </tr>
+                                                {% if cust.GSTIN %}
+                                                <tr>
+                                                    <td class="table-cell text-black" style="border: none;">
+                                                        {{cust.GSTIN}}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <table>
+                                        <thead>
+                                            <tr>
+
+                                                <th id="th" style="text-align: center;">Product</th>
+                                                <th id="th" style="text-align: center;">Description</th>
+                                                <th id="th" style="text-align: center;">Quantity</th>
+                                                <th id="th" style="text-align: center;"> Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in item %}
+                                            <tr style="color: black;">
+                                                <td style="text-align: center;">{{i.itemname}}</td>
+                                                <td style="text-align: center;">{{i.description}}</td>
+                                                <td style="text-align: center;">{{i.quantity}}</td>
+                                                <td style="text-align: center;">{{i.amount}}</td>
+                                            </tr>
+                                            {% endfor %}
+
+                                        </tbody>
+                                    </table><br>
+
+                                    <div class="invoice-total">
+                                        <div class="row">
+                                            <div class="col-md-7"></div>
+                                            <div class="col-md-4">
+                                                <table style="margin-left: 10vh;">
+                                                    <tr>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            Subtotal
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">:
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            <b>{{invoice.total_amount}}</b>
+                                                        </td>
+                                                    </tr>
+
+                                                </table>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
+                                <footer class="mb-5">
+                                    <p class="text-dark">&copy; Zho Books 2023 | Info park kakkanad kochi,
+                                        Ernamkulam,
+                                        kerala India 12345
+                                        | Phone: (123) 456-7890 | Email: info@zohodjango.com</p>
+                                </footer>
+                                <div class="mt-5 mb-5">
+
+                                </div>
+                            </section>
+                        </div>
+
+                        <div id="template3" class="template3" style="display: none;">
+                            <div class="my-5 page" size="A4" style="background-color: rgb(255, 221, 176);">
+                                <div class="p-5" id="printdiv1">
+                                    <section class="top-content bb d-flex justify-content-between"
+                                        style="background-color: #8b3131;">
+                                        <div class="logo">
+                                            <!-- <img src="logo.png" alt="" class="img-fluid"> -->
+                                        </div>
+                                        <div class="top-left">
+                                            <div class="graphic-path">
+                                                <p>Retainer Invoice</p>
+                                            </div>
+                                            <div class="position-relative" style="margin-right: 5px;">
+                                                <p>Retainer Invoice No.
+                                                    <span>{{invoice.retainer_invoice_number}}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="store-user mt-5">
+                                        <div class="col-12">
+                                            <div class="row bb pb-3">
+                                                <div class="col-7">
+                                                    <p>FROM,</p>
+                                                    <h5>{{company.company_name }}</h5>
+                                                    <p class="address "> {{company.address}}<br>
+                                                        {{company.city}},
+                                                        {{company.state}}<br>
+                                                        {{company.pincode}}<br>
+                                                    </p>
+
+                                                </div>
+                                                <div class="col-5">
+                                                    <p>TO,</p>
+                                                    <h5>{{invoice.customer_name1}}</h5>
+                                                    <p class="address col-9" style="margin-left: 0px;">
+                                                        {{cust.Address1}} </p><br>
+                                                    <p class="address col-9">{{cust.GSTTreatment}}</p><br>
+                                                    <p class="address col-9">{{cust.GSTIN}}</p>
+
+
+                                                </div>
+                                            </div>
+                                            <div class="row extra-info pt-3">
+                                                <div class="col-7">
+                                                    <p>Reatiner Invoice Date:
+                                                        <span>{{invoice.retainer_invoice_date |date:'d-m-Y'}}</span>
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="product-area mt-4">
+                                        <table class=" table table-hover table-bordered " id="table1">
+                                            <thead>
+                                                <tr>
+                                                    <td style="text-align: center; font-weight:bold; color:black ">Items
+                                                    </td>
+                                                    <td style="font-weight:bold; color:black">Description</td>
+                                                    <td style="font-weight:bold; color:black">Quantity</td>
+                                                    <td style="font-weight:bold; color:black">Amount</td>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                {% for j in item %}
+                                                <tr>
+                                                    <td style="color:black; text-align: center;">
+                                                        {{j.itemname}}
+
+                                                    </td>
+                                                    <td style="color:black">{{j.description}}</td>
+                                                    <td style="color:black">{{j.quantity}}</td>
+                                                    <td style="color:black">{{j.amount}} </td>
+
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table><br><br>
+                                    </section>
+
+                                    <section class="balance-info">
+                                        <div class="row">
+                                            <div class="col-md-8"></div>
+                                            <div class="col-md-4">
+                                                <table class="table table-borderless">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="color: #000;">Sub Total</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-right" style="color: #000;">
+                                                                {{invoice.total_amount}}</td>
+                                                        </tr>
+
+
+                                                    </tbody>
+
+                                                </table>
+
+                                            </div>
+
+                                            <footer class="mb-5">
+                                                <p class="text-dark">&copy; Zho Books 2023 | Info park kakkanad kochi,
+                                                    Ernamkulam,
+                                                    kerala India 12345
+                                                    | Phone: (123) 456-7890 | Email: info@zohodjango.com</p>
+                                            </footer>
+                                        </div>
+                                    </section>
+
+                                    <!-- Cart BG -->
+                                    <img src="cart.jpg" class="img-fluid cart-bg" alt="">
+
+                                    <!-- <footer>
+                                                <hr>
+                                                <p class="m-0 text-center">
+                                                    View THis Invoice Online At - <a href="#!"> invoice/saburbd.com/#868 </a>
+                                                </p>
+                                                <div class="social pt-3">
+                                                    <span class="pr-2">
+                                                        <i class="fas fa fa-mobile-alt"></i>
+                                                        <span>0123456789</span>
+                                                    </span>
+                                                    <span class="pr-2">
+                                                        <i class="fas fa fa-envelope"></i>
+                                                        <span>me@saburali.com</span>
+                                                    </span>
+                                                    <span class="pr-2">
+                                                        <i class="fab fa-facebook-f"></i>
+                                                        <span>/sabur.7264</span>
+                                                    </span>
+                                                    <span class="pr-2">
+                                                        <i class="fab fa-youtube"></i>
+                                                        <span>/abdussabur</span>
+                                                    </span>
+                                                    <span class="pr-2">
+                                                        <i class="fab fa-github"></i>
+                                                        <span>/example</span>
+                                                    </span>
+                                                </div>
+                                            </footer> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <fieldset2 id="est_slip" style="display: none;">
+                            <div style="background-color: rgb(255, 221, 176);" class="mx-2 my-4">
+
+                                <div class="my-5 slip-page" size="A4">
+                                    <div class="row" style="margin-top: 20%; " id="printslip">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-7">
+                                            <div class="card bg-white" style="border: 1px dotted black;padding: 20px;">
+                                                <div class="mt-2" style="text-align: center;padding: 15px;">
+                                                    <div class="text-center" style="font-size: 3vh; color: black;">
+                                                        <b>{{company.company_name}} </b>
+                                                    </div>
+                                                    <span style="font-size: x-small; color: black;">{{company.address}}
+                                                        <br>
+                                                        {{company.city}},
+                                                        {{company.state}}
+                                                        {{company.pincode}} <br>
+                                                        {{ company.contact_number }} <br>{{ company.company_email }}
+                                                    </span>
+                                                </div>
+                                                <div class="ml-4 mt-2" style="color: black;">
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Retainer Invoice No:</div>
+                                                        <div class="col-md-5 text-right">
+                                                            {{invoice.retainer_invoice_number}}</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Customer Name:</div>
+                                                        <div class="col-md-5 text-right">{{cust.customerName}}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Retainer Invoie Date :</div>
+                                                        <div class="col-md-5 text-right">
+                                                            {{invoice.retainer_invoice_date |date:'d-m-Y'}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div><br>
+                                                    <div class="equal-length-container"
+                                                        style="color: black; font-weight: bold;">
+                                                        <div class="equal-length-item" style=" text-align: center;">
+                                                            Product
+                                                            <hr
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
+                                                        </div>
+                                                        <div class="equal-length-item ml-2" style=" text-align:center;">
+                                                            Description
+                                                            <hr
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%;">
+                                                        </div>
+                                                        <div class="equal-length-item" style=" text-align: center; ">
+                                                            Qty
+                                                            <hr
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%">
+                                                        </div>
+
+
+
+                                                        <div class="equal-length-item" style=" text-align: center; ">
+                                                            Amount
+                                                            <hr
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    {% for j in item %}
+                                                    <div class="equal-length-container"
+                                                        style="color: black; font-size: small; word-wrap: break-word; margin-bottom: 1vh;">
+                                                        <div class="equal-length-item"
+                                                            style="text-align: center; margin-left: 2px;">
+                                                            {{j.itemname}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: right;">
+                                                            {{j.description}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: center; ">
+                                                            {{j.quantity}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: center; ">
+                                                            {{j.amount}}
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+
+                                                <div><br>
+
+                                                    <hr class="ml-2 mr-2"
+                                                        style="color: black; border-bottom: 1px solid black; ">
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <div class="row">
+                                                        <div class="col-md-5 text-left ml-2"
+                                                            style=" font-size: large; color: black; font-weight: bold;">
+                                                            Total
+                                                        </div>
+                                                        <div class="col-md-6"
+                                                            style="font-size: large; color: black; font-weight: bold;text-align: end;">
+                                                            {{ invoice.total_amount }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </fieldset2>
-
-
-
-
 
 
                     </div>
@@ -961,6 +1563,9 @@
 
                         </div>
                     </div>
+
+
+
 
 
                     <!-- ..................................................................................................................... -->
@@ -1115,21 +1720,106 @@
 
 
 <script>
-    function overview_function() {
-        document.getElementById("div_estimate").style.display = "none";
-        document.getElementById("est_slip").style.display = "none";
 
+    const rows = document.querySelectorAll('.clickable');
+
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            var currentURL = window.location.href
+            const rowId = row.id;
+            var newURL = currentURL.replace(/\d+$/, rowId);
+            window.location.href = newURL;
+        });
+    });
+
+    function sortTablebybillno() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("table");
+        switching = true;
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            for (i = 0; i < rows.length - 1; i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("p")[0];
+                y = rows[i + 1].getElementsByTagName("p")[0];
+
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+
+    function sortTable() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("table");
+        switching = true;
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            for (i = 0; i < rows.length - 1; i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("label")[0];
+                y = rows[i + 1].getElementsByTagName("label")[0];
+
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+    function overview_function() {
+        document.getElementById("template2").style.display = "none";
+        document.getElementById("template1").style.display = "none";
+        document.getElementById("est_slip").style.display = "none";
         document.getElementById("fieldset1").style.display = "block";
+        document.getElementById("template3").style.display = "none";
+
     }
     function template_function() {
-        document.getElementById("div_estimate").style.display = "block";
+        document.getElementById("template2").style.display = "none";
+        document.getElementById("template1").style.display = "block";
         document.getElementById("fieldset1").style.display = "none";
         document.getElementById("est_slip").style.display = "none";
+        document.getElementById("template3").style.display = "none";
+    }
+    function show_template2() {
+        document.getElementById("est_slip").style.display = "none";
+        document.getElementById("template1").style.display = "none";
+        document.getElementById("fieldset1").style.display = "none";
+        document.getElementById("template2").style.display = "block";
+        document.getElementById("template3").style.display = "none";
+    }
+    function show_template3() {
+        document.getElementById("est_slip").style.display = "none";
+        document.getElementById("template1").style.display = "none";
+        document.getElementById("fieldset1").style.display = "none";
+        document.getElementById("template2").style.display = "none";
+        document.getElementById("template3").style.display = "block";
     }
     function show_slip() {
+        document.getElementById("template2").style.display = "none";
         document.getElementById("est_slip").style.display = "block";
-        document.getElementById("div_estimate").style.display = "none";
+        document.getElementById("template1").style.display = "none";
         document.getElementById("fieldset1").style.display = "none";
+        document.getElementById("template3").style.display = "none";
     }
 </script>
 
@@ -1167,19 +1857,18 @@
 
 <script>
 
-    function printRetainerInvoice() {
-        // select the retainer invoice section
-        const retainerSection = document.querySelector('#whatToPrint');
+    function printSelectedArea(area) {
 
-        // get the HTML content of the retainer invoice section
-        const retainerInvoiceHTML = retainerSection.innerHTML;
+        var printContents = document.getElementById("selected-area").innerHTML;
+        document.getElementById("selected-area").style.backgroundColor = "white"
+        var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
+        $printerDiv.html(printContents); // add the content to be printed
+        $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
 
-        // create a new window and write the retainer invoice HTML to it
-        const newWindow = window.open();
-        newWindow.document.write(retainerInvoiceHTML);
+        window.print(); // call print
+        $printerDiv.remove(); // remove the div
+        $('body').removeClass("printingContent");
 
-        // print the new window
-        newWindow.print();
     }
 
 </script>
