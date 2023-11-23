@@ -9,7 +9,7 @@
 
 
 
-<script type="text/javascript">
+<!--<script type="text/javascript">
     $(document).ready(function ($) {
         console.log('print');
 
@@ -58,36 +58,41 @@
     });
 
 
-</script>
+</script>-->
 
 
 
 <style>
     @media print {
-    .unwanted,.sidebar,.sectionhtml{
-        display: none !important;
-    }
-    body{
-        visibility: hidden!important;
-    }
-    html{
-        overflow: hidden! important;
-        visibility: hidden!important;
-    }
-    
 
-    .printContainer {
-      visibility: visible !important;
-      /* Override the rule above to only show the printables*/
-      z-index: 99999;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-    }
+        .unwanted,
+        .sidebar,
+        .sectionhtml {
+            display: none !important;
+        }
 
-  }
+        body {
+            visibility: hidden !important;
+        }
+
+        html {
+            overflow: hidden ! important;
+            visibility: hidden !important;
+        }
+
+
+        .printContainer {
+            visibility: visible !important;
+            /* Override the rule above to only show the printables*/
+            z-index: 99999;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+        }
+
+    }
 
     .slip-page {
         background: #ffffff;
@@ -413,20 +418,12 @@
                                         data-action="share/whatsapp/share">WhatsApp</a>
                                 </div>
 
-                                {% if setting_variable.pdf == 'yes' %}
-                                <a href="" class="btn btn-outline-warning btn_print" data-toggle="tooltip" title="PDF"
-                                    id="pdf">
-                                    <i class="far fa-file-pdf"></i></a>
-                                {% else %}
-                                <a href="" class="btn btn-outline-warning btn_print" style="display: none;"
-                                    data-toggle="tooltip" title="PDF" id="pdf">
-                                    <i class="far fa-file-pdf"></i></a>
-                                {% endif %}
+                                <button href="" class="btn btn-outline-warning btn_print" data-toggle="tooltip"
+                                    title="PDF" id="pdf-button">
+                                    <i class="far fa-file-pdf"></i></button>
 
-
-
-                                <button class="btn btn-outline-warning print-button" onclick="printSelectedArea()"
-                                    data-toggle="tooltip" title="Print">
+                                <button class="btn btn-outline-warning print-button" data-toggle="tooltip" title="Print"
+                                    id="print-button">
                                     <i class="fa fa-print"></i></button>
 
                                 <!-- <button  class="btn btn-sm text-white ms-1 attach-button"
@@ -445,39 +442,6 @@
                                 
 
                             </form> -->
-
-                                {% if setting_variable.slip == 'yes' %}
-
-
-                                <a href=" " class=" fas fa-receipt  btn-outline-warning btn" data-bs-toggle="dropdown"
-                                    id="attachmentDropdown" aria-haspopup="true" aria-expanded="false">
-                                </a>
-
-                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
-                                            class="fas fa-eye"></i>View</a>
-                                    <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
-                                            class="fas fa-print"></i>&nbsp;Print</a>
-
-                                </div>
-
-                                {% else %}
-
-                                <a href=" " class=" fas fa-receipt  btn-outline-warning btn" data-bs-toggle="dropdown"
-                                    id="attachmentDropdown" aria-haspopup="true" aria-expanded="false">
-                                </a>
-
-                                <div class="dropdown-menu" aria-labelledby="attachmentDropdown">
-                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i
-                                            class="fas fa-eye"></i>View</a>
-                                    <a class="dropdown-item" id="slip" style="cursor: pointer;"><i
-                                            class="fas fa-print"></i>&nbsp;Print</a>
-
-                                </div>
-
-                                {% endif %}
-
-
                                 <a href=" " class=" fas fa-comment-dots  btn-outline-warning btn"
                                     data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true"
                                     aria-expanded="false">
@@ -492,6 +456,11 @@
                                         List</a>
 
                                 </div>
+                                <button class="btn btn-outline-warning print-button" data-toggle="tooltip" title="Slip"
+                                    onclick="show_slip()">
+                                    <i class="fas fa-receipt"></i></button>
+
+
 
                                 <a href="{% url 'retainer_delete' invoice.id %}" class="btn btn-outline-warning"
                                     title="Delete" onclick="return confirm('Do you want to Delete this Invoice?');"><i
@@ -915,8 +884,8 @@
                                     </div>
                                     <div class="row mt-5">
                                         <div class="col-md-8">
-                                            <h4 class="text-secondary" style="font-weight: bold;">{{company.company_name
-                                                }}</h4>
+                                            <h4 class="text-secondary" style="font-weight: bold;">
+                                                {{company.company_name}}</h4>
                                             <p class="address" style="font-weight: bold;color: #000;">
                                                 {{company.address}}<br>
                                                 {{company.city}},
@@ -1070,7 +1039,7 @@
                         <div class="mt-3" id="template2"
                             style="display: none;height: auto;width: 100%; margin-left: -1vh">
 
-                            <section id="" style="background-color: rgb(255, 221, 176);" class=" p-2 m-2">
+                            <section id="selected-area2" style="background-color: rgb(255, 221, 176);" class=" p-2 m-2">
                                 <header style="	background-color: #8b3131;border-radius: 1rem;">
                                     <div class="logo">
                                         <img class="ml-2" width="100rem" style="border-radius: 50%;"
@@ -1197,7 +1166,7 @@
 
                         <div id="template3" class="template3" style="display: none;">
                             <div class="my-5 page" size="A4" style="background-color: rgb(255, 221, 176);">
-                                <div class="p-5" id="printdiv1">
+                                <div class="p-5" id="selected-area3">
                                     <section class="top-content bb d-flex justify-content-between"
                                         style="background-color: #8b3131;">
                                         <div class="logo">
@@ -1785,7 +1754,10 @@
             }
         }
     }
+
+    var rdx = 1;
     function overview_function() {
+        rdx = 1;
         document.getElementById("template2").style.display = "none";
         document.getElementById("template1").style.display = "none";
         document.getElementById("est_slip").style.display = "none";
@@ -1794,33 +1766,132 @@
 
     }
     function template_function() {
+        rdx = 1;
         document.getElementById("template2").style.display = "none";
         document.getElementById("template1").style.display = "block";
         document.getElementById("fieldset1").style.display = "none";
         document.getElementById("est_slip").style.display = "none";
         document.getElementById("template3").style.display = "none";
+
     }
     function show_template2() {
+        rdx = 2;
         document.getElementById("est_slip").style.display = "none";
         document.getElementById("template1").style.display = "none";
         document.getElementById("fieldset1").style.display = "none";
         document.getElementById("template2").style.display = "block";
         document.getElementById("template3").style.display = "none";
+
     }
     function show_template3() {
+        rdx = 3;
         document.getElementById("est_slip").style.display = "none";
         document.getElementById("template1").style.display = "none";
         document.getElementById("fieldset1").style.display = "none";
         document.getElementById("template2").style.display = "none";
         document.getElementById("template3").style.display = "block";
+
     }
     function show_slip() {
+        rdx = 4;
         document.getElementById("template2").style.display = "none";
         document.getElementById("est_slip").style.display = "block";
         document.getElementById("template1").style.display = "none";
         document.getElementById("fieldset1").style.display = "none";
         document.getElementById("template3").style.display = "none";
+
     }
+
+    p = rdx;
+    function printSelectedArea(p) {
+
+        console.log(p);
+        if (p === 1) {
+            var printContents = document.getElementById("selected-area").innerHTML;
+            document.getElementById("selected-area").style.backgroundColor = "white"
+            var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
+            $printerDiv.html(printContents); // add the content to be printed
+            $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+            window.print(); // call print
+            $printerDiv.remove(); // remove the div
+            $('body').removeClass("printingContent");
+        } if (p === 2) {
+            var printContents = document.getElementById("selected-area2").innerHTML;
+            document.getElementById("selected-area2").style.backgroundColor = "white"
+            var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
+            $printerDiv.html(printContents); // add the content to be printed
+            $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+            window.print(); // call print
+            $printerDiv.remove(); // remove the div
+            $('body').removeClass("printingContent");
+        } if (p === 3) {
+            var printContents = document.getElementById("selected-area3").innerHTML;
+            document.getElementById("selected-area3").style.backgroundColor = "white"
+            var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
+            $printerDiv.html(printContents); // add the content to be printed
+            $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+            window.print(); // call print
+            $printerDiv.remove(); // remove the div
+            $('body').removeClass("printingContent");
+        } if (p === 4) {
+            var printContents = document.getElementById("printslip").innerHTML;
+            document.getElementById("printslip").style.backgroundColor = "white"
+            var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
+            $printerDiv.html(printContents); // add the content to be printed
+            $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
+
+            window.print(); // call print
+            $printerDiv.remove(); // remove the div
+            $('body').removeClass("printingContent");
+        }
+    }
+
+    // Get the button element
+    var printButton = document.getElementById("print-button");
+
+    // Add an event listener to the button for the click event
+    printButton.addEventListener("click", function () {
+        printSelectedArea(rdx); // Call the printSelectedArea function on button click
+    });
+
+
+
+    function exportToPDF(p) {
+        if (p === 1) {
+            var content = document.getElementById('selected-area');
+            html2pdf()
+                .from(content)
+                .save('Retainer_invoice.pdf')
+        }
+        if (p === 2) {
+            var content = document.getElementById('selected-area2');
+            html2pdf()
+                .from(content)
+                .save('Retainer_invoice.pdf')
+        }
+        if (p === 3) {
+            var content = document.getElementById('selected-area3');
+            html2pdf()
+                .from(content)
+                .save('Retainer_invoice.pdf')
+        }
+        if (p === 4) {
+            var content = document.getElementById('printslip');
+            html2pdf()
+                .from(content)
+                .save('Retainer_invoice.pdf')
+        }
+    }
+
+    var pdftButton = document.getElementById("pdf-button");
+
+    // Add an event listener to the button for the click event
+    pdftButton.addEventListener("click", function () {
+        exportToPDF(rdx); // Call the printSelectedArea function on button click
+    });
 </script>
 
 
@@ -1838,7 +1909,7 @@
 </script>
 
 <script type="text/javascript">
-    function convertHTMLtoPDF() {
+    /*function convertHTMLtoPDF() {
         const { jsPDF } = window.jspdf;
 
         var doc = new jsPDF('l', 'mm', [630, 630]);
@@ -1851,25 +1922,13 @@
             x: 12,
             y: 12
         });
-    }           
+    }           */
 </script>
 
 
 <script>
 
-    function printSelectedArea(area) {
 
-        var printContents = document.getElementById("selected-area").innerHTML;
-        document.getElementById("selected-area").style.backgroundColor = "white"
-        var $printerDiv = $('<div class="printContainer bg-white style="display:block !important;"></div>'); // create the div that will contain the stuff to be printed
-        $printerDiv.html(printContents); // add the content to be printed
-        $('body').append($printerDiv).addClass("printingContent"); // add the div to body, and make the body aware of printing (we apply a set of css styles to the body to hide its contents)
-
-        window.print(); // call print
-        $printerDiv.remove(); // remove the div
-        $('body').removeClass("printingContent");
-
-    }
 
 </script>
 

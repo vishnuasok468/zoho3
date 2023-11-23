@@ -1429,6 +1429,8 @@ def retainer_template(request,pk):
 def retainer_edit_page(request,pk):
     company=company_details.objects.get(user_id=request.user)
     invoice=RetainerInvoice.objects.get(id=pk)
+    bank=Bankcreation.objects.filter(user=request.user)
+    itm=AddItem.objects.filter(user=request.user)
    
     payments=payment_terms.objects.all()
     cust_id=customer.objects.get(id=invoice.customer_name.id)
@@ -1438,15 +1440,14 @@ def retainer_edit_page(request,pk):
     cust_gstno=invoice.customer_name.GSTIN
     cust_placeofsupply=invoice.customer_placesupply
     items=Retaineritems.objects.filter(retainer=pk)
-    banks=Bankcreation.objects.all()
     if retainer_payment_details.objects.filter(retainer=invoice.id).exists():
         pay_details=retainer_payment_details.objects.get(retainer=invoice.id) 
         # if Bankcreation.objects.filter(id=pay_details.bank.id).exists():
         #     bnk=Bankcreation.objects.get(id=pay_details.bank.id)
             # bnkid=bnk.id
-        context={'invoice':invoice, 'customer1':customer1,'pay_detail':pay_details,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'banks':banks}
+        context={'invoice':invoice, 'customer1':customer1,'pay_detail':pay_details,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm}
     else:
-        context={'invoice':invoice, 'customer1':customer1,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'banks':banks}
+        context={'invoice':invoice, 'customer1':customer1,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm}
 
 
     return render(request,'retainer_invoice_edit.html',context)
@@ -6104,9 +6105,6 @@ def get_customerdet(request):
     gstin = cust.GSTIN
     gsttr = cust.GSTTreatment
     cstate = cust.placeofsupply.split("] ")[1:]
-    print(email)
-    print(gstin)
-    print(id)
     state = 'Not Specified' if cstate == "" else cstate
     return JsonResponse({'customer_email' :email, 'gst_treatment':gsttr, 'gstin': gstin , 'state' : state,'cust_id':cust_id,'cust_place_supply':cust_place_supply,'cust_address':cust_address},safe=False)
 
