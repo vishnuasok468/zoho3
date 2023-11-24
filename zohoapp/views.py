@@ -1305,11 +1305,12 @@ def create_invoice_draft(request):
         amount =request.POST.getlist('amount[]')
         itm=request.POST.getlist('item[]')
         qty=request.POST.getlist('quantity[]')
-        if len(description)==len(amount)==len(itm)==len(qty):
-            mapped = zip(description,amount,itm,qty)
+        rate=request.POST.getlist('rate[]')
+        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
+            mapped = zip(description,amount,itm,qty,rate)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3] ,retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
         else:
             pass
 
@@ -1381,11 +1382,12 @@ def create_invoice_send(request):
         amount =request.POST.getlist('amount[]')
         itm=request.POST.getlist('item[]')
         qty=request.POST.getlist('quantity[]')
-        if len(description)==len(amount)==len(itm)==len(qty):
-            mapped = zip(description,amount,itm,qty)
+        rate=request.POST.getlist('rate[]')
+        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
+            mapped = zip(description,amount,itm,qty,rate)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3] ,retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
         else:
             pass
         # return redirect('invoice_view',pk=retainer_invoice.id)
@@ -1431,13 +1433,15 @@ def retainer_edit_page(request,pk):
     invoice=RetainerInvoice.objects.get(id=pk)
     bank=Bankcreation.objects.filter(user=request.user)
     itm=AddItem.objects.filter(user=request.user)
-   
+    unit=Unit.objects.all()
+    sales=Sales.objects.all()
+    purchase=Purchase.objects.all()
     payments=payment_terms.objects.all()
     cust_id=customer.objects.get(id=invoice.customer_name.id)
     custo_id=cust_id.id
     customer1=customer.objects.all()
-    cust_gst_treat=invoice.customer_name.GSTTreatment
-    cust_gstno=invoice.customer_name.GSTIN
+    cust_gst_treat=cust_id.GSTTreatment
+    cust_gstno=cust_id.GSTIN
     cust_placeofsupply=invoice.customer_placesupply
     items=Retaineritems.objects.filter(retainer=pk)
     if retainer_payment_details.objects.filter(retainer=invoice.id).exists():
@@ -1445,9 +1449,9 @@ def retainer_edit_page(request,pk):
         # if Bankcreation.objects.filter(id=pay_details.bank.id).exists():
         #     bnk=Bankcreation.objects.get(id=pay_details.bank.id)
             # bnkid=bnk.id
-        context={'invoice':invoice, 'customer1':customer1,'pay_detail':pay_details,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm}
+        context={'invoice':invoice, 'customer1':customer1,'pay_detail':pay_details,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm,'unit':unit,'sales':sales,'purchase':purchase}
     else:
-        context={'invoice':invoice, 'customer1':customer1,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm}
+        context={'invoice':invoice, 'customer1':customer1,'cust_gst_treat':cust_gst_treat,'cust_gstno':cust_gstno,'cust_placeofsupply':cust_placeofsupply,'items':items,'custo_id':custo_id,'payments':payments,'company':company,'bank':bank,'cust_id':cust_id,'itm':itm,'unit':unit,'sales':sales,'purchase':purchase}
 
 
     return render(request,'retainer_invoice_edit.html',context)

@@ -245,6 +245,7 @@ class Retaineritems(models.Model):
     amount=models.CharField(max_length=100)
     itemname=models.CharField(max_length=100,null=True)
     quantity=models.IntegerField(null=True)
+    rate=models.IntegerField(null=True)
             
 class Estimates(models.Model): 
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
