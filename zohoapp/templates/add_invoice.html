@@ -198,8 +198,17 @@
       <div class="row mt-2">
         <label class="col-md-3">Retainer Invoice Date*</label>
         <div class="col-md-6">
-          <input type="date" class="form-control bg-light text-dark" name="invoicedate" id="dateField" required>
+          <input type="date" class="form-control bg-light text-dark" name="invoicedate" id="dateField" required pattern="\d{4}-\d{2}-\d{2}">
         </div>
+
+        <!--<script>
+          const dateField = document.getElementById("dateField");
+          
+          dateField.addEventListener("change", function() {
+            const selectedDate = dateField.value;
+            console.log("Selected date:", selectedDate);
+          });
+        </script>-->
       </div>
       <div class="row mt-2">
         <div class="col-md-3">

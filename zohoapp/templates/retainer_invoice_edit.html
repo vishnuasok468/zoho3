@@ -4,9 +4,10 @@
 
 <!-- ...................                  edited by Nikhila Ajayan................................... -->
 <style>
-   .itm option {
+  .itm option {
     color: black;
   }
+
   label {
     padding: 12px 12px 12px 0;
     display: inline-block;
@@ -289,17 +290,16 @@
 
                 <td><input type="number" name="quantity[]" id="qty{{forloop.counter}}"
                     class="form-control bg-transparent text-white border-0 text-right qty"
-                    style="border: none;width: 100px;" onchange="calculateAmounts('{{forloop.counter}}')"
-                    value="{{i.quantity}}">
+                    style="border: none;width: 100px;" value="{{i.quantity}}">
                 </td>
 
                 <td style="display: none;"><input type="number"
                     class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]"
-                    style="width: 150px;" step="0.01" required id="rate{{forloop.counter}}"
-                    onchange="calculateAmounts('{{forloop.counter}}')" readonly value="{{i.rate}}" /></td>
+                    style="width: 150px;" step="0.01" required id="rate{{forloop.counter}}" readonly
+                    value="{{i.rate}}" /></td>
 
                 <td><input type="number" class="amount bg-transparent border-0 form-control bg-light text-light"
-                    name="amount[]" step=".01" style="width: 150px;" id="amount{{forloop.counter}}" /></td>
+                    name="amount[]" step=".01" style="width: 150px;" id="amount{{forloop.counter}}" value="" /></td>
 
                 <td class="text-center" style="display: grid;">
                   <a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle"
@@ -346,7 +346,7 @@
               <td></td>
               <td><input type="number" name="paid" id="paid"
                   class="form-control bg-transparent border-0 text-right subtotal text-white" onchange="show_bal()"
-                  style="text-align: right;" value="">
+                  style="text-align: right;" value="{{invoice.advance}}">
                 <label for="" id="pay-warning" style="display: none;text-align: right;" class="text-warning"></label>
               </td>
             </tr>
@@ -355,7 +355,7 @@
               <td></td>
               <td><input type="number" name="balance" id="balance"
                   class="form-control bg-transparent border-0 text-right text-white" style="text-align: right;"
-                  value="{{invoice.balance}}" readonly></td>
+                  readonly></td>
             </tr>
           </table>
 
@@ -1968,11 +1968,10 @@
 
 
   // Event handler for clone button  .... TABLE 1
+  // Perform any operations using the rowCount variable
 
-  var rowCount = 1;
   $('#retainer-table').on('click', '.clone-row', function () {
     event.preventDefault();
-
     rowCount++; // Increment row counter
     var row = $(this).closest('tr');
     var clonedRow = row.clone(); // Clone the current row
@@ -2003,50 +2002,68 @@
   });
 
 
+
 </script>
 
 
 <script>
-  window.onload = function () {
-    // Get the total number of rows
-    var totalRows = document.querySelector('#retainer-table tbody tr').length;
 
-    // Loop through each row and calculate the amount
-    for (var rowId = 1; rowId <= totalRows; rowId++) {
-      calculateAmount(rowId);
-    }
-  };
+  /* function calculateAmount(rowId) {
+     var quantity = parseFloat(document.getElementById('qty' + rowId).value);
+     var rate = parseFloat(document.getElementById('rate' + rowId).value);
+     var amount = quantity * rate;
+ 
+     document.getElementById('amount' + rowId).value = amount.toFixed(2);
+   }*/
 
-  function calculateAmount(rowId) {
-    var quantity = parseFloat(document.getElementById('qty' + rowId).value);
-    var rate = parseFloat(document.getElementById('rate' + rowId).value);
-    var amount = quantity * rate;
 
-    document.getElementById('amount' + rowId).value = amount.toFixed(2);
+  function calculateAmounts(rows) {
+    rows.forEach(function (row) {
+
+      var quantityInput = row.querySelector('.qty');
+      var rateInput = row.querySelector('.rate');
+      var amountField = row.querySelector('.amount');
+
+      function calculateAndUpdateAmount() {
+        var quantity = parseFloat(quantityInput.value) || 0;
+        var rate = parseFloat(rateInput.value) || 0;
+        var amount = quantity * rate;
+
+        amountField.value = amount.toFixed(2);
+        calculateTotalAmount();
+      }
+
+      quantityInput.addEventListener('input', calculateAndUpdateAmount);
+      rateInput.addEventListener('input', calculateAndUpdateAmount);
+      calculateAndUpdateAmount();
+    });
   }
+  var rowCount; // Declare rowCount as a global variable
 
-  function calculateAmounts(rowId) {
-    var quantityInput = document.getElementById('qty' + rowId);
-    var rateInput = document.getElementById('rate' + rowId);
-    var amountInput = document.getElementById('amount' + rowId);
-
-    function calculateAndUpdateAmount() {
-      var quantity = parseFloat(quantityInput.value);
-      var rate = parseFloat(rateInput.value);
-      var amount = quantity * rate || 0;
-
-      amountInput.value = amount.toFixed(2);
-    }
-
-    quantityInput.addEventListener('input', calculateAndUpdateAmount);
-
-    rateInput.addEventListener('input', calculateAndUpdateAmount);
+  console.log(rowCount);
+  function getRowCount(callback) {
+    document.addEventListener('DOMContentLoaded', function () {
+      var rows = document.querySelectorAll('#retainer-table tbody tr');
+      rowCount = rows.length;
+      callback(rowCount);
+    });
   }
+  getRowCount(function (rowCount) {
+    doSomethingWithRowCount(rowCount);
+
+  });
+
+  var rows = document.querySelectorAll('#retainer-table tbody tr');
+  calculateAmounts(rows);
+
+
+
 
   $('#add-another-line').click(function () {
-    rowCount++; // Increment row counter
-    console.log()
-    var newRow = `
+    function doSomethingWithRowCount(rowCount) {
+      console.log(rowCount);
+      rowCount++; // Increment row counter
+      var newRow = `
       <tr id="row${rowCount}">
         <td>
           <select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item${rowCount}" onchange="itemfunction(this.id)">
@@ -2069,12 +2086,14 @@
           </a>
           </td>
       </tr>`;
-    $('#retainer-table tbody').append(newRow);
 
-    // Add event listeners to the quantity and rate inputs in the newly added row
-    $('#qty' + rowCount).on('input', handleInput);
-    $('#rate' + rowCount).on('input', handleInput);
+
+      // Add event listeners to the quantity and rate inputs in the newly added row
+      //$('#qty' + rowCount).on('input', calculateAmounts);
+      //$('#rate' + rowCount).on('input', calculateAmounts);
+    }
   });
+
 
   $('#retainer-table').on('click', '.delete-row', function () {
     event.preventDefault();
@@ -2083,11 +2102,11 @@
   });
 
 
-  function handleInput(event) {
+  /*function handleInput(event) {
     var rowId = event.target.id.slice(-1);
     calculateAmount(rowId);
     calculateTotalAmount();
-  }
+  }*/
 
   /*function calculateTotalAmount() {
     var total = 0;
@@ -2128,15 +2147,47 @@
     });
 
     document.getElementById('total-amount').value = total.toFixed(2);
-    $('#balance').val(total.toFixed(2));
+    show_bal();
+
   }
 
   $(document).ready(function () {
     calculateTotalAmount();
+
+    var rows = document.querySelectorAll('#retainer-table tbody tr');
+    calculateAmounts(rows);
   });
 
   calculateTotalAmount();
-  calculateAmount(rowCount);
+
+
+  // Add event listeners to the 'Paid Off' and 'Total Amount' fields
+  $('#paid').on('keyup', show_bal);
+  $('#total-amount').on('input', show_bal);
+
+  // Function to calculate and display the balance
+  function show_bal() {
+    var paid_off = parseFloat($('#paid').val());
+    var total_amount = parseFloat($('#total-amount').val());
+    var bal = total_amount - paid_off;
+
+    // Ensure balance is shown as a positive number
+    if (bal < 0) {
+      bal = 0;
+      document.getElementById('pay-warning').style.display = ""
+      $('#pay-warning').text("Paid amount cannot be greater than the total*.");
+    }
+    else {
+      document.getElementById('pay-warning').style.display = "none"
+
+    }
+
+    $('#balance').val(bal.toFixed(2));
+  }
+
+  // Call the show_bal() function initially to display the initial balance
+
+
 
 
 

@@ -1267,6 +1267,7 @@ def create_invoice_draft(request):
         acc_no = request.POST.get('acc_no', '')
         cheque_no = request.POST.get('chq_no', '')
         upi_id = request.POST.get('upi_id', '')
+        paid = request.POST['paid']
         if pay_opt1 != '':
             if pay_opt1 == 'cash':
                 bankid="null"
@@ -1283,7 +1284,7 @@ def create_invoice_draft(request):
                     bank=Bankcreation.objects.get(id=b_id)
        
         retainer_invoice=RetainerInvoice(
-            user=user,customer_name=customer_name,customer_name1=customer_name1,customer_mailid=customer_mailid,customer_placesupply=customer_placesupply,retainer_invoice_number=retainer_invoice_number,refrences=references,retainer_invoice_date=retainer_invoice_date,total_amount=total_amount,balance=bal_amount,customer_notes=customer_notes,terms_and_conditions=terms_and_conditions)
+            user=user,customer_name=customer_name,customer_name1=customer_name1,customer_mailid=customer_mailid,customer_placesupply=customer_placesupply,retainer_invoice_number=retainer_invoice_number,refrences=references,retainer_invoice_date=retainer_invoice_date,total_amount=total_amount,balance=bal_amount,customer_notes=customer_notes,terms_and_conditions=terms_and_conditions,advance=paid)
     
         retainer_invoice.save()
 
@@ -1316,7 +1317,7 @@ def create_invoice_draft(request):
 
         return redirect('retainer_invoice')
         
-
+from datetime import datetime
          
 @login_required(login_url='login')
 def create_invoice_send(request):
@@ -1330,12 +1331,13 @@ def create_invoice_send(request):
         customer_placesupply=request.POST['cus_place1']
         retainer_invoice_number=request.POST['retainer-invoice-number']
         references=request.POST['references']
-        retainer_invoice_date=request.POST['invoicedate']
+        retainer_invoice_date = request.POST.get('invoicedate')    
         total_amount=request.POST.get('total')
         bal_amount=request.POST['balance']
         customer_notes=request.POST['customer_notes']
         terms_and_conditions=request.POST['terms']
         pay_opt1=request.POST['pay_method']
+        paid = request.POST['paid']
         tot_in_string = str(total_amount)
 
         acc_no=request.POST['acc_no']
@@ -1361,7 +1363,7 @@ def create_invoice_send(request):
 
         retainer_invoice=RetainerInvoice(
         user=user,customer_name=customer_name,customer_name1=customer_name1,customer_mailid=customer_mailid,customer_placesupply=customer_placesupply,retainer_invoice_number=retainer_invoice_number,refrences=references,retainer_invoice_date=retainer_invoice_date,
-        total_amount=total_amount,balance=bal_amount,customer_notes=customer_notes,terms_and_conditions=terms_and_conditions,is_draft=False,is_sent=True)
+        total_amount=total_amount,balance=bal_amount,customer_notes=customer_notes,terms_and_conditions=terms_and_conditions,is_draft=False,is_sent=True,advance=paid)
         retainer_invoice.save()
 
         if pay_opt1 != '':

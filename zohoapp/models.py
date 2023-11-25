@@ -232,6 +232,7 @@ class RetainerInvoice(models.Model):
     retainer_invoice_number=models.CharField(max_length=255)
     refrences=models.CharField(max_length=255)
     retainer_invoice_date=models.DateField()
+    advance=models.IntegerField(null=True)
     total_amount=models.CharField(max_length=100)
     customer_notes=models.TextField()
     terms_and_conditions=models.TextField()
