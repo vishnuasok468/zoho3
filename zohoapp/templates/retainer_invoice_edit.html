@@ -93,7 +93,7 @@
           <select class="form-control form-select bg-light text-dark" name="select" id="customer_sel">
             <option hidden value="{{invoice.customer_name.id}}">{{invoice.customer_name.customerName}}</option>
             {% for i in customer1 %}
-            <option value="{{i.id}} {{i.customerName}}">{{i.customerName}}</option>
+            <option value="{{i.id}}">{{i.customerName}}</option>
             {% endfor %}
           </select>
 
@@ -213,7 +213,7 @@
 
         <div class="col-md-6">
           <div class="d-flex">
-            <select class="form-control bg-light text-dark my-select" id="pay_method" name="method">
+            <select class="form-control bg-light text-dark my-select" id="pay_method" name="pay_method">
               <option value="{{pay_detail.payment_opt}}" selected hidden>{{pay_detail.payment_opt}}</option>
               <option value="cash">Cash</option>
               <option value="cheque">Cheque</option>
@@ -273,7 +273,7 @@
             </thead>
             <tbody>
               {% for i in items %}
-              <tr id="row{{forloop.counter}}">
+              <tr id="{{forloop.counter}}">
                 <td>
                   <select class='form-control border-0 bg-transparent text-white item_select itm' name='item[]'
                     id='item{{forloop.counter}}' onchange="itemfunction(this.id)">
@@ -1991,12 +1991,9 @@
     document.getElementById(`row${rowCount}`).querySelectorAll("input")[2].id = `rate${rowCount}`;
     document.getElementById(`row${rowCount}`).querySelectorAll("input")[3].id = `amount${rowCount}`;
 
-    clonedRow.find("input[name='quantity[]']").on('input', handleInput);
-    clonedRow.find("input[name='rate[]']").on('input', handleInput);
-
-    // Trigger input event to update the calculated amount in the cloned row
-    clonedRow.find('.qty').trigger('input');
-    clonedRow.find('.rate').trigger('input');
+    var newRowElement = document.getElementById(newRowId);
+    calculateAmounts([newRowElement]);
+  
     calculateTotalAmount();
 
   });
@@ -2007,63 +2004,46 @@
 
 
 <script>
+  function calculateAndUpdateAmount(row) {
+    var quantityInput = row.querySelector('.qty');
+    var rateInput = row.querySelector('.rate');
+    var amountField = row.querySelector('.amount');
 
-  /* function calculateAmount(rowId) {
-     var quantity = parseFloat(document.getElementById('qty' + rowId).value);
-     var rate = parseFloat(document.getElementById('rate' + rowId).value);
-     var amount = quantity * rate;
- 
-     document.getElementById('amount' + rowId).value = amount.toFixed(2);
-   }*/
+    var quantity = parseFloat(quantityInput.value);
+    console.log(rate);
+    var rate = parseFloat(rateInput.value);
+    var amount = quantity * rate;
 
+    amountField.value = amount.toFixed(2);
+    calculateTotalAmount();
+  }
 
   function calculateAmounts(rows) {
     rows.forEach(function (row) {
-
       var quantityInput = row.querySelector('.qty');
       var rateInput = row.querySelector('.rate');
-      var amountField = row.querySelector('.amount');
 
-      function calculateAndUpdateAmount() {
-        var quantity = parseFloat(quantityInput.value) || 0;
-        var rate = parseFloat(rateInput.value) || 0;
-        var amount = quantity * rate;
+      quantityInput.addEventListener('input', function () {
+        calculateAndUpdateAmount(row);
+      });
 
-        amountField.value = amount.toFixed(2);
-        calculateTotalAmount();
-      }
+      rateInput.addEventListener('input', function () {
+        calculateAndUpdateAmount(row);
+      });
 
-      quantityInput.addEventListener('input', calculateAndUpdateAmount);
-      rateInput.addEventListener('input', calculateAndUpdateAmount);
-      calculateAndUpdateAmount();
+      calculateAndUpdateAmount(row);
     });
   }
-  var rowCount; // Declare rowCount as a global variable
-
-  console.log(rowCount);
-  function getRowCount(callback) {
-    document.addEventListener('DOMContentLoaded', function () {
-      var rows = document.querySelectorAll('#retainer-table tbody tr');
-      rowCount = rows.length;
-      callback(rowCount);
-    });
-  }
-  getRowCount(function (rowCount) {
-    doSomethingWithRowCount(rowCount);
-
-  });
 
   var rows = document.querySelectorAll('#retainer-table tbody tr');
+  var rowCount = rows.length;
   calculateAmounts(rows);
 
 
-
-
   $('#add-another-line').click(function () {
-    function doSomethingWithRowCount(rowCount) {
-      console.log(rowCount);
-      rowCount++; // Increment row counter
-      var newRow = `
+    rowCount++; // Increment row counter
+    console.log()
+    var newRow = `
       <tr id="row${rowCount}">
         <td>
           <select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item${rowCount}" onchange="itemfunction(this.id)">
@@ -2074,24 +2054,22 @@
           </select>
         </td>
         <td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" id="description${rowCount}"/></td> 
-        <td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;" id="qty${rowCount}" onchange="calculateAmount(${rowCount})"></td>
-        <td style="display:none;"><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="" style="width: 150px;" step="0.01" required id="rate${rowCount}" onchange="calculateAmount(${rowCount})" readonly/></td>
+        <td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;" id="qty${rowCount}"></td>
+        <td style="display:none"><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]" style="width: 150px;" step="0.01" required id="rate${rowCount}" readonly/></td>
         <td><input type="number" class="amount form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 150px;" id="amount${rowCount}" readonly/></td>
         <td class="text-center" style="display: grid;">
           <a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" style="width: 30px;">
             <i class="fas fa-times"></i>
-          </a><br>
+          </a>
           <a href="#" class="clone-row btn btn-transparent btn-outline-primary btn-sm rounded-circle" style="width: 30px;"> 
             <i class="fas fa-clone"></i>
           </a>
           </td>
       </tr>`;
+    $('#retainer-table tbody').append(newRow);
 
-
-      // Add event listeners to the quantity and rate inputs in the newly added row
-      //$('#qty' + rowCount).on('input', calculateAmounts);
-      //$('#rate' + rowCount).on('input', calculateAmounts);
-    }
+    var newRowElement = document.getElementById(`row${rowCount}`);
+    calculateAmounts([newRowElement]);
   });
 
 

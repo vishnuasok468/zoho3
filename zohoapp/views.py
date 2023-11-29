@@ -1465,117 +1465,97 @@ def retainer_update(request,pk):
 
     if request.method=='POST':
         retainer_invoice=RetainerInvoice.objects.get(id=pk)
-        select=request.POST['customer_id']
+        select=request.POST['select']
+        cust=customer.objects.get(id=select)
         retainer_invoice.customer_name=customer.objects.get(id=select)
+        retainer_invoice.customer_name1=cust.customerName
         retainer_invoice.customer_mailid=request.POST['cx_mail']
         retainer_invoice.customer_placesupply=request.POST['cus_place1']
         retainer_invoice.retainer_invoice_number=request.POST['retainer-invoice-number']
         retainer_invoice.refrences=request.POST['references']
         retainer_invoice.retainer_invoice_date=request.POST['invoicedate']
         retainer_invoice.total_amount=request.POST.get('total')
+        retainer_invoice.advance = request.POST.get('paid')
         retainer_invoice.balance=request.POST['balance']
         retainer_invoice.customer_notes=request.POST['customer_notes']
         retainer_invoice.terms_and_conditions=request.POST['terms']
     
         retainer_invoice.save()
+        acc_no = request.POST.get('acc_no', '')
+        cheque_no = request.POST.get('chq_no', '')
+        upi_id = request.POST.get('upi_id', '')
 
         payment_opt=request.POST['pay_method']
-        if payment_opt != '':
-            pay_opt1=payment_opt.split(" ")[1]
-            pay_opt2=payment_opt.split()[1:]
-            if pay_opt1 == 'Cash':
-                bankid="null"
-            elif pay_opt1 == 'UPI':
-                bankid="null"
-            elif pay_opt1 == 'Cheque':
-                bankid="null"
-                bank_name1=0
-            else:
-                bnkid=payment_opt.split(" ")[0]
-                # bankna=payment_opt.split()[1:]
-                bank_name1=Bankcreation.objects.get(id=bnkid)
-                bankname=bank_name1.name
+        retainer_payment=retainer_payment_details.objects.get(retainer=retainer_invoice.id)
 
-            acc_no=request.POST['acc_no']
-            cheque_no=request.POST['chq_no']
-            upi_id=request.POST['upi_id']
         if payment_opt != '':
             if retainer_payment_details.objects.filter(retainer=retainer_invoice.id).exists():
-                if pay_opt1 == 'Cash':
-                    retainer_payment=retainer_payment_details.objects.get(retainer=retainer_invoice.id)
-                    retainer_payment.payment_opt=pay_opt1
+
+                if payment_opt == 'cash':
+                    bankid="null"
+                    retainer_payment.payment_opt=payment_opt
                     retainer_payment.acc_no=acc_no
                     retainer_payment.upi_id=upi_id
                     retainer_payment.cheque_no=cheque_no
                     retainer_payment.save()
-                elif pay_opt1 == 'Cheque':
-                    retainer_payment=retainer_payment_details.objects.get(retainer=retainer_invoice.id)
-                    retainer_payment.payment_opt=pay_opt1
+                elif payment_opt == 'upi':
+                    bankid="null"
+                    retainer_payment.payment_opt=payment_opt
                     retainer_payment.acc_no=acc_no
                     retainer_payment.upi_id=upi_id
                     retainer_payment.cheque_no=cheque_no
                     retainer_payment.save()
-                elif pay_opt1 == 'UPI':
-                    retainer_payment=retainer_payment_details.objects.get(retainer=retainer_invoice.id)
-                    retainer_payment.payment_opt=pay_opt1
+                elif payment_opt == 'cheque':
+                    bankid="null"
+                    retainer_payment.payment_opt=payment_opt
                     retainer_payment.acc_no=acc_no
                     retainer_payment.upi_id=upi_id
                     retainer_payment.cheque_no=cheque_no
                     retainer_payment.save()
                 else:
-                    retainer_payment=retainer_payment_details.objects.get(retainer=retainer_invoice.id)
-                    retainer_payment.payment_opt=bankname
-                    retainer_payment.bank=bank_name1
-                    retainer_payment.acc_no=acc_no
-                    retainer_payment.upi_id=upi_id
-                    retainer_payment.cheque_no=cheque_no
-                    retainer_payment.save()
-            else:
-                if pay_opt1 != "UPI" or pay_opt1 != "Cash" or pay_opt1 != "Cheque":
                     bankid=payment_opt.split(" ")[0]
-                    bank_name1=Bankcreation.objects.get(id=bankid)
-                    bankname=bank_name1.name
-                    bank_id=bank_name1.id
+                    bank_id=Bankcreation.objects.filter(name=bankid,ac_no=acc_no)
+                    if bank_id.exists():
+                        for i in bank_id:
+                            bankname=i.name
+                            b_id=i.id
+                            bank=Bankcreation.objects.get(id=b_id)
+                        retainer_payment.payment_opt=bankname
+                        retainer_payment.bank=bank
+                        retainer_payment.acc_no=acc_no
+                        retainer_payment.upi_id=upi_id
+                        retainer_payment.cheque_no=cheque_no
+                        retainer_payment.save()
+            else:
+                if payment_opt != "upi" or payment_opt != "cash" or payment_opt != "cheque":
+                    bankid=payment_opt.split(" ")[0]
+                    bank_id=Bankcreation.objects.filter(name=bankid,ac_no=acc_no)
+                    for i in bank_id:
+                        bankname=i.name
+                        b_id=i.id
+                        bank=Bankcreation.objects.get(id=b_id)
                     retainer_payment=retainer_payment_details(user=request.user,retainer=retainer_invoice,payment_opt=bankname,
-                    bank=bank_name1,acc_no=acc_no,upi_id=upi_id,cheque_no=cheque_no)
+                    bank=bank,acc_no=acc_no,upi_id=upi_id,cheque_no=cheque_no)
                     retainer_payment.save()
                 else:
-                    retainer_payment=retainer_payment_details(user=request.user,retainer=retainer_invoice,payment_opt=pay_opt1,
+                    retainer_payment=retainer_payment_details(user=request.user,retainer=retainer_invoice,payment_opt=payment_opt,
                     acc_no=acc_no,upi_id=upi_id,cheque_no=cheque_no)
                     retainer_payment.save()
-
-
 
         objects_to_delete = Retaineritems.objects.filter(retainer=retainer_invoice.id)
         objects_to_delete.delete()
 
-        description=request.POST.getlist('description[]')
-        amount=request.POST.getlist('amount[]')
+        description = request.POST.getlist('description[]')
+        amount =request.POST.getlist('amount[]')
+        itm=request.POST.getlist('item[]')
+        qty=request.POST.getlist('quantity[]')
+        rate=request.POST.getlist('rate[]')
 
-        if len(description) == len(amount):
-              mapped = zip(description,amount)
-              mapped = list(mapped)
-              for element in mapped:
-                created = Retaineritems.objects.create(
-                    retainer=retainer_invoice, description=element[0], amount=element[1])
-
-        
-        # descriptions=request.POST.getlist('description[]')
-        # amounts=request.POST.getlist('amount[]')
-        
-
-
-
-        # for i in range(len(descriptions)):
-        #     description=descriptions[i]
-        #     amount=amounts[i]
-        #     obj,created=Retaineritems.objects.update_or_create(retainer=retainer_invoice,description=description,defaults={'amount':amount})
-        #     obj.save()
-
-
-
-
-
+        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
+            mapped = zip(description,amount,itm,qty,rate)
+            mapped=list(mapped)
+            for ele in mapped:
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
         return redirect('invoice_view',retainer_invoice.id)
 
 @login_required(login_url='login')
