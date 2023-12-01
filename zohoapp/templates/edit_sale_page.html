@@ -407,8 +407,6 @@
                   <td style="width: 17%;" class='text-right'><input type='number' id='qty{{forloop.counter}}'
                       class=' text-right qty form-control border-0 bg-transparent text-white' name='quantity[]'
                       value='{{i.quantity}}' style="margin-top: 4vh;" onchange="qtychange(this.id)"><br>
-                    <span class="text-warning">Available Stock : <span id="stock_data{{forloop.counter}}"
-                        class="text-warning">{{saleitm.stock}}</span></span>
                   </td>
                   <td style="width: 15%;" class='text-right'><input type='number' id='rate{{forloop.counter}}'
                       class=' text-right rate form-control border-0 bg-transparent text-white' name='rate[]'
@@ -442,7 +440,10 @@
                         <option class="text-black" value="18">18.0% IGST(18%)</option>
                         <option class="text-black" value="28">28.0% IGST(28%)</option>
                       </optgroup>
-                    </select></td>
+                    </select>
+                    <label id="ml{{forloop.counter}}" class="text-warning" style="display: none;"></label>
+
+                  </td>
                   <td style="display: none;">
                     <input type="text" name='taxamount' id="taxamount1" class=" taxamount text-dark" />
                   </td>
@@ -2619,7 +2620,6 @@
     });
   });
 </script>
-
 <script>
   var rowCount = "{{rowcount}}";
   $(document).ready(function () {
@@ -2667,7 +2667,7 @@
       });
       var shippingCharges = parseFloat($('#shipping').val());
       var adjust = parseFloat($('#adjust').val());
-   
+
       grandTotal += adjust;
       grandTotal += shippingCharges;
 
@@ -2709,7 +2709,6 @@
         
         <td style="width: 17%;" class='text-right'>
           <input type='number' id='qty${rowCount}' class='text-right border-0 bg-transparent text-white qty form-control' name='quantity[]' value='0' style="margin-top: 4vh;" onchange='qtychange(this.id)'><br>
-          <span class="text-warning">Available Stock : <span id="stock_data${rowCount}" class=text-warning></span></span>
         </td>
         
         <td style="width: 15%;" class='text-right'>
@@ -2739,6 +2738,8 @@
                             <option  class="text-black" value="28">28.0% IGST(28%)</option>             
                             </optgroup>
           </select>
+          <label id="ml${rowCount}" class="text-warning" style="display: none;"></label>
+
         </td>
         
         <td style="display: none;">
@@ -2824,7 +2825,7 @@
       calculateGrandTotal();
     });
 
-   
+
     $('#adjust').on('input', function () {
       calculateGrandTotal();
     });
@@ -2858,7 +2859,7 @@
       document.getElementById(`row${rowCount}`).querySelectorAll("input")[3].id = `discount${rowCount}`;
       document.getElementById(`row${rowCount}`).querySelectorAll("input")[4].id = `taxamount${rowCount}`;
       document.getElementById(`row${rowCount}`).querySelectorAll("button")[0].id = `del_btn${rowCount}`;
-      document.getElementById(`row${rowCount}`).querySelectorAll("span")[1].id = `stock_data${rowCount}`;
+      document.getElementById(`row${rowCount}`).querySelectorAll("label")[0].id = `ml${rowCount}`;
 
       var row = $(this).closest('tr');
       calculateRowAmount(row);
@@ -2933,48 +2934,10 @@
   document.getElementById("subtotal").addEventListener("input", calculateTaxAmount);
   document.getElementById("shipping").addEventListener("input", calculateTaxAmount);
 
-
-  function toggleDateInput() {
-    var checkbox = document.getElementById("srcofsupply");
-    var vale = checkbox.value;
-    // Find the index of the hyphen
-    var index = vale.indexOf("-");
-    // Remove the first letters before the hyphen
-    var result = vale.substring(index + 1);
-    var c_state = "{{company.state}}";
-    for (var i = 1; i <= rowCount; i++) {
-      var taxElement = $('#tax' + i);
-      tax_value = $('#tax' + i).val();
-      if (result === c_state) {
-        taxElement.find('optgroup[label="GST"]').show();
-        taxElement.find('optgroup[label="IGST"]').hide();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[0].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === tax_value) {
-            options[j].selected = true;
-          }
-        }
-      } else {
-        taxElement.find('optgroup[label="GST"]').hide();
-        taxElement.find('optgroup[label="IGST"]').show();
-        var select = document.getElementById(`tax${i}`);
-        var optgroups = select.getElementsByTagName("optgroup");
-        var options = optgroups[1].getElementsByTagName("option");
-        for (var j = 0; j < options.length; j++) {
-          if (options[j].value === tax_value) {
-            options[j].selected = true;
-          }
-        }
-      }
-    }
-  }
-
-</script>
-
-<script>
-
+  var oxy_gst;
+  var oxy_igst;
+  console.log(oxy_gst);
+  console.log(oxy_igst);
   function itemfunction(id_str) {
     id = id_str.split("item")[1]
 
@@ -2995,15 +2958,114 @@
         data4 = response.place
         stock = response.stock
         hsn = response.hsn
-        console.log(hsn);
+        oxy_gst = data1
+        oxy_igst = data2
         document.getElementById(`hsn${id}`).value = hsn
-        document.getElementById(`stock_data${id}`).innerHTML = stock
         document.getElementById(`rate${id}`).value = data
-
-       
+        toggleDateInput(id, oxy_gst, oxy_igst)
       }
     });
   }
+
+
+  function toggleDateInput(rowIndex) {
+    var checkbox = document.getElementById("srcofsupply");
+    var vale = checkbox.value;
+    // Find the index of the hyphen
+    var index = vale.indexOf("-");
+    // Remove the first letters before the hyphen
+    var result = vale.substring(index + 1);
+    var c_state = "{{company.state}}";
+    var gst = oxy_gst;
+    var igst = oxy_igst;
+
+    function extractNumber(squareBracketString) {
+      var regex = /\[(\d+[^[\]]*)\]/; // Matches one or more digits inside square brackets
+      var match = regex.exec(squareBracketString); // Searches the input string for a match
+
+      if (match && match[1]) {
+        var extractedNumber = match[1].replace(/%/g, ""); // Removes all occurrences of "%" symbol
+        return extractedNumber; // Returns the captured number inside the square brackets without "%"
+      } else {
+        return null; // Returns null if no match is found
+      }
+    }
+
+    var extractedGST = extractNumber(gst);
+    var extractedIGST = extractNumber(igst);
+    var taxElement = $('#tax' + rowIndex);
+    tax_value = $('#tax' + rowIndex).val();
+    var labelElement = $('#ml' + rowIndex);
+
+
+    if (result === c_state) {
+      taxElement.find('optgroup[label="GST"]').show();
+      taxElement.find('optgroup[label="IGST"]').hide();
+      var select = document.getElementById(`tax${rowIndex}`);
+      var gstOptgroup = taxElement.find('optgroup[label="GST"]');
+      var gstOptions = gstOptgroup.find('option');
+
+      for (var j = 0; j < gstOptions.length; j++) {
+        if (gstOptions[j].value === extractedGST) {
+          select.selectedIndex = gstOptions[j].index; // Set selectedIndex to the index of the matched option
+          select.addEventListener('change', function () {
+            // Check if the selected index is different from the default selected index
+            if (select.selectedIndex !== gstOptions[j].index) {
+              // Show a message after manual selection
+              labelElement.text('Invalid Tax Rate*');
+              labelElement.css('display', 'block');
+            }
+            else {
+              labelElement.text('');
+              labelElement.css('display', 'none');
+
+            }
+          });
+          break;
+        }
+      }
+    } else {
+      taxElement.find('optgroup[label="GST"]').hide();
+      taxElement.find('optgroup[label="IGST"]').show();
+      var select = document.getElementById(`tax${rowIndex}`);
+      var igstOptgroup = taxElement.find('optgroup[label="IGST"]');
+      var igstOptions = igstOptgroup.find('option');
+
+      for (var j = 0; j < igstOptions.length; j++) {
+        if (igstOptions[j].value === extractedIGST) {
+          select.selectedIndex = igstOptions[j].index; // Set selectedIndex to the index of the matched option
+          select.addEventListener('change', function () {
+            // Check if the selected index is different from the default selected index
+            if (select.selectedIndex !== igstOptions[j].index) {
+              // Show a message after manual selection;
+              labelElement.text('Invalid Tax Rate*');
+              labelElement.css('display', 'block');
+            }
+            else {
+              labelElement.text('');
+              labelElement.css('display', 'none');
+
+            }
+          });
+          break;
+        }
+
+      }
+    }
+
+  }
+
+
+  for (var i = 1; i <= rowCount; i++) {
+    // Generate table row
+    // ...
+
+    // Call toggleDateInput function for each row
+    toggleDateInput(i);
+  }
+
+
+
 </script>
 
 <script>

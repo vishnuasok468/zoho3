@@ -1317,7 +1317,6 @@ def create_invoice_draft(request):
 
         return redirect('retainer_invoice')
         
-from datetime import datetime
          
 @login_required(login_url='login')
 def create_invoice_send(request):
