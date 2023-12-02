@@ -332,16 +332,16 @@
           <div class="col-md-3" style="border-right: 1px solid white; overflow-y: scroll; height: 84vh;">
             <div class="row">
               <a class="text-white" style="font-size: 1.5rem;">Sales Order</a>
-              <div class="col-md-7">
+              <div class="col-md-9">
                 <input type="text" id="search" class="form-control bg-light text-dark mt-2 " placeholder="Search.."
                   autocomplete="off">
               </div>
-              <div class="col-md-2">
+              <div class="col-md-3 ">
                 <a class="btn btn btn-outline-warning text-right mt-2"
                   style="height: 38px; padding-top: 12px; padding-left: 17px;" href="{% url 'create_sales_order' %}"><i
                     class="fa fa-plus "></i></a>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-2" >
                 <div class="dropdown">
                   <a class="btn text-center  mt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false" role="button" style="margin-left: 0px; height: 38px;">
@@ -352,6 +352,20 @@
                     <a class="dropdown-item" onclick="sortTable()">Customer Name</a>
                     <a class="dropdown-item" onclick="sortTablebybillno()">Sales Order Number</a>
                   </div>
+                </div>
+              </div>
+              <div class="col-md-4" >
+                <div class="dropdown">
+                  <a class="btn text-center mt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" role="button" style="margin-left: 0px; height: 38px;">
+                    <i class="fa fa-filter mt-1"></i>
+                  </a>
+                  <div class="dropdown-menu m-1">
+                    <a class="dropdown-item" href="{% url 'sales_order_det' sale.id %}">All</a>
+                    <a class="dropdown-item" href="{% url 'sales_order_det_draft' sale.id %}">Draft</a>
+                    <a class="dropdown-item" href="{% url 'sales_order_det_approved' sale.id %}">Save</a>
+                  </div>
+                  
                 </div>
               </div>
               <div class="col-md-6"></div>

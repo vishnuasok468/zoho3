@@ -18,26 +18,26 @@
   .table-btn:hover {
     color: black;
   }
-  
-    /* width */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
 
-    /* Track */
-    ::-webkit-scrollbar-track {
-        background: rgb(252, 236, 217);
-    }
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
 
-    /* Handle */
-    ::-webkit-scrollbar-thumb {
-        background: #888;
-    }
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: rgb(252, 236, 217);
+  }
 
-    /* Handle on hover */
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 </style>
 
 <div class="container-fluid">
@@ -104,17 +104,19 @@
             </thead>
             <tbody>
               {% for i in sale %}
-              <tr id="over" class='clickable-row' data-href="{% url 'sales_order_det' i.id %}">
-                <td style="text-align: center;">{{i.sales_date}}</td>
+              <tr id="over" class='clickable-row'>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.sales_date}}</td>
                 <!-- <td style="text-align: center;" onclick="location.href ='' " > {{v.Name}}</td> -->
-                <td style="text-align: center;">{{i.sales_no}}</td>
-                <td style="text-align: center;">{{i.customer.customerName}}</td>
-                <td style="text-align: center;">{{i.customer.customerEmail}}</td>
-                <td style="text-align: center;">{{i.grandtotal}}</td>
-                <td style="text-align: center;">{{i.status}}</td>
-                <td style="text-align: center;">{{i.balance}}</td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.sales_no}}</td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.customer.customerName}}
+                </td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">
+                  {{i.customer.customerEmail}}</td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.grandtotal}}</td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.status}}</td>
+                <td style="text-align: center;" data-href="{% url 'sales_order_det' i.id %}">{{i.balance}}</td>
                 {% if i.complete_status == 0 %}
-                <td style="text-align: center;">
+                <td style="text-align: center;" data-href="#">
                   <div class="dropdown ">
                     <a class="dropdown-toggle btn btn-outline-warning" href="" data-toggle="dropdown">
                       CONVERT
@@ -125,8 +127,11 @@
                         Invoice</a>
                     </div>
                 </td>
+                {% elif i.complete_status == 1 %}
+                <td style="text-align: center;" class="text-success m-2" data-href="#">Converted to Invoice</td>
                 {% else %}
-                <td style="text-align: center;" class="text-success m-2">Completed</td>
+                <td style="text-align: center;" class="text-success m-2" data-href="#">Converted to Reccuring Invoice</td>
+
                 {% endif %}
 
 
@@ -191,7 +196,7 @@
 
 <script>
   jQuery(document).ready(function ($) {
-    $(".clickable-row").click(function () {
+    $(".clickable-row td").click(function () {
       window.location = $(this).data("href");
     });
   });

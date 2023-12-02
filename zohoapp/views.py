@@ -2738,7 +2738,7 @@ def itemdata(request):
     cus=customer.objects.get(id=cust)
 
     try:
-        item = AddItem.objects.get(Name=id)
+        item = AddItem.objects.get(id=id)
         rate = item.s_price
         place=company.state
         gst = item.intrastate
@@ -2795,9 +2795,11 @@ def itemdata_ri(request):
         return JsonResponse({"status":" not",'desc':desc,'place':place,'rate':rate,'gst':gst,'igst':igst,
                             'stock':stock,'hsn':hsn})
 
+
+@login_required(login_url='login')
 def convert_to_invoice(request,pk):
     sale = SalesOrder.objects.get(id=pk)
-    inv_id = invoice.objects.last()
+    inv_id = invoice.objects.filter(user=request.user.id).last()
     user = User.objects.get(id = request.user.id)
     custo = customer.objects.get(id=sale.customer.id)
 
@@ -2842,9 +2844,10 @@ def convert_to_invoice(request,pk):
 
     return redirect('view_sales_order')
 
+@login_required(login_url='login')
 def convert_to_recinvoice(request,pk):
     sale = SalesOrder.objects.get(id=pk)
-    recinv_id = Recurring_invoice.objects.last()
+    recinv_id = Recurring_invoice.objects.filter(user=request.user.id).last()
     user = User.objects.get(id = request.user.id)
     custo = customer.objects.get(id=sale.customer.id)
 
@@ -3808,7 +3811,7 @@ def get_profile_details(request, profile_id):
     
 @login_required(login_url='login')
 def view_sales_order(request):
-    sales=SalesOrder.objects.all()
+    sales=SalesOrder.objects.filter(user=request.user.id)
     user = request.user
     company = company_details.objects.get(user=user)
     return render(request,'view_sales_order.html',{"sale":sales,"company":company})      
@@ -3820,12 +3823,12 @@ def create_sales_order(request):
     unit=Unit.objects.all()
     sales=Sales.objects.all()
     company = company_details.objects.get(user=user)
-    cust=customer.objects.all()
-    pay=payment_terms.objects.all()
-    itm=AddItem.objects.all()
+    cust=customer.objects.filter(user=user)
+    pay=payment_terms.objects.filter(user=user)
+    itm=AddItem.objects.filter(user=user)
     purchase=Purchase.objects.all()
-    last_record = SalesOrder.objects.last()
-    bank = Bankcreation.objects.all()
+    last_record = SalesOrder.objects.filter(user=request.user.id).last()
+    bank = Bankcreation.objects.filter(user=user)
 
     if last_record ==None:
         reford = '01'
@@ -3835,15 +3838,25 @@ def create_sales_order(request):
         reference = 'SO-01'
         lastSalesNo = last_record.sales_no
         last_two_numbers = int(lastSalesNo[-2:])+1
-        remaining_characters = lastSalesNo[:-2]  
-        if last_two_numbers < 10:
-            reference = remaining_characters+'0'+str(last_two_numbers)
-        else:
-            reference = remaining_characters+str(last_two_numbers)
-        if last_record.id+1 < 10:
-            reford = '0'+ str(int(last_record.id)+1)
-        else:
-            reford = str(int(last_record.id)+1)
+        remaining_characters = lastSalesNo[:-2] 
+        if remaining_characters == '':
+            if last_two_numbers < 10:
+                reference = '0'+str(last_two_numbers)
+            else:
+                reference = str(last_two_numbers)
+            if last_record.id+1 < 10:
+                reford = '0'+ str(int(last_record.id)+1)
+            else:
+                reford = str(int(last_record.id)+1) 
+        else: 
+            if last_two_numbers < 10:
+                reference = remaining_characters+'0'+str(last_two_numbers)
+            else:
+                reference = remaining_characters+str(last_two_numbers)
+            if last_record.id+1 < 10:
+                reford = '0'+ str(int(last_record.id)+1)
+            else:
+                reford = str(int(last_record.id)+1)
     
     context={
         "c":cust,
@@ -3950,7 +3963,7 @@ def add_sales_order(request):
             if len(sales_no) == 4:
                 sales_no = sales_no[:3] + '0' +sales_no[-1]
 
-            sale_list = list(SalesOrder.objects.values_list('sales_no'))
+            sale_list = list(SalesOrder.objects.filter(user=request.user.id).values_list('sales_no'))
             sale_list_update = [item[0] for item in sale_list]
             
             if sales_no in sale_list_update:
@@ -3992,6 +4005,8 @@ def add_sales_order(request):
             total=tuple(request.POST.getlist('amount[]'))
             adjust=(request.POST.getlist('adjust'))
             adjust = float(adjust[0])
+            user=User.objects.get(id=request.user.id)
+
 
             if 'Draft' in request.POST:
                 status="draft"
@@ -4001,7 +4016,7 @@ def add_sales_order(request):
             sales=SalesOrder(customer_id=custo,sales_no=sales_no,terms=term,reference=reference, sales_date=sa_date,ship_date=sh_date,
                              balance=balance,cxnote=cxnote,subtotal=subtotal,igst=igst,cgst=cgst,sgst=sgst,t_tax=totaltax,
                              cheque_id=cheque_id,upi_id=upi_id,pay_method=pay_method,grandtotal=t_total,status=status,terms_condition=tc,
-                             file=file,sos=sos,sh_charge=sh_charge,adjust=adjust,advance=advance)
+                             file=file,sos=sos,sh_charge=sh_charge,adjust=adjust,advance=advance,user=user)
             sales.save()
             sale_id=SalesOrder.objects.get(id=sales.id)
           
@@ -4019,7 +4034,25 @@ def add_sales_order(request):
 def sales_order_det(request,id):
     sales=SalesOrder.objects.get(id=id)
     saleitem=sales_item.objects.filter(sale_id=id)
-    sale_order=SalesOrder.objects.all()
+    sale_order=SalesOrder.objects.filter(user=request.user.id)
+    company=company_details.objects.get(user_id=request.user.id)
+
+    bank=''
+    if sales.pay_method != 'cash':
+        if sales.pay_method != 'upi':
+            if sales.pay_method != 'cheque':
+                bank = Bankcreation.objects.get(name=sales.pay_method)
+    
+    context={'sale':sales,'saleitem':saleitem,'sale_order':sale_order,'company':company,'bank':bank}
+    
+    return render(request,'sales_order_det.html',context)
+
+   
+@login_required(login_url='login')
+def sales_order_det_draft(request,id):
+    sales=SalesOrder.objects.get(id=id)
+    saleitem=sales_item.objects.filter(sale_id=id)
+    sale_order=SalesOrder.objects.filter(user=request.user.id,status="draft")
     company=company_details.objects.get(user_id=request.user.id)
 
     bank=''
@@ -4033,6 +4066,23 @@ def sales_order_det(request,id):
     return render(request,'sales_order_det.html',context)
 
 
+  
+@login_required(login_url='login')
+def sales_order_det_approved(request,id):
+    sales=SalesOrder.objects.get(id=id)
+    saleitem=sales_item.objects.filter(sale_id=id)
+    sale_order=SalesOrder.objects.filter(user=request.user.id,status="approved")
+    company=company_details.objects.get(user_id=request.user.id)
+
+    bank=''
+    if sales.pay_method != 'cash':
+        if sales.pay_method != 'upi':
+            if sales.pay_method != 'cheque':
+                bank = Bankcreation.objects.get(name=sales.pay_method)
+    
+    context={'sale':sales,'saleitem':saleitem,'sale_order':sale_order,'company':company,'bank':bank}
+    
+    return render(request,'sales_order_det.html',context)
     
 @login_required(login_url='login')
 def delet_sales(request,id):
@@ -5079,6 +5129,7 @@ def itemdata_challan(request):
     
 
 def payment_term_for_sales(request):
+    user=User.objects.get(id=request.user.id)
     
     if request.method == 'POST':
         terms = json.loads(request.POST.get('terms', '[]'))
@@ -5087,9 +5138,13 @@ def payment_term_for_sales(request):
         if len(terms) == len(days):
             for term, day in zip(terms, days):
                 
-                created = payment_terms.objects.get_or_create(Terms=term, Days=day)
-            return JsonResponse({"message": "success","pay_term":pay_term})
-        print(pay_term)
+                created = payment_terms.objects.get_or_create(Terms=term, Days=day,user=user)
+            payment=payment_terms.objects.filter(user=request.user.id).last()
+            pay_id = payment.id
+            print(pay_id)
+
+            return JsonResponse({"message": "success","pay_term":pay_term,"pay_id":pay_id})
+
     return JsonResponse({"message": "success",})    
     
     
@@ -7455,10 +7510,10 @@ def purchase_item(request):
 @login_required(login_url='login')        
 def purchase_item_dropdown(request):
 
-    user = User.objects.get(id=request.user.id)
+    usr = User.objects.get(id=request.user.id)
 
     options = {}
-    option_objects = AddItem.objects.all()
+    option_objects = AddItem.objects.filter(user=request.user.id)
     for option in option_objects:
         options[option.id] = option.Name
 
@@ -11495,17 +11550,17 @@ def transaction(request, pk):
     
 login_required(login_url='login')
 def view_sales_order_all(request):
-    sales=SalesOrder.objects.all()
+    sales=SalesOrder.objects.filter(user=request.user.id)
     return render(request,'view_sales_order.html',{"sale":sales})   
     
 login_required(login_url='login')
 def view_sales_order_Draft(request):
-    sales=SalesOrder.objects.filter(status="draft")
+    sales=SalesOrder.objects.filter(status="draft",user=request.user.id)
     return render(request,'view_sales_order.html',{"sale":sales}) 
     
 login_required(login_url='login')
 def view_sales_order_approved(request):
-    sales=SalesOrder.objects.filter(status="approved")
+    sales=SalesOrder.objects.filter(status="approved",user=request.user.id)
     return render(request,'view_sales_order.html',{"sale":sales}) 
 
 @login_required(login_url='login')
@@ -18033,13 +18088,15 @@ def update_bills_save(request,pk):
 
 
 def terms_dropdowns(request):
-    terms = payment_terms.objects.all()
+    terms = payment_terms.objects.filter(user=request.user.id)
     term_data = []
     day_data = []
+    day_id = []
     for i in terms:
         term_data.append(i.Terms)
         day_data.append(i.Days)
-    data = {'term_data': term_data,"day_data":day_data}
+        day_id.append(i.id)
+    data = {'term_data': term_data,"day_data":day_data,"day_id":day_id}
     return JsonResponse(data)
 
 

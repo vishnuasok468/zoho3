@@ -151,8 +151,9 @@
           <div class="col-md-6 d-flex">
 
 
-            <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark" style="width: 91%;">
-              <option value="" hidden selected></option>
+            <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark" style="width: 91%;"
+              required>
+              <option value="" hidden selected>Select Customer</option>
               {% for cust in c %}
               <option value="{{cust.id}}" data-pos="{{cust.placeofsupply}}" id="crt_cust">{{cust.customerName}}</option>
               {% endfor %}
@@ -174,13 +175,13 @@
           </div>
         </div>
 
-        <div class="row mt-2">
+        <div class="row mt-2" id="cx_addressdiv" style="display: none;">
           <div class="col-md-3">
             <label for="">Billing Address</label>
           </div>
 
           <div class="col-md-6">
-            <textarea class="form-control bg-light text-dark" id="cx_address" name="cx_address" readonly rows="5"
+            <textarea class="form-control bg-light text-dark" id="cx_address" name="cx_address" readonly
               style="height: auto;"></textarea>
           </div>
         </div>
@@ -196,19 +197,6 @@
           <div class="col-md-9 d-flex">
             <label for="" style="width: 52%;">GST Number</label>
             <input type="text" class="form-control bg-light text-dark" id="cx_gst" name="cx_gst" readonly>
-          </div>
-        </div>
-
-
-        <div class="row mt-2">
-          <div class="col-md-3">
-            <label for="prof_name">Sales Order</label>
-          </div>
-
-          <div class="col-md-6">
-            <input type="text" class="form-control bg-light text-dark" id="prof_name" name="sale_no"
-              value="{{remaining_characters}}">
-            <label id="order_label" style="display: none;"></label>
           </div>
         </div>
 
@@ -263,6 +251,20 @@
           </div>
         </div>
 
+
+
+        <div class="row mt-2">
+          <div class="col-md-3">
+            <label for="prof_name">Sales Order</label>
+          </div>
+
+          <div class="col-md-6">
+            <input type="text" class="form-control bg-light text-dark" id="prof_name" name="sale_no"
+              value="{{remaining_characters}}" required>
+            <label id="order_label" style="display: none;"></label>
+          </div>
+        </div>
+
         <div class="row mt-2">
           <div class="col-md-3">
             <label for="prof_name">Reference</label>
@@ -290,7 +292,7 @@
           </div>
 
           <div class="col-md-6">
-            <input type="date" class="form-control bg-light text-dark" id="date2" name="sh_date" readonly>
+            <input type="date" class="form-control bg-light text-dark" id="date2" name="sh_date" readonly required>
           </div>
         </div>
 
@@ -301,8 +303,8 @@
 
           <div class="col-md-6">
             <div class="d-flex">
-              <select class="form-control bg-light text-dark" id="pay_term" name="term">
-                <option value="" selected hidden>Select Payment Term</option>
+              <select class="form-control bg-light text-dark" id="pay_term" name="term" required>
+                <option value="" hidden>Select Payment Term</option>
                 {% for p in pay %}
                 <option value="{{p.id}}">{{p.Terms}}</option>
                 {% endfor %}
@@ -319,8 +321,8 @@
 
           <div class="col-md-6">
             <div class="d-flex">
-              <select class="form-control bg-light text-dark my-select" id="pay_method" name="method">
-                <option value="" selected hidden>Select Payment Method</option>
+              <select class="form-control bg-light text-dark my-select" id="pay_method" name="method" required>
+                <option value="" hidden>Select Payment Method</option>
                 <option value="cash">Cash</option>
                 <option value="cheque">Cheque</option>
                 <option value="upi">UPI</option>
@@ -388,7 +390,7 @@
                       id='item1' onchange="itemfunction(this.id)">
                       <option value="" selected hidden>Select Item</option>
                       {% for i in itm %}
-                      <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
+                      <option class="text-black .name" value="{{i.id}}">{{ i.Name}} </option>
                       {% endfor %}
                     </select>
                   </td>
@@ -1964,13 +1966,17 @@
         $('#newpayment').hide();
         $(".modal-backdrop").remove();
         data = response.pay_term;
+        data2 = response.pay_id;
+        console.log(data);
+        console.log(data2);
         const pay = document.getElementById("pay_term");
         const termsField = document.createElement('option');
         termsField.innerHTML = data;
+        termsField.value = data2;
         pay.appendChild(termsField);
 
         document.getElementById("modalForm").reset();
-        reloadterms()
+        reloadterms();
 
         // Iterate through the data and create options
       },
@@ -1984,6 +1990,9 @@
       success: function (response) {
         term_data = response.term_data
         day_data = response.day_data
+        day_id = response.day_id
+        console.log(term_data);
+        console.log(day_id);
 
         var term_container = document.getElementById('terms-container');
         var dropdow = document.getElementById('termdrop');
@@ -2021,18 +2030,18 @@
           select.remove(0);
         }
 
-        for (let i = 0; i < term_data.length; i++) {
+        for (let i = 0; i < day_id.length; i++) {
           // Create a new option element
           let newOption = document.createElement("option");
           newOption.text = term_data[i];
-          newOption.value = day_data[i]; // Set a value for the new option
+          newOption.value = day_id[i]; // Set a value for the new option
 
           // Append the new option to the select field
           select.appendChild(newOption);
 
           var dropdow = $('#pay_term');
 
-          dropdow.append($('<option value="" selected hidden>Select Payment Term</option>'));
+          dropdow.append($('<option value="term" hidden>Select Payment Term</option>'));
         }
       },
       error: function (xhr, status, error) {
@@ -2389,7 +2398,14 @@
         gsttreat = response.gsttreat
         billingaddress = response.billingAddress
         document.getElementById('cx_mail').value = data7
-        document.getElementById('cx_address').value = billingaddress
+        if (billingaddress === "") {
+          document.getElementById('cx_addressdiv').style.display = "none"
+        }
+        else {
+          document.getElementById('cx_addressdiv').style.display = ""
+          document.getElementById('cx_address').value = billingaddress
+
+        }
         if (data_gst === "") {
           document.getElementById('gstdiv').style.display = "none"
           document.getElementById('treatmentdiv').style.display = "block"
@@ -2552,7 +2568,7 @@
             <select class='form-control border-0 bg-transparent text-white  border-0 item_select itm' name='item[]' id='item${rowCount}' onchange="itemfunction(this.id)">
               <option value=" " selected disabled hidden>Select Item</option>
               {% for i in itm %}
-                <option  class="text-black" value="{{i.Name}}">{{ i.Name }}</option>
+                <option  class="text-black" value="{{i.id}}">{{ i.Name }}</option>
               {% endfor %}
             </select>
           </div>
@@ -2917,11 +2933,11 @@
             if (select.selectedIndex !== gstOptions[j].index) {
               // Show a message after manual selection
               labelElement.text('Invalid Tax Rate*');
-              labelElement.css('display','block');
+              labelElement.css('display', 'block');
             }
             else {
               labelElement.text('');
-              labelElement.css('display','none');
+              labelElement.css('display', 'none');
 
             }
           });
@@ -2947,11 +2963,11 @@
             if (select.selectedIndex !== igstOptions[j].index) {
               // Show a message after manual selection;
               labelElement.text('Invalid Tax Rate*');
-              labelElement.css('display','block');
+              labelElement.css('display', 'block');
             }
             else {
               labelElement.text('');
-              labelElement.css('display','none');
+              labelElement.css('display', 'none');
 
             }
           });
@@ -2971,6 +2987,18 @@
     // Call toggleDateInput function for each row
     toggleDateInput(i);
   }
+
+
+  $('#srcofsupply').on('change', function () {
+    for (var i = 1; i <= rowCount; i++) {
+      // Generate table row
+      // ...
+
+      // Call toggleDateInput function for each row
+      toggleDateInput(i);
+    }
+  });
+
 
 
 

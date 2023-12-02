@@ -519,6 +519,7 @@ class SalesOrder(models.Model):
     advance=models.FloatField(null=True,blank=True)
     adjust=models.FloatField(null=True,blank=True)
     complete_status = models.IntegerField(default=0)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     def __str__(self) :
         return self.invoice_no
     

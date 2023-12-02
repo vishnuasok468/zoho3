@@ -946,6 +946,8 @@ urlpatterns = [
     #End
     path('convert_to_recinvoice/<int:pk>',views.convert_to_recinvoice,name='convert_to_recinvoice'),
     path('itemdata_ri', views.itemdata_ri, name='itemdata_ri'),
+    path('sales_order_det_draft/<int:id>',views.sales_order_det_draft,name='sales_order_det_draft'),
+    path('sales_order_det_approved/<int:id>',views.sales_order_det_approved,name='sales_order_det_approved'),
 
 
 
