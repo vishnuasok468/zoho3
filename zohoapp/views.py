@@ -18,7 +18,7 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template
 from bs4 import BeautifulSoup
 import io
-import os
+import os,num2words
 import json
 from django.template import Context, Template
 import tempfile
@@ -1207,7 +1207,7 @@ def add_customer(request):
 @login_required(login_url='login')
 def retainer_invoice(request):
     company=company_details.objects.get(user=request.user)
-    invoices=RetainerInvoice.objects.all().order_by('-id')
+    invoices=RetainerInvoice.objects.filter(user=request.user.id).order_by('-id')
     context={'invoices':invoices,'company':company}
     return render(request,'retainer_invoice.html',context)
 
@@ -1216,12 +1216,12 @@ def retainer_invoice(request):
 def add_invoice(request):
     company=company_details.objects.get(user_id=request.user)
     unit=Unit.objects.all()
-    payments=payment_terms.objects.all()
+    payments=payment_terms.objects.filter(user=request.user.id)
     bank=Bankcreation.objects.all()
-    customer1=customer.objects.all()   
-    last_record = RetainerInvoice.objects.last()
+    customer1=customer.objects.filter(user=request.user.id)   
+    last_record = RetainerInvoice.objects.filter(user=request.user.id).last()
     sales=Sales.objects.all()
-    itm=AddItem.objects.all()
+    itm=AddItem.objects.filter(user=request.user.id)
 
     purchase=Purchase.objects.all()
     if last_record ==None:
@@ -1233,14 +1233,20 @@ def add_invoice(request):
         lastSalesNo = last_record.retainer_invoice_number
         last_two_numbers = int(lastSalesNo[-2:])+1
         remaining_characters = lastSalesNo[:-2]  
-        if last_two_numbers < 10:
-            reference = remaining_characters+'0'+str(last_two_numbers)
+        if remaining_characters == '':
+            if last_two_numbers < 10:
+                reference = '0'+str(last_two_numbers)
+            else:
+                reference = str(last_two_numbers)
         else:
-            reference = remaining_characters+str(last_two_numbers)
-        if last_record.id+1 < 10:
-            reford = '0'+ str(int(last_record.id)+1)
+            if last_two_numbers < 10:
+                reference = remaining_characters+'0'+str(last_two_numbers)
+            else:
+                reference = remaining_characters+str(last_two_numbers)
+        if int(last_record.refrences)+1 < 10:
+            reford = '0'+ str(int(last_record.refrences)+1)
         else:
-            reford = str(int(last_record.id)+1)
+            reford = str(int(last_record.refrences)+1)
 
     context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,'itm':itm,'sales':sales,'purchase':purchase}    
     return render(request,'add_invoice.html',context)
@@ -1409,7 +1415,7 @@ def invoice_view(request,pk):
     company=company_details.objects.get(user=user)
     invoice=RetainerInvoice.objects.get(id=pk)
     cust=customer.objects.get(id=invoice.customer_name.id)
-    invoices=RetainerInvoice.objects.all()
+    invoices=RetainerInvoice.objects.filter(user=request.user.id)
     item=Retaineritems.objects.filter(retainer=pk)
     ret_comments=retainer_invoice_comments.objects.filter(retainer=invoice.id,user=user)
 
@@ -1421,6 +1427,90 @@ def invoice_view(request,pk):
 
     return render(request,'invoice_view.html',context)
 
+
+
+@login_required(login_url='login')
+def invoice_view_draft(request,pk):
+    user=request.user
+    company=company_details.objects.get(user=user)
+    invoice=RetainerInvoice.objects.get(id=pk)
+    cust=customer.objects.get(id=invoice.customer_name.id)
+    invoices=RetainerInvoice.objects.filter(is_draft=1,user=user)
+    item=Retaineritems.objects.filter(retainer=pk)
+    ret_comments=retainer_invoice_comments.objects.filter(retainer=invoice.id,user=user)
+
+    if retainer_payment_details.objects.filter(retainer=invoice.id,user=user).exists():
+        ret_payments=retainer_payment_details.objects.get(retainer=invoice.id)
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'ret_payments':ret_payments,'cust':cust}
+    else:
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'cust':cust}
+
+    return render(request,'invoice_view.html',context)
+
+
+
+from django.core.mail import send_mail, EmailMessage
+from io import BytesIO
+
+def shareSalesOrderToEmail(request,id):
+    if request.user:
+        #try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+
+                cmp = company_details.objects.get( user = request.user.id)
+                bill = SalesOrder.objects.get(id = id)
+                items = sales_item.objects.filter( sale = bill.id)
+            
+                total = bill.grandtotal
+            
+                context = {'bill': bill, 'cmp': cmp,'items':items, 'total':total}
+                template_path = 'sales_bill_pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)#, link_callback=fetch_resources)
+                pdf = result.getvalue()
+                filename = f'Sales Bill - {bill.sales_no}.pdf'
+                subject = f"SALES BILL - {bill.sales_no}"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached SALES BILL - Bill-{bill.sales_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_UER,to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+                print('me')
+
+                messages.success(request, 'Bill has been shared via email successfully..!')
+                return redirect(sales_order_det,id)
+        #except Exception as e:
+            #print(e)
+            #messages.error(request, f'{e}')
+            #return redirect(sales_order_det, id)
+
+
+
+
+@login_required(login_url='login')
+def invoice_view_send(request,pk):
+    user=request.user
+    company=company_details.objects.get(user=user)
+    invoice=RetainerInvoice.objects.get(id=pk)
+    cust=customer.objects.get(id=invoice.customer_name.id)
+    invoices=RetainerInvoice.objects.filter(is_draft=0,is_sent=1,user=user)
+    item=Retaineritems.objects.filter(retainer=pk)
+    ret_comments=retainer_invoice_comments.objects.filter(retainer=invoice.id,user=user)
+
+    if retainer_payment_details.objects.filter(retainer=invoice.id,user=user).exists():
+        ret_payments=retainer_payment_details.objects.get(retainer=invoice.id)
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'ret_payments':ret_payments,'cust':cust}
+    else:
+        context={'invoices':invoices,'invoice':invoice,'item':item,'company':company,'ret_comments':ret_comments,'cust':cust}
+
+    return render(request,'invoice_view.html',context)
 
 
 @login_required(login_url='login')
@@ -2772,7 +2862,7 @@ def itemdata_ri(request):
     id = request.GET.get('id')
 
     try:
-        item = AddItem.objects.get(Name=id)
+        item = AddItem.objects.get(id=id)
         rate = item.s_price
         place=company.state
         gst = item.intrastate
@@ -3844,19 +3934,19 @@ def create_sales_order(request):
                 reference = '0'+str(last_two_numbers)
             else:
                 reference = str(last_two_numbers)
-            if last_record.id+1 < 10:
-                reford = '0'+ str(int(last_record.id)+1)
+            if int(last_record.reference)+1 < 10:
+                reford = '0'+ str(int(last_record.reference)+1)
             else:
-                reford = str(int(last_record.id)+1) 
+                reford = str(int(last_record.reference)+1) 
         else: 
             if last_two_numbers < 10:
                 reference = remaining_characters+'0'+str(last_two_numbers)
             else:
                 reference = remaining_characters+str(last_two_numbers)
-            if last_record.id+1 < 10:
-                reford = '0'+ str(int(last_record.id)+1)
+            if int(last_record.reference)+1 < 10:
+                reford = '0'+ str(int(last_record.reference)+1)
             else:
-                reford = str(int(last_record.id)+1)
+                reford = str(int(last_record.reference)+1)
     
     context={
         "c":cust,
@@ -13470,13 +13560,13 @@ def filter_inv_det_draft(request,id):
     return render(request,'invoice_det.html',context)
     
 def filter_retainer_draft(request):
-    user = request.user
-    invoices=RetainerInvoice.objects.filter(is_draft=1)
+    user = request.user.id
+    invoices=RetainerInvoice.objects.filter(is_draft=1,user=user)
     return render(request, 'retainer_invoice.html', {'invoices':invoices})
     
 def filter_retainer_sent(request):
-    user = request.user
-    invoices=RetainerInvoice.objects.filter(is_draft=0,is_sent=1)
+    user = request.user.id
+    invoices=RetainerInvoice.objects.filter(is_draft=0,is_sent=1,user=user)
     return render(request, 'retainer_invoice.html', {'invoices':invoices})
     
 def filter_retainer_view_draft(request,pk):

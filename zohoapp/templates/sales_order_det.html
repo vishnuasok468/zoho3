@@ -3,6 +3,19 @@
 {% block content %}
 
 <style>
+  .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+
   .slip-page {
     background: #ffffff;
     display: block;
@@ -305,6 +318,8 @@
       height: auto;
     }
 
+
+
   }
 
   .scrollable-table {
@@ -341,7 +356,7 @@
                   style="height: 38px; padding-top: 12px; padding-left: 17px;" href="{% url 'create_sales_order' %}"><i
                     class="fa fa-plus "></i></a>
               </div>
-              <div class="col-md-2" >
+              <div class="col-md-2">
                 <div class="dropdown">
                   <a class="btn text-center  mt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false" role="button" style="margin-left: 0px; height: 38px;">
@@ -354,7 +369,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-4" >
+              <div class="col-md-4">
                 <div class="dropdown">
                   <a class="btn text-center mt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false" role="button" style="margin-left: 0px; height: 38px;">
@@ -365,7 +380,7 @@
                     <a class="dropdown-item" href="{% url 'sales_order_det_draft' sale.id %}">Draft</a>
                     <a class="dropdown-item" href="{% url 'sales_order_det_approved' sale.id %}">Save</a>
                   </div>
-                  
+
                 </div>
               </div>
               <div class="col-md-6"></div>
@@ -442,9 +457,8 @@
                   <button class="btn btn-outline-warning " title="Share"><i class="fas fa-share"></i></button>
                 </a>
                 <div class="dropdown-menu ">
-                  <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                  <a class="dropdown-item" href="whatsapp://send?text=Check out this website: [Your URL]"
-                    data-action="share/whatsapp/share">WhatsApp</a>
+                  <a class="dropdown-item" data-target="#shareBillEmail" data-toggle="modal">GMAIL</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
                 <a href="{% url 'delet_sales' sale.id %}" class="  text-dark">
                   <button class="btn btn-outline-warning" title="Delete"><i class="fas fa-trash-alt"></i></button>
@@ -950,8 +964,7 @@
                 </a>
                 <div class="dropdown-menu ">
                   <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                  <a class="dropdown-item" href="whatsapp://send?text=Check out this website: [Your URL]"
-                    data-action="share/whatsapp/share">WhatsApp</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
                 <a href="{% url 'delet_sales' sale.id %}" class="  text-dark">
@@ -1127,8 +1140,17 @@
                             {{ sale.adjust }}
                           </div>
                         </div>
+                        {% if sale.advance != 0.0 %}
+                        <div class="row">
+                          <div class="col-md-5 text-left" style="color: black;">Advance </div>
+                          <div class="col-md-6" style="color: black;text-align: end;">
+                            {{sale.advance}}
+                          </div>
+                        </div>
+                        {% endif %}
                         <hr class="ml-2 mr-2" style="color: black; border-bottom: 1px solid black; ">
                       </div>
+
 
                       <div class="mb-2">
                         <div class="row">
@@ -1194,8 +1216,7 @@
                 </a>
                 <div class="dropdown-menu ">
                   <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                  <a class="dropdown-item" href="whatsapp://send?text=Check out this website: [Your URL]"
-                    data-action="share/whatsapp/share">WhatsApp</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
                 <a href="{% url 'delet_sales' sale.id %}" class="  text-dark">
@@ -1308,8 +1329,10 @@
 
                   <div class="invoice-total">
                     <div class="row">
-                      <div class="col-md-7"></div>
-                      <div class="col-md-4">
+                      <div class="col-6"></div>
+
+
+                      <div class="col-4">
                         <table style="margin-left: 10vh;">
                           <tr>
                             <td class="table-cell text-black" style="border: none;">Subtotal</td>
@@ -1349,6 +1372,14 @@
                             <td class="table-cell text-black" style="border: none;">:</td>
                             <td class="table-cell text-black" style="border: none;">{{sale.adjust}}</td>
                           </tr>
+                          {% if sale.advance != 0.0 %}
+                          <tr>
+                            <td class="table-cell text-black" style="border: none;">Advance</td>
+                            <td class="table-cell text-black" style="border: none;">:</td>
+                            <td class="table-cell text-black" style="border: none;">{{sale.advance}}</td>
+                          </tr>
+
+                          {% endif %}
                           <tr>
                             <td class="table-cell text-black" style="border: none;">Total</td>
                             <td class="table-cell text-black" style="border: none;">:</td>
@@ -1416,8 +1447,7 @@
                 </a>
                 <div class="dropdown-menu ">
                   <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                  <a class="dropdown-item" href="whatsapp://send?text=Check out this website: [Your URL]"
-                    data-action="share/whatsapp/share">WhatsApp</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
                 <a href="{% url 'delet_sales' sale.id %}" class="  text-dark">
@@ -1623,6 +1653,14 @@
                               <td class="text-center" style="color: #000;">
                                 {{sale.adjust}}</td>
                             </tr>
+                            {% if sale.advance != 0.0 %}
+                            <tr>
+                              <td style="color: #000;">Advance</td>
+                              <td style="color: #000;">:</td>
+                              <td class="text-center" style="color: #000;">
+                                {{sale.advance}}</td>
+                            </tr>
+                            {% endif %}
                             <tr>
                               <td style="color: #000;">Total</td>
                               <td style="color: #000;">:</td>
@@ -1696,8 +1734,7 @@
                 </a>
                 <div class="dropdown-menu ">
                   <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                  <a class="dropdown-item" href="whatsapp://send?text=Check out this website: [Your URL]"
-                    data-action="share/whatsapp/share">WhatsApp</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
                 <a href="{% url 'delet_sales' sale.id %}" class="  text-dark">
@@ -1810,8 +1847,9 @@
 
                   <section class="balance-info">
                     <div class="row">
-                      <div class="col-md-8"></div>
-                      <div class="col-md-4">
+                      <div class="col-4"></div>
+                      <div class="col-4"></div>
+                      <div class="col-4">
                         <table class="table table-borderless">
                           <tbody>
                             <tr>
@@ -1850,15 +1888,21 @@
                             <tr>
                               <td style="color: #000;">Shipping Charge</td>
                               <td style="color: #000;">:</td>
-                              <td class="text-right" style="color: #000;">
-                                {{sale.sh_charge}}</td>
+                              <td class="text-right" style="color: #000;">{{sale.sh_charge}}</td>
                             </tr>
                             <tr>
                               <td style="color: #000;">Adjustment</td>
                               <td style="color: #000;">:</td>
-                              <td class="text-right" style="color: #000;">
-                                {{sale.adjust}}</td>
+                              <td class="text-right" style="color: #000;">{{sale.adjust}}</td>
                             </tr>
+                            {% if sale.advance != 0.0 %}
+                            <tr>
+                              <td style="color: #000;">Advance</td>
+                              <td style="color: #000;">:</td>
+                              <td class="text-center" style="color: #000;">{{sale.advance}}</td>
+                            </tr>
+
+                            {% endif %}
                             <tr>
                               <td style="color: #000;">Total</td>
                               <td style="color: #000;">:</td>
@@ -1917,12 +1961,46 @@
               </div>
             </div>
 
+          </div>
+          <!-- Share bill Modal -->
+          <div class="modal fade" id="shareBillEmail">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                <div class="modal-header" style="background: rgb(32, 35, 37);">
+                  <h5 class="m-3 text-uppercase" id="shareBillEmailLabel">Share Sales Order Via Email</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                      aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" style="background: rgb(32, 35, 37);">
+                  <div class="card p-3 m-3">
+                    <form action="{% url 'shareSalesOrderToEmail' sale.id %}" method="post" class="needs-validation"
+                      id="share_to_email_form" autocomplete="off">
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <label for="emailIds">Email IDs</label>
+                        <textarea class="form-control text-dark" name="email_ids" id="emailIds" rows="5"
+                          placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                      </div>
+                      <div class="form-group mt-2">
+                        <label for="item_unitname">Message(optional)</label>
+                        <textarea name="email_message" id="email_message" class="text-dark form-control" cols=""
+                          rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                      </div>
+                      <input type="submit" id="share_with_email"
+                        class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
 
+                    </form>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
 
         </div>
 
       </div>
+
 
 
 
@@ -1941,30 +2019,75 @@
 
 
 <script>
+  /*$(document).ready(function () {
+    $('#share_with_email').on('click', function () {
+      var emailsInput = document.getElementById('emailIds');
+      var emailsString = emailsInput.value.trim();
+
+      var emails = emailsString.split(',').map(function (email) {
+        return email.trim();
+      });
+
+      var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+      var invalidEmails = []
+      if (emailsString == "") {
+        alert('Enter valid email addresses..')
+      }
+      else {
+        for (var i = 0; i < emails.length; i++) {
+          var currentEmail = emails[i];
+
+          if (currentEmail != "" && !emailRegex.test(currentEmail)) {
+            console.log(currentEmail + ' is invalid!');
+            invalidEmails.push(currentEmail)
+          }
+        }
+
+        if (invalidEmails.length > 0) {
+          alert('Invalid emails..Please check!\n' + invalidEmails)
+          // alert(invalidEmails)
+        } else {
+          $('#share_to_email_form').submit();
+        }
+      }
+    })
+  });*/
+
+
+  function shareOnWhatsApp() {
+    var url = window.location.href;
+    var text = url;
+    text = encodeURIComponent(text);
+    var whatsappUrl = "whatsapp://send?text=" + text;
+    window.location.href = whatsappUrl;
+  }
+
   function exportToPDF() {
     var content = document.getElementById('selected-area');
     html2pdf()
       .from(content)
-      .save('sales_order.pdf')
+      .save('{{sale.sales_no}}' + '.pdf')
   }
   function exportToPDF2() {
     var content = document.getElementById('selected-area2');
     html2pdf()
       .from(content)
-      .save('sales_order.pdf')
+      .save('{{sale.sales_no}}' + '.pdf')
   }
   function exportToPDF3() {
     var content = document.getElementById('selected-area3');
     html2pdf()
       .from(content)
-      .save('sales_order.pdf')
+      .save('{{sale.sales_no}}' + '.pdf')
   }
   function exportToPDF4() {
     var content = document.getElementById('printslip');
     html2pdf()
       .from(content)
-      .save('sales_order.pdf')
+      .save('{{sale.sales_no}}' + '.pdf')
   }
+
 </script>
 
 <script>

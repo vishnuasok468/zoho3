@@ -948,6 +948,9 @@ urlpatterns = [
     path('itemdata_ri', views.itemdata_ri, name='itemdata_ri'),
     path('sales_order_det_draft/<int:id>',views.sales_order_det_draft,name='sales_order_det_draft'),
     path('sales_order_det_approved/<int:id>',views.sales_order_det_approved,name='sales_order_det_approved'),
+    path('invoice_view_draft/<int:pk>',views.invoice_view_draft,name='invoice_view_draft'),
+    path('invoice_view_send/<int:pk>',views.invoice_view_send,name='invoice_view_send'),
+    path('shareSalesOrderToEmail/<int:id>',views.shareSalesOrderToEmail,name='shareSalesOrderToEmail'),
 
 
 

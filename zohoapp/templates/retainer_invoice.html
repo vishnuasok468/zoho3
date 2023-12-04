@@ -85,7 +85,7 @@
                 {% for i in invoices %}
                 <tr id="tr_data" class="clickable-row">
                   <td class="align-top "><a class="text-light" href="{% url 'invoice_view' i.id %}">{{i.retainer_invoice_date}}</a></td>
-                  <td class="align-top "><a class="text-light"
+                  <td class="align-top text-center"><a class="text-light "
                       href="{% url 'invoice_view' i.id %}">{{i.retainer_invoice_number}}</a></td>
                   <td class="align-top "><a class="text-light"
                       href="{% url 'invoice_view' i.id %}">{{i.customer_name1}}</a></td>

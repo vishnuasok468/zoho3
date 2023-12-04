@@ -312,17 +312,10 @@
                     <div class="col-md-4" style="border-right: 1px solid white; overflow-y: scroll; height: 84vh;">
                         <div class="row">
                             <a class="text-white" style="font-size: 1.5rem;">All Retainer Invoices</a>
-                            <div class="col-md-7">
+                            <div class="col-md-6">
                                 <input type="text" id="search" class="form-control text-dark bg-light mt-2"
                                     placeholder="search......" autocomplete="off">
                             </div>
-
-                            <div class="col-md-2">
-                                <a class="btn btn btn-outline-warning text-right mt-2"
-                                    style="height: 38px; padding-top: 12px; padding-left: 17px;"
-                                    href="{% url 'add_invoice' %}"><i class="fa fa-plus "></i></a>
-                            </div>
-
 
                             <div class="col-md-2">
                                 <div class="dropdown">
@@ -338,6 +331,27 @@
                                             Number</a>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="dropdown">
+                                    <a class="btn text-center mt-2 btn-outline-warning" data-bs-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" role="button"
+                                        style="margin-left: 0px; height: 38px;">
+                                        <i class="fa fa-filter mt-1"></i>
+                                    </a>
+                                    <div class="dropdown-menu m-1">
+                                        <a class="dropdown-item" href="{% url 'invoice_view' invoice.id %}">All</a>
+                                        <a class="dropdown-item"
+                                            href="{% url 'invoice_view_draft' invoice.id %}">Draft</a>
+                                        <a class="dropdown-item"
+                                            href="{% url 'invoice_view_send' invoice.id %}">Sent</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <a class="btn btn btn-outline-warning text-right mt-2"
+                                    style="height: 38px; padding-top: 12px; padding-left: 17px;"
+                                    href="{% url 'add_invoice' %}"><i class="fa fa-plus "></i></a>
                             </div>
                             <div class="col-md-6"></div>
                         </div>
@@ -413,9 +427,7 @@
                                 </a>
                                 <div class="dropdown-menu ">
                                     <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
-                                    <a class="dropdown-item"
-                                        href="whatsapp://send?text=Check out this website: [Your URL]"
-                                        data-action="share/whatsapp/share">WhatsApp</a>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                                 </div>
 
                                 <button href="" class="btn btn-outline-warning btn_print" data-toggle="tooltip"
@@ -656,29 +668,31 @@
                                             </div>
                                             <hr>
 
-                                            <div class="row mt-3">
+                                            {% if invoice.customer_notes %}
 
+                                            <div class="row mt-3">
                                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                                     <label for="" style="font-weight: 500;">Customer Notes:</label>
-
                                                     <textarea name="" id="" cols="35" rows="3"
-                                                        style="border: transparent;background-color: transparent;">{{invoice.customer_notes}}</textarea>
+                                                        style="border: transparent;background-color: transparent;"
+                                                        readonly>{{invoice.customer_notes}}</textarea>
                                                 </div>
                                             </div>
-                                            <div class="row mt-1">
+                                            <hr>
 
+                                            {% endif %}
+
+                                            {% if invoice.terms_and_conditions %}
+                                            <div class="row mt-1">
                                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                                     <label for="" style="font-weight: 500;">Terms &
                                                         Conditions:</label>
-
                                                     <textarea name="" id="" cols="35" rows="3"
-                                                        style="border: transparent;background-color: transparent;">{{invoice.terms_and_conditions}}</textarea>
-
+                                                        style="border: transparent;background-color: transparent;"
+                                                        readonly>{{invoice.terms_and_conditions}}</textarea>
                                                 </div>
                                             </div>
-
-                                            <hr>
-
+                                            {% endif %}
                                         </div>
                                         <div class="col-sm-6 col-md-6 col-lg-6 " style="padding-top: 5%;">
                                             <div class="p-2"
@@ -737,6 +751,20 @@
                                                         <label for=""><b>{{invoice.total_amount}}</b></label>
                                                     </div>
                                                 </div>
+                                                {% if invoice.advance %}
+
+                                                <div class="row">
+                                                    <div class="col-sm-8 col-md-8 col-lg-8 ">
+                                                        <label for="" style="font-weight: 500;">Advance
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            :</label>
+
+                                                    </div>
+                                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                                        <label for=""><b>{{invoice.advance}}</b></label>
+                                                    </div>
+                                                </div>
                                                 <div class="row ">
                                                     <div class="col-sm-8 col-md-8 col-lg-8 ">
                                                         <label for="" style="font-weight: 500;">Balance
@@ -748,6 +776,7 @@
                                                         <label for=""><b>{{ invoice.balance }}</b></label>
                                                     </div>
                                                 </div>
+                                                {% endif %}
                                                 <hr>
                                                 {% if ret_payments.payment_opt %}
                                                 <h4 style="color: rgb(233, 153, 5);text-align: center;">Payment
@@ -827,42 +856,45 @@
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                                        <label class="text-warning" for=""
-                                                            style="font-weight: 400;">Product Name :</label>
-                                                        <p>{{ i.itemname }}</p>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+                                                        <p><span class="text-warning">Product Name : </span>
+                                                            {{i.itemname }}</p>
+                                                    </div>
+
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+
+                                                        <p><span class="text-warning">Description :
+                                                            </span>{{i.description }}</p>
 
                                                     </div>
 
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                                        <label class="text-warning" for=""
-                                                            style="font-weight: 400;">Description :</label>
-                                                        <p>{{ i.description }}</p>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+
+                                                        <p><span class="text-warning">Rate : </span>{{ i.rate }}
+                                                        </p>
 
                                                     </div>
 
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                                        <label class="text-warning" for=""
-                                                            style="font-weight: 400;">Quantity :</label>
-                                                        <p>{{ i.quantity }}</p>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+
+                                                        <p><span class="text-warning">Quantity : </span>{{ i.quantity }}
+                                                        </p>
 
                                                     </div>
 
                                                 </div>
-                                                <div class="row mt-1">
-                                                    <div class="col-sm-5 col-md-5 col-lg-5">
-                                                        <label class="text-warning" for=""
-                                                            style="font-weight: 400;">Amount
-                                                            :</label>
+                                                <div class="row">
 
-                                                    </div>
-                                                    <div class="col-sm-7 col-md-7 col-lg-7">
-                                                        <label class="text-light" for=""
-                                                            style="font-weight: 400;">{{i.amount }}</label>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 text-center">
+
+                                                        <p><span class="text-warning">Amount : </span>{{i.amount }}</p>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -954,9 +986,10 @@
                                             <thead>
                                                 <tr class="">
                                                     <th class="text-center" style="color:#8b3131;">Items</th>
-                                                    <th class="text-center" style="color:#8b3131;">description</th>
+                                                    <th class="text-center" style="color:#8b3131;">Description</th>
+                                                    <th class="text-center" style="color:#8b3131;">Rate</th>
                                                     <th class="text-center" style="color:#8b3131;">Quantity</th>
-                                                    <th class="text-center" style="color:#8b3131;">amount</th>
+                                                    <th class="text-center" style="color:#8b3131;">Amount</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -965,6 +998,8 @@
                                                     <td class="text-center" style="color:#000">{{ itm.itemname }}</td>
                                                     <td class="text-center" style="color:#000">{{ itm.description }}
                                                     </td>
+                                                    <td class="text-center" style="color:#000">{{ itm.rate }}</td>
+
                                                     <td class="text-center" style="color:#000">{{ itm.quantity }}</td>
                                                     <td class="text-center" style="color:#000">{{ itm.amount }}</td>
 
@@ -1017,7 +1052,20 @@
                                                             <td class="text-center" style="color: #000;">
                                                                 {{invoice.total_amount}}</td>
                                                         </tr>
-
+                                                        {% if invoice.advance %}
+                                                        <tr>
+                                                            <td style="color: #000;">Advance</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-center" style="color: #000;">
+                                                                {{invoice.advance}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="color: #000;">Balance</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-center" style="color: #000;">
+                                                                {{invoice.balance}}</td>
+                                                        </tr>
+                                                        {% endif %}
                                                     </tbody>
 
                                                 </table>
@@ -1053,7 +1101,7 @@
                                     </div>
                                 </header>
                                 <div class="invoice-box">
-                                    <h1 class="text-dark">SalesOrder</h1>
+                                    <h1 class="text-dark">Retainer Invoice</h1>
                                     <div class="invoice-header">
                                         <div class="invoice-details text-dark">
                                             <table>
@@ -1110,6 +1158,7 @@
 
                                                 <th id="th" style="text-align: center;">Product</th>
                                                 <th id="th" style="text-align: center;">Description</th>
+                                                <th id="th" style="text-align: center;">Rate</th>
                                                 <th id="th" style="text-align: center;">Quantity</th>
                                                 <th id="th" style="text-align: center;"> Amount</th>
                                             </tr>
@@ -1119,6 +1168,7 @@
                                             <tr style="color: black;">
                                                 <td style="text-align: center;">{{i.itemname}}</td>
                                                 <td style="text-align: center;">{{i.description}}</td>
+                                                <td style="text-align: center;">{{i.rate}}</td>
                                                 <td style="text-align: center;">{{i.quantity}}</td>
                                                 <td style="text-align: center;">{{i.amount}}</td>
                                             </tr>
@@ -1129,8 +1179,8 @@
 
                                     <div class="invoice-total">
                                         <div class="row">
-                                            <div class="col-md-7"></div>
-                                            <div class="col-md-4">
+                                            <div class="col-5"></div>
+                                            <div class="col-4">
                                                 <table style="margin-left: 10vh;">
                                                     <tr>
                                                         <td class="table-cell text-black" style="border: none;">
@@ -1142,6 +1192,28 @@
                                                             <b>{{invoice.total_amount}}</b>
                                                         </td>
                                                     </tr>
+                                                    {% if invoice.advance %}
+                                                    <tr>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            Advance
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">:
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            <b>{{invoice.advance}}</b>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            Balance
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">:
+                                                        </td>
+                                                        <td class="table-cell text-black" style="border: none;">
+                                                            <b>{{invoice.balance}}</b>
+                                                        </td>
+                                                    </tr>
+                                                    {% endif %}
 
                                                 </table>
                                             </div>
@@ -1226,6 +1298,7 @@
                                                     <td style="text-align: center; font-weight:bold; color:black ">Items
                                                     </td>
                                                     <td style="font-weight:bold; color:black">Description</td>
+                                                    <td style="font-weight:bold; color:black">Rate</td>
                                                     <td style="font-weight:bold; color:black">Quantity</td>
                                                     <td style="font-weight:bold; color:black">Amount</td>
 
@@ -1237,9 +1310,9 @@
                                                 <tr>
                                                     <td style="color:black; text-align: center;">
                                                         {{j.itemname}}
-
                                                     </td>
                                                     <td style="color:black">{{j.description}}</td>
+                                                    <td style="color:black">{{j.rate}}</td>
                                                     <td style="color:black">{{j.quantity}}</td>
                                                     <td style="color:black">{{j.amount}} </td>
 
@@ -1250,9 +1323,11 @@
                                     </section>
 
                                     <section class="balance-info">
-                                        <div class="row">
-                                            <div class="col-md-8"></div>
-                                            <div class="col-md-4">
+                                        <div class="row mt-3">
+                                            <div class="col-2"></div>
+                                            <div class="col-4"></div>
+
+                                            <div class="col-4">
                                                 <table class="table table-borderless">
                                                     <tbody>
                                                         <tr>
@@ -1261,6 +1336,20 @@
                                                             <td class="text-right" style="color: #000;">
                                                                 {{invoice.total_amount}}</td>
                                                         </tr>
+                                                        {% if invoice.advance %}
+                                                        <tr>
+                                                            <td style="color: #000;">Advance</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-right" style="color: #000;">
+                                                                {{invoice.advance}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="color: #000;">Balance</td>
+                                                            <td style="color: #000;">:</td>
+                                                            <td class="text-right" style="color: #000;">
+                                                                {{invoice.balance}}</td>
+                                                        </tr>
+                                                        {% endif %}
 
 
                                                     </tbody>
@@ -1359,15 +1448,20 @@
                                                             <hr
                                                                 style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
                                                         </div>
-                                                        <div class="equal-length-item ml-2" style=" text-align:center;">
+                                                        <div class="equal-length-item ml-1" style=" text-align:center;">
                                                             Description
                                                             <hr
-                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%;">
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:99%;">
+                                                        </div>
+                                                        <div class="equal-length-item" style=" text-align:center;">
+                                                            Rate
+                                                            <hr
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:95%;">
                                                         </div>
                                                         <div class="equal-length-item" style=" text-align: center; ">
                                                             Qty
                                                             <hr
-                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%">
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
                                                         </div>
 
 
@@ -1375,7 +1469,7 @@
                                                         <div class="equal-length-item" style=" text-align: center; ">
                                                             Amount
                                                             <hr
-                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:60%">
+                                                                style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1390,6 +1484,9 @@
                                                         <div class="equal-length-item" style="text-align: right;">
                                                             {{j.description}}
                                                         </div>
+                                                        <div class="equal-length-item" style="text-align: center;">
+                                                            {{j.rate}}
+                                                        </div>
                                                         <div class="equal-length-item" style="text-align: center; ">
                                                             {{j.quantity}}
                                                         </div>
@@ -1399,7 +1496,47 @@
                                                     </div>
                                                     {% endfor %}
                                                 </div>
+                                                {% if invoice.advance %}
+                                                <div><br>
+                                                    <div class="row">
+                                                        <div class="col-md-5 text-left" style=" color: black;">
+                                                            Sub Total
+                                                        </div>
+                                                        <div class="col-md-6" style="color: black;text-align: end;">
+                                                            {{ invoice.total_amount }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-5" style=" color: black;">
+                                                            Advance
+                                                        </div>
+                                                        <div class="col-md-6" style="color: black;text-align: end;">
+                                                            {{ invoice.advance }} </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-5 text-left" style=" color: black;">
+                                                            Balance
+                                                        </div>
+                                                        <div class="col-md-6" style="color: black; text-align: end;">
+                                                            {{ invoice.balance }} </div>
+                                                    </div>
+                                                    <hr class="ml-2 mr-2"
+                                                        style="color: black; border-bottom: 1px solid black; ">
+                                                </div>
 
+                                                <div class="mb-2">
+                                                    <div class="row">
+                                                        <div class="col-md-5 text-left ml-2"
+                                                            style=" font-size: large; color: black; font-weight: bold;">
+                                                            Total
+                                                        </div>
+                                                        <div class="col-md-6"
+                                                            style="font-size: large; color: black; font-weight: bold;text-align: end;">
+                                                            {{ invoice.balance }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% else %}
                                                 <div><br>
 
                                                     <hr class="ml-2 mr-2"
@@ -1418,6 +1555,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -1457,7 +1595,7 @@
                                         <div class="row mt-2">
                                             <div class="col-md-6 mt-2">
                                                 <textarea class="form-control text-dark bg-light" name="comments"
-                                                    required style="height: 200px; width: 520px;"></textarea>
+                                                    required style=" width: 520px;height: 100px;"></textarea>
                                             </div>
                                         </div>
 
@@ -1689,6 +1827,13 @@
 
 
 <script>
+    function shareOnWhatsApp() {
+    var url = window.location.href;
+    var text = url;
+    text = encodeURIComponent(text);
+    var whatsappUrl = "whatsapp://send?text=" + text;
+    window.location.href = whatsappUrl;
+  }
 
     const rows = document.querySelectorAll('.clickable');
 
