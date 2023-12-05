@@ -170,17 +170,18 @@
           </div>
         </div>
 
+        {% if sale.customer.Address1 %}
         <div class="row mt-2">
           <div class="col-md-3">
             <label for="">Billing Address</label>
           </div>
 
           <div class="col-md-6">
-            <textarea class="form-control bg-light text-dark" id="cx_address" name="cx_address" readonly rows="5"
+            <textarea class="form-control bg-light text-dark" id="cx_address" name="cx_address" readonly
               style="height: auto;">{{sale.customer.Address1}}</textarea>
           </div>
         </div>
-
+        {% endif %}
         <div class="row mt-2" id="treatmentdiv" style="display:none;">
           <div class="col-md-9 d-flex">
             <label for="" style="width: 52%;">GST Treatment</label>
@@ -194,20 +195,6 @@
             <input type="text" class="form-control bg-light text-dark" id="cx_gst" name="cx_gst" readonly>
           </div>
         </div>
-
-        <div class="row mt-2">
-          <div class="col-md-3">
-            <label for="prof_name">Sales Order</label>
-          </div>
-
-          <div class="col-md-6">
-            <input type="text" class="form-control bg-light text-dark" value="{{sale.sales_no}}" id="prof_name"
-              name="sale_no">
-            <label id="order_label" style="display: none;"></label>
-          </div>
-        </div>
-
-
         <div class="row mt-2">
           <div class="col-md-3">
             <label>Source of Supply*</label>
@@ -257,6 +244,18 @@
               <option value="[OT]-Other Territory">[OT] Other Territory</option>
             </select>
 
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-md-3">
+            <label for="prof_name">Sales Order</label>
+          </div>
+
+          <div class="col-md-6">
+            <input type="text" class="form-control bg-light text-dark" value="{{sale.sales_no}}" id="prof_name"
+              name="sale_no">
+            <label id="order_label" style="display: none;"></label>
           </div>
         </div>
 
@@ -394,13 +393,13 @@
                         name='item[]' id='item{{forloop.counter}}' onchange="itemfunction(this.id)">
                         <option selected value="{{i.product}}" hidden>{{i.product}}</option>
                         {% for j in itm %}
-                        <option class="text-black" value="{{j.Name}}">{{ j.Name }} </option>
+                        <option class="text-black" value="{{j.id}}">{{ j.Name }} </option>
                         {% endfor %}
                       </select></div>
                   </td>
                   <td class='text-right' style="width: 15%;">
                     <input type='number' id='hsn{{forloop.counter}}'
-                      class=' text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly>
+                      class=' text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly value="{{i.hsn}}">
                   </td>
 
 
@@ -2177,13 +2176,15 @@
         $('#newpayment').hide();
         $(".modal-backdrop").remove();
         data = response.pay_term;
+        data2 = response.pay_id;
         const pay = document.getElementById("pay_term");
         console.log(pay)
         const termsField = document.createElement('option');
         termsField.innerHTML = data;
+        termsField.value = data2;
         pay.appendChild(termsField);
         document.getElementById("modalForm").reset();
-        location.reload();
+        reloadterms();
 
 
         // Iterate through the data and create options
@@ -2198,6 +2199,7 @@
       success: function (response) {
         term_data = response.term_data
         day_data = response.day_data
+        day_id = response.day_id
 
         var term_container = document.getElementById('terms-container');
         var dropdow = document.getElementById('termdrop');
@@ -2239,14 +2241,14 @@
           // Create a new option element
           let newOption = document.createElement("option");
           newOption.text = term_data[i];
-          newOption.value = day_data[i]; // Set a value for the new option
+          newOption.value = day_id[i]; // Set a value for the new option
 
           // Append the new option to the select field
           select.appendChild(newOption);
 
           var dropdow = $('#pay_term');
 
-          dropdow.append($('<option value="" selected hidden>Select Payment Term</option>'));
+          dropdow.append($('<option value="" hidden>Select Payment Term</option>'));
         }
       },
       error: function (xhr, status, error) {
@@ -2533,7 +2535,7 @@
 
         dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
         });
       },
       error: function (xhr, status, error) {

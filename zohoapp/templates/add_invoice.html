@@ -1784,7 +1784,6 @@
           var y = document.getElementById("state").value
 
 
-
         }
 
       });
@@ -1913,7 +1912,7 @@
 
         dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
         });
       },
       error: function (xhr, status, error) {

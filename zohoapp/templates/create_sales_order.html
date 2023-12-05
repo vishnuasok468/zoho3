@@ -1991,9 +1991,7 @@
         term_data = response.term_data
         day_data = response.day_data
         day_id = response.day_id
-        console.log(term_data);
-        console.log(day_id);
-
+    
         var term_container = document.getElementById('terms-container');
         var dropdow = document.getElementById('termdrop');
         term_container.removeChild(dropdow);
@@ -2325,7 +2323,7 @@
 
         dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
         });
       },
       error: function (xhr, status, error) {

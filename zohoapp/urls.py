@@ -944,13 +944,14 @@ urlpatterns = [
     path('product_graphview',views.product_graphview,name='product_graphview'),
     path('product_graphview_btn/<str:pk>',views.product_graphview_btn,name='product_graphview_btn'),
     #End
-    path('convert_to_recinvoice/<int:pk>',views.convert_to_recinvoice,name='convert_to_recinvoice'),
+    path('convert_to_recinvoice_frm_salesorder/<int:pk>',views.convert_to_recinvoice_frm_salesorder,name='convert_to_recinvoice_frm_salesorder'),
     path('itemdata_ri', views.itemdata_ri, name='itemdata_ri'),
     path('sales_order_det_draft/<int:id>',views.sales_order_det_draft,name='sales_order_det_draft'),
     path('sales_order_det_approved/<int:id>',views.sales_order_det_approved,name='sales_order_det_approved'),
     path('invoice_view_draft/<int:pk>',views.invoice_view_draft,name='invoice_view_draft'),
     path('invoice_view_send/<int:pk>',views.invoice_view_send,name='invoice_view_send'),
     path('shareSalesOrderToEmail/<int:id>',views.shareSalesOrderToEmail,name='shareSalesOrderToEmail'),
+    path('shareRetInvoiceToEmail/<int:id>',views.shareRetInvoiceToEmail,name='shareRetInvoiceToEmail'),
 
 
 

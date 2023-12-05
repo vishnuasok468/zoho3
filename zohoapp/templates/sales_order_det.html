@@ -963,7 +963,7 @@
                   <button class="btn btn-outline-warning " title="Share"><i class="fas fa-share"></i></button>
                 </a>
                 <div class="dropdown-menu ">
-                  <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
+                  <a class="dropdown-item" data-target="#shareBillEmail" data-toggle="modal">GMAIL</a>
                   <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
@@ -1215,7 +1215,7 @@
                   <button class="btn btn-outline-warning " title="Share"><i class="fas fa-share"></i></button>
                 </a>
                 <div class="dropdown-menu ">
-                  <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
+                  <a class="dropdown-item" data-target="#shareBillEmail" data-toggle="modal">GMAIL</a>
                   <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
@@ -1446,7 +1446,7 @@
                   <button class="btn btn-outline-warning " title="Share"><i class="fas fa-share"></i></button>
                 </a>
                 <div class="dropdown-menu ">
-                  <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
+                  <a class="dropdown-item" data-target="#shareBillEmail" data-toggle="modal">GMAIL</a>
                   <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
@@ -1733,7 +1733,7 @@
                   <button class="btn btn-outline-warning " title="Share"><i class="fas fa-share"></i></button>
                 </a>
                 <div class="dropdown-menu ">
-                  <a class="dropdown-item" href="{% url 'emailattachment' %}">GMAIL</a>
+                  <a class="dropdown-item" data-target="#shareBillEmail" data-toggle="modal">GMAIL</a>
                   <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()">WhatsApp</a>
                 </div>
 
@@ -1986,10 +1986,11 @@
                         <textarea name="email_message" id="email_message" class="text-dark form-control" cols=""
                           rows="4" placeholder="This message will be sent along with Bill details."></textarea>
                       </div>
-                      <input type="submit" id="share_with_email"
-                        class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
-
                     </form>
+                  </div>
+                  <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                    <input type="submit" id="share_with_email"
+                      class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
                   </div>
                 </div>
 
@@ -2015,11 +2016,20 @@
         crossorigin="anonymous"></script>
 
 </section>
+{% for message in messages %}
+
+<script>
+  let msg = '{{message}}';
+  alert(msg);
+</script>
+{% endfor %}
+
 
 
 
 <script>
-  /*$(document).ready(function () {
+  
+  $(document).ready(function () {
     $('#share_with_email').on('click', function () {
       var emailsInput = document.getElementById('emailIds');
       var emailsString = emailsInput.value.trim();
@@ -2052,7 +2062,7 @@
         }
       }
     })
-  });*/
+  });
 
 
   function shareOnWhatsApp() {

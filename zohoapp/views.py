@@ -1454,7 +1454,7 @@ from io import BytesIO
 
 def shareSalesOrderToEmail(request,id):
     if request.user:
-        #try:
+        try:
             if request.method == 'POST':
                 emails_string = request.POST['email_ids']
 
@@ -1466,10 +1466,8 @@ def shareSalesOrderToEmail(request,id):
                 cmp = company_details.objects.get( user = request.user.id)
                 bill = SalesOrder.objects.get(id = id)
                 items = sales_item.objects.filter( sale = bill.id)
-            
-                total = bill.grandtotal
-            
-                context = {'bill': bill, 'cmp': cmp,'items':items, 'total':total}
+                        
+                context = {'bill': bill, 'cmp': cmp,'items':items}
                 template_path = 'sales_bill_pdf.html'
                 template = get_template(template_path)
 
@@ -1479,17 +1477,53 @@ def shareSalesOrderToEmail(request,id):
                 pdf = result.getvalue()
                 filename = f'Sales Bill - {bill.sales_no}.pdf'
                 subject = f"SALES BILL - {bill.sales_no}"
-                email = EmailMessage(subject, f"Hi,\nPlease find the attached SALES BILL - Bill-{bill.sales_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_UER,to=emails_list)
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached SALES BILL - Bill-{bill.sales_no}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER,to=emails_list)
                 email.attach(filename, pdf, "application/pdf")
                 email.send(fail_silently=False)
-                print('me')
 
-                messages.success(request, 'Bill has been shared via email successfully..!')
+                msg = messages.success(request, 'Bill has been shared via email successfully..!')
                 return redirect(sales_order_det,id)
-        #except Exception as e:
-            #print(e)
-            #messages.error(request, f'{e}')
-            #return redirect(sales_order_det, id)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(sales_order_det, id)
+        
+
+def shareRetInvoiceToEmail(request,id):
+    if request.user:
+        try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+
+                cmp = company_details.objects.get( user = request.user.id)
+                bill = RetainerInvoice.objects.get(id = id)
+                items = Retaineritems.objects.filter( retainer = bill.id)
+                        
+                context = {'bill': bill, 'cmp': cmp,'items':items}
+                template_path = 'retainer_bill_pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)#, link_callback=fetch_resources)
+                pdf = result.getvalue()
+                filename = f'Sales Bill - {bill.retainer_invoice_number}.pdf'
+                subject = f"SALES BILL - {bill.retainer_invoice_number}"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached SALES BILL - Bill-{bill.retainer_invoice_number}. \n{email_message}\n\n--\nRegards,\n{cmp.company_name}\n{cmp.address}\n{cmp.state} - {cmp.country}\n{cmp.contact_number}", from_email=settings.EMAIL_HOST_USER,to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Bill has been shared via email successfully..!')
+                return redirect(invoice_view,id)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(invoice_view, id)
 
 
 
@@ -1523,14 +1557,14 @@ def retainer_edit_page(request,pk):
     company=company_details.objects.get(user_id=request.user)
     invoice=RetainerInvoice.objects.get(id=pk)
     bank=Bankcreation.objects.filter(user=request.user)
-    itm=AddItem.objects.filter(user=request.user)
+    itm=AddItem.objects.filter(user=request.user.id)
     unit=Unit.objects.all()
     sales=Sales.objects.all()
     purchase=Purchase.objects.all()
-    payments=payment_terms.objects.all()
+    payments=payment_terms.objects.filter(user=request.user.id)
     cust_id=customer.objects.get(id=invoice.customer_name.id)
     custo_id=cust_id.id
-    customer1=customer.objects.all()
+    customer1=customer.objects.filter(user=request.user.id)
     cust_gst_treat=cust_id.GSTTreatment
     cust_gstno=cust_id.GSTIN
     cust_placeofsupply=invoice.customer_placesupply
@@ -2935,7 +2969,7 @@ def convert_to_invoice(request,pk):
     return redirect('view_sales_order')
 
 @login_required(login_url='login')
-def convert_to_recinvoice(request,pk):
+def convert_to_recinvoice_frm_salesorder(request,pk):
     sale = SalesOrder.objects.get(id=pk)
     recinv_id = Recurring_invoice.objects.filter(user=request.user.id).last()
     user = User.objects.get(id = request.user.id)
@@ -4185,13 +4219,13 @@ def delet_sales(request,id):
 def edit_sales_order(request,id):
     user = request.user
     company = company_details.objects.get(user=user)
-    c = customer.objects.all()
-    itm = AddItem.objects.all()
+    c = customer.objects.filter(user=request.user.id)
+    itm = AddItem.objects.filter(user=request.user.id)
     salesitem = sales_item.objects.filter(sale_id=id)
     sales = SalesOrder.objects.get(id=id)
     sales_id = SalesOrder.objects.get(id=id)
-    pay=payment_terms.objects.all()
-    bank = Bankcreation.objects.all()
+    pay=payment_terms.objects.filter(user=request.user.id)
+    bank = Bankcreation.objects.filter(user=request.user.id)
     unit=Unit.objects.all()
     last_record = SalesOrder.objects.last()
     sale=Sales.objects.all()

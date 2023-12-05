@@ -112,26 +112,28 @@
             class="form-control text-dark">
         </div>
       </div>
+      {% if cust_id.Address1 %}
       <div class="row mt-2 " id="address_row">
         <div class="col-md-3"><label for="">Billing Address</label></div>
-        <div class="col-md-6"><textarea name="" id="customer_address" cols="30" rows="5"
+        <div class="col-md-6"><textarea name="" id="customer_address" cols="30" 
             class="form-control text-dark bg-light" style="height: auto;">{{cust_id.Address1}}</textarea>
         </div>
       </div>
+      {% endif %}
       <div class="row mt-2 " id="cgst_treat_row">
         <div class="col-md-3"><label for="">GST Treatment</label></div>
         <div class="col-md-6"><input type="text" id="customer_gst_treat" name="" class="form-control text-dark"
             value="{{cust_id.GSTTreatment}}" readonly>
-
         </div>
       </div>
+      {% if cust_id.GSTIN %}
       <div class="row mt-2" id="cgstno_row">
         <div class="col-md-3"><label for="">GST Number</label></div>
         <div class="col-md-6"><input type="text" id="customer_gstno" name="" class="form-control text-dark"
             value="{{cust_id.GSTIN}}" readonly>
-
         </div>
       </div>
+      {% endif %}
       <div class="row mt-2" id="cplace_supply_row">
         <div class="col-md-3"><label for="">Place Of Supply</label></div>
         <div class="col-md-6">
@@ -195,7 +197,7 @@
         <label class="col-md-3">Reference</label>
         <div class="col-md-6">
           <input type="text" class="form-control bg-light text-dark" name="references" value="{{invoice.refrences}}"
-            required>
+            required readonly>
         </div>
       </div>
       <div class="row mt-3">
@@ -266,7 +268,7 @@
                 <th>Item<a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
                 <th class="text-right">Description</th>
                 <th class="text-right">Quantity</th>
-                <th style="display: none;">rate</th>
+                <th class="text-right">rate</th>
                 <th class="text-right">Amount</th>
                 <th></th>
               </tr>
@@ -279,7 +281,7 @@
                     id='item{{forloop.counter}}' onchange="itemfunction(this.id)">
                     <option value="{{i.itemname}}" selected hidden>{{i.itemname}}</option>
                     {% for i in itm %}
-                    <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
+                    <option class="text-black .name" value="{{i.id}}">{{ i.Name}} </option>
                     {% endfor %}
                   </select>
                 </td>
@@ -293,7 +295,7 @@
                     style="border: none;width: 100px;" value="{{i.quantity}}">
                 </td>
 
-                <td style="display: none;"><input type="number"
+                <td><input type="number"
                     class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]"
                     style="width: 150px;" step="0.01" required id="rate{{forloop.counter}}" readonly
                     value="{{i.rate}}" /></td>
@@ -1692,7 +1694,7 @@
 
         dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
         });
       },
       error: function (xhr, status, error) {
@@ -2055,7 +2057,7 @@
         </td>
         <td><input type="text" class="form-control bg-light text-light bg-transparent border-0" name="description[]" id="description${rowCount}"/></td> 
         <td><input type="number" name="quantity[]" class="qty form-control bg-transparent text-white border-0 text-right" style="border: none;width: 100px;" id="qty${rowCount}"></td>
-        <td style="display:none"><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]" style="width: 150px;" step="0.01" required id="rate${rowCount}" readonly/></td>
+        <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]" style="width: 150px;" step="0.01" required id="rate${rowCount}" readonly/></td>
         <td><input type="number" class="amount form-control bg-light text-light bg-transparent border-0" name="amount[]" step="0.01" style="width: 150px;" id="amount${rowCount}" readonly/></td>
         <td class="text-center" style="display: grid;">
           <a href="#" class="delete-row btn btn-transparent btn-outline-danger btn-sm rounded-circle" style="width: 30px;">
