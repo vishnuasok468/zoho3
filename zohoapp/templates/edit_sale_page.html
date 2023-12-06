@@ -169,9 +169,9 @@
               value="{{sale.customer.customerEmail}}" readonly>
           </div>
         </div>
-
         {% if sale.customer.Address1 %}
-        <div class="row mt-2">
+
+        <div class="row mt-2" id="adressdidid">
           <div class="col-md-3">
             <label for="">Billing Address</label>
           </div>
@@ -182,10 +182,13 @@
           </div>
         </div>
         {% endif %}
-        <div class="row mt-2" id="treatmentdiv" style="display:none;">
+
+
+        <div class="row mt-2" id="treatmentdiv">
           <div class="col-md-9 d-flex">
             <label for="" style="width: 52%;">GST Treatment</label>
-            <input type="text" class="form-control bg-light text-dark" id="cx_treat" name="cx_treat" readonly>
+            <input type="text" class="form-control bg-light text-dark" id="cx_treat" name="cx_treat" readonly
+              value="{{sale.customer.GSTTreatment}}">
           </div>
         </div>
 
@@ -391,7 +394,7 @@
                   <td>
                     <div><select class='form-control border-0 bg-transparent text-white border-0 item_select itm'
                         name='item[]' id='item{{forloop.counter}}' onchange="itemfunction(this.id)">
-                        <option selected value="{{i.product}}" hidden>{{i.product}}</option>
+                        <option selected value="{{i.item.id}}" hidden>{{i.product}}</option>
                         {% for j in itm %}
                         <option class="text-black" value="{{j.id}}">{{ j.Name }} </option>
                         {% endfor %}
@@ -399,7 +402,8 @@
                   </td>
                   <td class='text-right' style="width: 15%;">
                     <input type='number' id='hsn{{forloop.counter}}'
-                      class=' text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly value="{{i.hsn}}">
+                      class=' text-right hsn form-control border-0 bg-transparent text-white' name='hsn[]' readonly
+                      value="{{i.hsn}}">
                   </td>
 
 
@@ -891,7 +895,6 @@
                       </select>
                     </div>
                   </div>
-
                   <div class="row mt-2">
                     <div class="col-md-3">
                       <label for="c_tax" style="color: rgb(190, 88, 88);">Tax Preference * </label>
@@ -899,52 +902,16 @@
                     <div class="col-md-6">
                       <div class="d-flex">
                         <div class="radio_opt mx-5 mt-2">
-                          <input type="radio" id="item-tax3" name="radioOption2" value="Taxable">
-                          <label for="option3">Taxable</label>
+                          <input type="radio" id="item-tax1" name="radioOption1" value="Taxable">
+                          <label for="option1">Taxable</label>
                         </div>
                         <div class="radio_opt mx-4 mt-2">
-                          <input type="radio" id="item-tax4" name="radioOption2" value="Tax-exempt">
-                          <label for="option4">Tax-exempt</label>
+                          <input type="radio" id="item-tax2" name="radioOption1" value="Tax-exempt">
+                          <label for="option2">Tax-exempt</label>
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  <div class="row mt-2 mb-4 d-none inter-intra">
-                    <div class="col-md-3">
-                      <label for="intra">Intra-State TAX</label>
-                    </div>
-                    <div class="col-md-6">
-                      <select name="intra" class="form-control bg-light text-dark" id="intra1">
-                        <option value="" hidden>Select GST</option>
-
-                        <option value="GST0[0%]">GST0[0%]</option>
-                        <option value="GST5[5%]">GST5[5%]</option>
-                        <option value="GST12[12%]">GST12[12%]</option>
-                        <option value="GST18[18%]">GST18[18%]</option>
-                        <option value="GST28[28%]">GST28[28%]</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-3"></div>
-                    <div class="col-md-3">
-                      <label for="inter">Inter-State TAX</label>
-                    </div>
-                    <div class="col-md-6">
-                      <select name="inter" class="form-control bg-light text-dark" id="inter1">
-                        <option value="" hidden>Select GST</option>
-
-                        <option value="IGST0[0%]">IGST0[0%]</option>
-                        <option value="IGST5[5%]">IGST5[5%]</option>
-                        <option value="IGST12[12%]">IGST12[12%]</option>
-                        <option value="IGST18[18%]">IGST18[18%]]</option>
-                        <option value="IGST28[28%]">IGST28[28%]</option>
-                      </select>
-                    </div>
-                    <div class="col-md-1"></div>
-
-                  </div>
-
                   <hr>
 
                   <div class="row mt-2">
@@ -1690,30 +1657,30 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <script>
-  $(document).ready(function () {
-    var customer = $('#customer_sel').val();
-    $.ajax({
-      type: "GET",
-      url: "{% url 'customerdata' %}",
-      data: {
-        id: customer
-      },
-      success: function (response) {
-        data_gst = response.gstno
-        gsttreat = response.gsttreat
-        if (data_gst == "") {
-          document.getElementById('gstdiv').style.display = "none"
-          document.getElementById('treatmentdiv').style.display = "block"
-          document.getElementById('cx_treat').value = gsttreat
-        } else {
-          document.getElementById('gstdiv').style.display = "block"
-          document.getElementById('treatmentdiv').style.display = "block"
-          document.getElementById('cx_gst').value = data_gst
-          document.getElementById('cx_treat').value = gsttreat
-        }
-      }
-    });
-  });
+  /* $(document).ready(function () {
+     var customer = $('#customer_sel').val();
+     $.ajax({
+       type: "GET",
+       url: "{% url 'customerdata' %}",
+       data: {
+         id: customer
+       },
+       success: function (response) {
+         data_gst = response.gstno
+         gsttreat = response.gsttreat
+         if (data_gst == "") {
+           document.getElementById('gstdiv').style.display = "none"
+           document.getElementById('treatmentdiv').style.display = "block"
+           document.getElementById('cx_treat').value = gsttreat
+         } else {
+           document.getElementById('gstdiv').style.display = "block"
+           document.getElementById('treatmentdiv').style.display = "block"
+           document.getElementById('cx_gst').value = data_gst
+           document.getElementById('cx_treat').value = gsttreat
+         }
+       }
+     });
+   });*/
 </script>
 
 <script>
@@ -2607,19 +2574,39 @@
         gst = response.gstno
         treat = response.gsttreat
         billingaddress = response.billingAddress
-        document.getElementById('cx_address').value = billingaddress
+        console.log(billingaddress)
         document.getElementById('cx_mail').value = data7
         document.getElementById('cx_treat').value = treat
-        if (gst != '') {
+        var expr = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+
+        if (billingaddress === `,,,` || billingaddress === "") {
+          document.getElementById('adressdidid').style.display = "none";
+
+        } else {
+          document.getElementById('adressdidid').style.display = "flex";
+          document.getElementById('cx_address').value = billingaddress;
+
+        }
+        if (!expr.test(gst) || gst === " ") {
+          document.getElementById('gstdiv').style.display = "none"
+        } else {
           document.getElementById('gstdiv').style.display = "block"
           document.getElementById('cx_gst').value = gst
-        } else {
-          document.getElementById('gstdiv').style.display = "none"
-          document.getElementById('cx_gst').value = ''
         }
 
       }
     });
+  });
+
+  $(document).ready(function () {
+    var x = $("#cx_address").val();
+    console.log(x);
+    if (x === ',,,' || x === "") {
+      $("#adressdidid").hide();
+    } else {
+      $("#adressdidid").show();
+    }
   });
 </script>
 <script>
@@ -2698,7 +2685,7 @@
             <select class='form-control border-0 bg-transparent text-white  border-0 item_select itm' name='item[]' id='item${rowCount}' onchange="itemfunction(this.id)">
               <option value=" " selected disabled hidden>Select Item</option>
               {% for i in itm %}
-                <option class="text-black" value="{{i.Name}}">{{ i.Name }}</option>
+                <option class="text-black" value="{{i.id}}">{{ i.Name }}</option>
               {% endfor %}
             </select>
           </div>

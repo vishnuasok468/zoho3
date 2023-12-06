@@ -247,6 +247,7 @@ class Retaineritems(models.Model):
     itemname=models.CharField(max_length=100,null=True)
     quantity=models.IntegerField(null=True)
     rate=models.IntegerField(null=True)
+    item=models.ForeignKey(AddItem,on_delete=models.CASCADE,null=True)
             
 class Estimates(models.Model): 
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
@@ -534,6 +535,7 @@ class sales_item(models.Model):
     desc=models.TextField(max_length=255,null=True,blank=True)
     rate=models.TextField(max_length=255,null=True,blank=True)
     sale=models.ForeignKey(SalesOrder,on_delete=models.CASCADE,null=True,blank=True)
+    item=models.ForeignKey(AddItem,on_delete=models.CASCADE,null=True)
     
 class DeliveryChellan(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)

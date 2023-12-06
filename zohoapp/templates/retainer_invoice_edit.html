@@ -115,25 +115,24 @@
       {% if cust_id.Address1 %}
       <div class="row mt-2 " id="address_row">
         <div class="col-md-3"><label for="">Billing Address</label></div>
-        <div class="col-md-6"><textarea name="" id="customer_address" cols="30" 
-            class="form-control text-dark bg-light" style="height: auto;">{{cust_id.Address1}}</textarea>
+        <div class="col-md-6"><textarea name="" id="customer_address" cols="30" class="form-control text-dark bg-light"
+            style="height: auto;">{{cust_id.Address1}}</textarea>
         </div>
       </div>
       {% endif %}
+
       <div class="row mt-2 " id="cgst_treat_row">
         <div class="col-md-3"><label for="">GST Treatment</label></div>
         <div class="col-md-6"><input type="text" id="customer_gst_treat" name="" class="form-control text-dark"
             value="{{cust_id.GSTTreatment}}" readonly>
         </div>
       </div>
-      {% if cust_id.GSTIN %}
       <div class="row mt-2" id="cgstno_row">
         <div class="col-md-3"><label for="">GST Number</label></div>
         <div class="col-md-6"><input type="text" id="customer_gstno" name="" class="form-control text-dark"
             value="{{cust_id.GSTIN}}" readonly>
         </div>
       </div>
-      {% endif %}
       <div class="row mt-2" id="cplace_supply_row">
         <div class="col-md-3"><label for="">Place Of Supply</label></div>
         <div class="col-md-6">
@@ -265,7 +264,8 @@
             style="background-color: rgba(58, 57, 57, 0.8);;">
             <thead>
               <tr>
-                <th>Item<a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
+                <th>Item &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=""
+                    data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
                 <th class="text-right">Description</th>
                 <th class="text-right">Quantity</th>
                 <th class="text-right">rate</th>
@@ -279,7 +279,7 @@
                 <td>
                   <select class='form-control border-0 bg-transparent text-white item_select itm' name='item[]'
                     id='item{{forloop.counter}}' onchange="itemfunction(this.id)">
-                    <option value="{{i.itemname}}" selected hidden>{{i.itemname}}</option>
+                    <option value="{{i.item.id}}" selected hidden>{{i.itemname}}</option>
                     {% for i in itm %}
                     <option class="text-black .name" value="{{i.id}}">{{ i.Name}} </option>
                     {% endfor %}
@@ -295,9 +295,8 @@
                     style="border: none;width: 100px;" value="{{i.quantity}}">
                 </td>
 
-                <td><input type="number"
-                    class="rate form-control bg-transparent border-0 bg-light text-light border-0" name="rate[]"
-                    style="width: 150px;" step="0.01" required id="rate{{forloop.counter}}" readonly
+                <td><input type="number" class="rate form-control bg-transparent border-0 bg-light text-light border-0"
+                    name="rate[]" style="width: 150px;" step="0.01" required id="rate{{forloop.counter}}" readonly
                     value="{{i.rate}}" /></td>
 
                 <td><input type="number" class="amount bg-transparent border-0 form-control bg-light text-light"
@@ -625,47 +624,15 @@
                   <div class="col-md-6">
                     <div class="d-flex">
                       <div class="radio_opt mx-5 mt-2">
-                        <input type="radio" id="item-tax3" name="radioOption2" value="Taxable">
-                        <label for="option3">Taxable</label>
+                        <input type="radio" id="item-tax1" name="radioOption1" value="Taxable">
+                        <label for="option1">Taxable</label>
                       </div>
                       <div class="radio_opt mx-4 mt-2">
-                        <input type="radio" id="item-tax4" name="radioOption2" value="Tax-exempt">
-                        <label for="option4">Tax-exempt</label>
+                        <input type="radio" id="item-tax2" name="radioOption1" value="Tax-exempt">
+                        <label for="option2">Tax-exempt</label>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="row mt-2 mb-4 d-none inter-intra">
-                  <div class="col-md-3">
-                    <label for="intra">Intra-State TAX</label>
-                  </div>
-                  <div class="col-md-6">
-                    <select name="intra" class="form-control bg-light text-dark" id="intra1">
-                      <option value="" hidden>Select GST</option>
-                      <option value="GST0[0%]">GST0[0%]</option>
-                      <option value="GST3[3%]">GST3[3%]</option>
-                      <option value="GST5[5%]">GST5[5%]</option>
-                      <option value="GST12[12%]">GST12[12%]</option>
-                      <option value="GST18[18%]">GST18[18%]</option>
-                      <option value="GST28[28%]">GST28[28%]</option>
-                    </select>
-                  </div>
-                  <div class="col-md-3"></div>
-                  <div class="col-md-3">
-                    <label for="inter">Inter-State TAX</label>
-                  </div><br>
-                  <div class="col-md-6">
-                    <select name="inter" class="form-control bg-light text-dark" id="inter1">
-                      <option value="" hidden>Select GST</option>
-                      <option value="IGST0[0%]">IGST0[0%]</option>
-                      <option value="GST3[3%]">GST3[3%]</option>
-                      <option value="IGST5[5%]">IGST5[5%]</option>
-                      <option value="IGST12[12%]">IGST12[12%]</option>
-                      <option value="IGST18[18%]">IGST18[18%]]</option>
-                      <option value="IGST28[28%]">IGST28[28%]</option>
-                    </select>
-                  </div>
-                  <div class="col-md-1"></div>
                 </div>
                 <hr>
                 <div class="row mt-2">
@@ -1496,7 +1463,24 @@
     }
   }
 
+  $(document).ready(function () {
+    $("#customer_gst_treat").change(function () {
+      var x = $('#customer_gst_treat').val();
+      // console.log(x)
+      if (x == "Unregistered Business-not Registered under GST") {
+        $(".cgst_treat_row").addClass('d-none');
 
+      }
+      else if (x == 'Overseas- Persons with who you do import or exports of supplies outside india') {
+        $(".cgst_treat_row").addClass('d-none');
+      }
+      else {
+        $(".cgst_treat_row").removeClass('d-none');
+        $(".cgst_treat_row").addClass('d-flex');
+      }
+
+    });
+  });
 
   $(document).ready(function () {
     $("#c_gstin").change(function () {
@@ -1853,7 +1837,7 @@
           $('#cus_place1').val(data.cust_place_supply);
           $('#customer_gst_treat').val(data.gst_treatment);
           $('#customer_gstno').val(data.gstin);
-          $('#customer_address').val(data.cust_address);
+          addresss=data.cust_address
           var GSTNO = document.getElementById('customer_gstno').value;
           var expr = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
@@ -1865,6 +1849,14 @@
             $("#cgstno_row").removeClass('d-none');
             $("#cgstno_row").addClass('d-flex');
           }
+          if (addresss === ",,," || addresss === "") {
+            document.getElementById('address_row').style.display = "none"
+
+          } else {
+            document.getElementById('address_row').style.display = "flex"
+            $('#customer_address').val(addresss);
+
+          }
 
         }
 
@@ -1872,6 +1864,15 @@
     });
   });
 
+  $(document).ready(function () {
+    var x = $("#customer_address").val();
+    console.log(x);
+    if (x === ',,,' || x === "") {
+      $("#address_row").hide();
+    } else {
+      $("#address_row").show();
+    }
+  });
 
 
 
@@ -1995,7 +1996,7 @@
 
     var newRowElement = document.getElementById(newRowId);
     calculateAmounts([newRowElement]);
-  
+
     calculateTotalAmount();
 
   });
@@ -2051,7 +2052,7 @@
           <select class="form-control border-0 bg-transparent text-white item_select itm" name="item[]" id="item${rowCount}" onchange="itemfunction(this.id)">
             <option value="" selected hidden>Select Item</option>
               {% for i in itm %}
-              <option class="text-black .name" value="{{i.Name}}">{{ i.Name}} </option>
+              <option class="text-black .name" value="{{i.id}}">{{ i.Name}} </option>
               {% endfor %}
           </select>
         </td>

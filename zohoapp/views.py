@@ -1217,7 +1217,7 @@ def add_invoice(request):
     company=company_details.objects.get(user_id=request.user)
     unit=Unit.objects.all()
     payments=payment_terms.objects.filter(user=request.user.id)
-    bank=Bankcreation.objects.all()
+    bank=Bankcreation.objects.filter(user=request.user.id)
     customer1=customer.objects.filter(user=request.user.id)   
     last_record = RetainerInvoice.objects.filter(user=request.user.id).last()
     sales=Sales.objects.all()
@@ -1226,10 +1226,9 @@ def add_invoice(request):
     purchase=Purchase.objects.all()
     if last_record ==None:
         reford = '01'
-        reference = 'RET-01'
-        remaining_characters='RET-'
+        reference = '01'
+        remaining_characters=''
     else:
-        reference = 'RET-01'
         lastSalesNo = last_record.retainer_invoice_number
         last_two_numbers = int(lastSalesNo[-2:])+1
         remaining_characters = lastSalesNo[:-2]  
@@ -1307,17 +1306,25 @@ def create_invoice_draft(request):
             else:
                 ret_payment=retainer_payment_details(user=user,retainer=retainer_invoice,payment_opt=bankname,acc_no=acc_no,bank=bank,cheque_no=cheque_no,upi_id=upi_id)
                 ret_payment.save()
-
+        itemname =[]
+        itemid =[]
         description = request.POST.getlist('description[]')
         amount =request.POST.getlist('amount[]')
         itm=request.POST.getlist('item[]')
+        for i in itm:
+            w = AddItem.objects.get(id = i)
+            x = w.Name
+            y = w
+            itemname.append(x)
+            itemid.append(y)
+            
         qty=request.POST.getlist('quantity[]')
         rate=request.POST.getlist('rate[]')
-        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
-            mapped = zip(description,amount,itm,qty,rate)
+        if len(description)==len(amount)==len(itemname)==len(qty)==len(rate)==len(itemid):
+            mapped = zip(description,amount,itemname,qty,rate,itemid)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,item=ele[5],retainer=retainer_invoice)
         else:
             pass
 
@@ -1385,16 +1392,24 @@ def create_invoice_send(request):
                 ret_payment=retainer_payment_details(user=user,retainer=retainer_invoice,payment_opt=bankname,acc_no=acc_no,bank=bank,cheque_no=cheque_no,upi_id=upi_id)
                 ret_payment.save()
 
+        itemname =[]
+        itemid = []
         description = request.POST.getlist('description[]')
         amount =request.POST.getlist('amount[]')
         itm=request.POST.getlist('item[]')
+        for i in itm:
+            w = AddItem.objects.get(id = i)
+            x = w.Name
+            y = w
+            itemname.append(x)
+            itemid.append(y)
         qty=request.POST.getlist('quantity[]')
         rate=request.POST.getlist('rate[]')
-        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
-            mapped = zip(description,amount,itm,qty,rate)
+        if len(description)==len(amount)==len(itemname)==len(qty)==len(rate)==len(itemid):
+            mapped = zip(description,amount,itemname,qty,rate,itemid)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,item=ele[5],retainer=retainer_invoice)
         else:
             pass
         # return redirect('invoice_view',pk=retainer_invoice.id)
@@ -1667,18 +1682,25 @@ def retainer_update(request,pk):
 
         objects_to_delete = Retaineritems.objects.filter(retainer=retainer_invoice.id)
         objects_to_delete.delete()
-
+        itemname = []
+        itemid = []
         description = request.POST.getlist('description[]')
         amount =request.POST.getlist('amount[]')
         itm=request.POST.getlist('item[]')
+        for i in itm:
+            w = AddItem.objects.get(id=i)
+            x =w.Name
+            y =w
+            itemname.append(x)
+            itemid.append(y)
         qty=request.POST.getlist('quantity[]')
         rate=request.POST.getlist('rate[]')
 
-        if len(description)==len(amount)==len(itm)==len(qty)==len(rate):
-            mapped = zip(description,amount,itm,qty,rate)
+        if len(description)==len(amount)==len(itemname)==len(qty)==len(rate)==len(itemid):
+            mapped = zip(description,amount,itemname,qty,rate,itemid)
             mapped=list(mapped)
             for ele in mapped:
-                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4] ,retainer=retainer_invoice)
+                created = Retaineritems.objects.create(description=ele[0],amount=ele[1],itemname=ele[2],quantity=ele[3],rate=ele[4],item=ele[5] ,retainer=retainer_invoice)
         return redirect('invoice_view',retainer_invoice.id)
 
 @login_required(login_url='login')
@@ -3956,10 +3978,9 @@ def create_sales_order(request):
 
     if last_record ==None:
         reford = '01'
-        reference = 'SO-01'
-        remaining_characters='SO-'
+        reference = '01'
+        remaining_characters=''
     else:
-        reference = 'SO-01'
         lastSalesNo = last_record.sales_no
         last_two_numbers = int(lastSalesNo[-2:])+1
         remaining_characters = lastSalesNo[:-2] 
@@ -4121,6 +4142,14 @@ def add_sales_order(request):
 
             tc=request.POST['ter_cond']
             product=tuple(request.POST.getlist('item[]'))
+            itemname = []
+            itemid = []
+            for i in product:
+                w =AddItem.objects.get(id =i)
+                x = w.Name
+                y = w
+                itemname.append(x)
+                itemid.append(y)
             hsn=tuple(request.POST.getlist('hsn[]'))
             quantity=tuple(request.POST.getlist('quantity[]'))
             rate=tuple(request.POST.getlist('rate[]'))
@@ -4144,12 +4173,12 @@ def add_sales_order(request):
             sales.save()
             sale_id=SalesOrder.objects.get(id=sales.id)
           
-            if len(product)==len(quantity)==len(tax)==len(total)==len(rate)==len(hsn):
-                mapped = zip(hsn,product,quantity,tax,total,rate,desc)
+            if len(itemname)==len(itemid)==len(quantity)==len(tax)==len(total)==len(rate)==len(hsn):
+                mapped = zip(hsn,itemname,quantity,tax,total,rate,desc,itemid)
                 mapped = list(mapped)
                 for element in mapped:
                     created =sales_item(sale=sale_id,hsn=element[0],product=element[1],quantity=element[2],tax=element[3],total=element[4],
-                                        rate=element[5],desc=element[6])
+                                        rate=element[5],desc=element[6],item=element[7])
                     created.save()
 
             return redirect('view_sales_order')       
@@ -4234,13 +4263,10 @@ def edit_sales_order(request,id):
     if request.method == 'POST':
         u=request.user.id
         c=request.POST['cx_name']
-        
         cust=customer.objects.get(id=c) 
         sales.customer=cust
         term=request.POST['term']
-        
         sales_no=request.POST['sale_no']
-
         if len(sales_no) == 4:
             sales_no = sales_no[:3] + '0' +sales_no[-1]
 
@@ -4281,10 +4307,23 @@ def edit_sales_order(request,id):
         adjust=request.POST.getlist('adjust')
         adjust = float(adjust[0])
         sales.adjust=adjust
+
+        if sales.estimate:
+            est_obj=Estimates.objects.get(id=sales.estimate)
+            est_obj.balance=sales.balance
+            est_obj.save()
         
         sales.save()
         hsn=tuple(request.POST.getlist('hsn[]'))
         product=tuple(request.POST.getlist('item[]'))
+        itemname = []
+        itemid = []
+        for i in product:
+            w = AddItem.objects.get(id = i)
+            x = w.Name
+            y = w
+            itemname.append(x)
+            itemid.append(y)
         quantity=tuple(request.POST.getlist('quantity[]'))
         rate=tuple(request.POST.getlist('rate[]'))
         tax=tuple(request.POST.getlist('tax[]'))
@@ -4293,14 +4332,14 @@ def edit_sales_order(request,id):
         obj_dele=sales_item.objects.filter(sale_id=sales.id)
         obj_dele.delete()
        
-        if len(product)==len(quantity)==len(tax)==len(total)==len(rate):
+        if len(itemname)==len(itemid)==len(quantity)==len(tax)==len(total)==len(rate):
 
-            mapped = zip(hsn,product,quantity,tax,total,rate,desc)
+            mapped = zip(hsn,itemname,quantity,tax,total,rate,desc,itemid)
             mapped = list(mapped)
         
             for element in mapped:
                 created =sales_item(sale=sales,hsn=element[0],product=element[1],quantity=element[2],tax=element[3],total=element[4],
-                                        rate=element[5],desc=element[6])
+                                        rate=element[5],desc=element[6],item=element[7])
                 created.save()
                     
                
