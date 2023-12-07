@@ -1222,10 +1222,10 @@ def add_invoice(request):
     last_record = RetainerInvoice.objects.filter(user=request.user.id).last()
     sales=Sales.objects.all()
     itm=AddItem.objects.filter(user=request.user.id)
-
     purchase=Purchase.objects.all()
+    last_reference = retInvoiceReference.objects.filter(user=request.user.id).last()
+
     if last_record ==None:
-        reford = '01'
         reference = '01'
         remaining_characters=''
     else:
@@ -1242,10 +1242,13 @@ def add_invoice(request):
                 reference = remaining_characters+'0'+str(last_two_numbers)
             else:
                 reference = remaining_characters+str(last_two_numbers)
-        if int(last_record.refrences)+1 < 10:
-            reford = '0'+ str(int(last_record.refrences)+1)
+    if last_reference == None:
+        reford = '01'
+    else:
+        if last_reference.reference+1 < 10:
+            reford = '0'+ str(last_reference.reference+1)
         else:
-            reford = str(int(last_record.refrences)+1)
+            reford = str(last_reference.reference+1)
 
     context={'customer1':customer1,'pay':payments,'company':company,'bank':bank,'unit':unit,'reford':reford,'reference':reference,'remaining_characters':remaining_characters,'itm':itm,'sales':sales,'purchase':purchase}    
     return render(request,'add_invoice.html',context)
@@ -1263,6 +1266,13 @@ def create_invoice_draft(request):
         customer_placesupply=request.POST['cus_place1']
         retainer_invoice_number=request.POST['retainer-invoice-number']
         references=request.POST['references']
+        last_reference = retInvoiceReference.objects.filter(user = request.user.id).last()
+        if last_reference == None:
+            ref = retInvoiceReference(reference = int(references),user = user)
+            ref.save()
+        else:
+            last_reference.reference = int(references)
+            last_reference.save()
         retainer_invoice_date=request.POST['invoicedate']
         total_amount=request.POST.get('total')
         bal_amount=request.POST['balance']
@@ -1343,6 +1353,13 @@ def create_invoice_send(request):
         customer_placesupply=request.POST['cus_place1']
         retainer_invoice_number=request.POST['retainer-invoice-number']
         references=request.POST['references']
+        last_reference = retInvoiceReference.objects.filter(user = request.user.id).last()
+        if last_reference == None:
+            ref = retInvoiceReference(reference = int(references),user = user)
+            ref.save()
+        else:
+            last_reference.reference = int(references)
+            last_reference.save()
         retainer_invoice_date = request.POST.get('invoicedate')    
         total_amount=request.POST.get('total')
         bal_amount=request.POST['balance']
@@ -3975,9 +3992,9 @@ def create_sales_order(request):
     purchase=Purchase.objects.all()
     last_record = SalesOrder.objects.filter(user=request.user.id).last()
     bank = Bankcreation.objects.filter(user=user)
+    last_reference = salesOrderReference.objects.filter(user=request.user.id).last()
 
     if last_record ==None:
-        reford = '01'
         reference = '01'
         remaining_characters=''
     else:
@@ -3989,20 +4006,19 @@ def create_sales_order(request):
                 reference = '0'+str(last_two_numbers)
             else:
                 reference = str(last_two_numbers)
-            if int(last_record.reference)+1 < 10:
-                reford = '0'+ str(int(last_record.reference)+1)
-            else:
-                reford = str(int(last_record.reference)+1) 
         else: 
             if last_two_numbers < 10:
                 reference = remaining_characters+'0'+str(last_two_numbers)
             else:
                 reference = remaining_characters+str(last_two_numbers)
-            if int(last_record.reference)+1 < 10:
-                reford = '0'+ str(int(last_record.reference)+1)
-            else:
-                reford = str(int(last_record.reference)+1)
-    
+            
+    if last_reference==None:
+        reford = '01'
+    else:
+        if last_reference.reference+1 < 10:
+            reford = '0'+ str(last_reference.reference+1)
+        else:
+            reford = str(last_reference.reference+1)
     context={
         "c":cust,
         "pay":pay,
@@ -4166,11 +4182,20 @@ def add_sales_order(request):
             if "Save" in request.POST:
                 status = "approved"
             
+            last_reference = salesOrderReference.objects.filter(user=request.user.id).last()
+            if last_reference == None:
+                ref = salesOrderReference(reference = int(reference),user=user)
+                ref.save()
+            else:
+                last_reference.reference = int(reference)
+                last_reference.save()
+            
             sales=SalesOrder(customer_id=custo,sales_no=sales_no,terms=term,reference=reference, sales_date=sa_date,ship_date=sh_date,
                              balance=balance,cxnote=cxnote,subtotal=subtotal,igst=igst,cgst=cgst,sgst=sgst,t_tax=totaltax,
                              cheque_id=cheque_id,upi_id=upi_id,pay_method=pay_method,grandtotal=t_total,status=status,terms_condition=tc,
                              file=file,sos=sos,sh_charge=sh_charge,adjust=adjust,advance=advance,user=user)
             sales.save()
+
             sale_id=SalesOrder.objects.get(id=sales.id)
           
             if len(itemname)==len(itemid)==len(quantity)==len(tax)==len(total)==len(rate)==len(hsn):

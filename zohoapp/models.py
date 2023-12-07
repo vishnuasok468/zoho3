@@ -536,7 +536,14 @@ class sales_item(models.Model):
     rate=models.TextField(max_length=255,null=True,blank=True)
     sale=models.ForeignKey(SalesOrder,on_delete=models.CASCADE,null=True,blank=True)
     item=models.ForeignKey(AddItem,on_delete=models.CASCADE,null=True)
-    
+
+class salesOrderReference(models.Model):
+    reference = models.BigIntegerField()
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+
+class retInvoiceReference(models.Model):
+    reference = models.BigIntegerField()
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
 class DeliveryChellan(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     cu= models.ForeignKey(customer,on_delete=models.CASCADE,null=True,blank=True)
@@ -580,7 +587,7 @@ class Recurring_invoice(models.Model):
     gsttr=models.CharField(max_length=255,null=True)
     gstnum=models.CharField(max_length=255,null=True)
     p_supply=models.CharField(max_length=255)
-    entry_type=models.CharField(max_length=255)
+    entry_type=models.CharField(max_length=255,null=True)
     name=models.CharField(max_length=255)
     reinvoiceno=models.CharField(max_length=255,null=True)
     order_num=models.CharField(max_length=255)

@@ -374,7 +374,7 @@
 
         <div class="row mt-2">
           <div class="col-md-12 table-responsive-md mt-3">
-            <table class="table table-bordered " id="item_table" onclick='toggleDateInput()'>
+            <table class="table table-bordered " id="item_table" onclick='toggleDateInput(),toggleDateInputs()'>
               <thead>
 
                 <tr>
@@ -425,7 +425,7 @@
                       onchange="toggleDateInput()">
 
                       <optgroup class="text-center text-black" label="GST">
-                        <option value="{{i.tax}} " hidden>{{i.tax}}.0% GST({{i.tax}}%)</option>
+                        <option value="{{i.tax}} " selected hidden>{{i.tax}}.0% GST({{i.tax}}%)</option>
                         <option class="text-black" value="0">0% GST(0%)</option>
                         <option class="text-black" value="3">3.0% GST(3%)</option>
                         <option class="text-black" value="5">5.0% GST(5%)</option>
@@ -434,7 +434,7 @@
                         <option class="text-black" value="28">28.0% GST(28%)</option>
                       </optgroup>
                       <optgroup class="text-center text-black" label="IGST">
-                        <option value="{{i.tax}} " hidden>{{i.tax}}.0% IGST({{i.tax}}%)</option>
+                        <option value="{{i.tax}} " selected hidden>{{i.tax}}.0% IGST({{i.tax}}%)</option>
 
                         <option class="text-black" value="0">0% IGST(0%)</option>
                         <option class="text-black" value="3">3.0% IGST(3%)</option>
@@ -902,11 +902,11 @@
                     <div class="col-md-6">
                       <div class="d-flex">
                         <div class="radio_opt mx-5 mt-2">
-                          <input type="radio" id="item-tax1" name="radioOption1" value="Taxable">
+                          <input type="radio" id="item-tax3" name="radioOption1" value="Taxable">
                           <label for="option1">Taxable</label>
                         </div>
                         <div class="radio_opt mx-4 mt-2">
-                          <input type="radio" id="item-tax2" name="radioOption1" value="Tax-exempt">
+                          <input type="radio" id="item-tax4" name="radioOption1" value="Tax-exempt">
                           <label for="option2">Tax-exempt</label>
                         </div>
                       </div>
@@ -2601,7 +2601,6 @@
 
   $(document).ready(function () {
     var x = $("#cx_address").val();
-    console.log(x);
     if (x === ',,,' || x === "") {
       $("#adressdidid").hide();
     } else {
@@ -2925,8 +2924,7 @@
 
   var oxy_gst;
   var oxy_igst;
-  console.log(oxy_gst);
-  console.log(oxy_igst);
+
   function itemfunction(id_str) {
     id = id_str.split("item")[1]
 
@@ -3044,14 +3042,73 @@
 
   }
 
+  $('#srcofsupply').on('change', function () {
+    for (var i = 1; i <= rowCount; i++) {
+      // Generate table row
+      // ...
 
-  for (var i = 1; i <= rowCount; i++) {
-    // Generate table row
-    // ...
+      // Call toggleDateInput function for each row
+      toggleDateInput(i);
+    }
+  });
 
-    // Call toggleDateInput function for each row
-    toggleDateInput(i);
-  }
+
+
+
+  $(window).on('load', function () {
+
+    function toggleDateInputs(rowIndex) {
+      console.log(rowIndex);
+      var checkbox = document.getElementById("srcofsupply");
+      var vale = checkbox.value;
+      // Find the index of the hyphen
+      var index = vale.indexOf("-");
+      // Remove the first letters before the hyphen
+      var result = vale.substring(index + 1);
+      var c_state = "{{company.state}}";
+      console.log(result);
+      console.log(c_state);
+
+
+      var taxElement = $('#tax' + rowIndex);
+
+      if (result === c_state) {
+        taxElement.find('optgroup[label="GST"]').show();
+        taxElement.find('optgroup[label="IGST"]').hide();
+        var select = document.getElementById(`tax${rowIndex}`);
+        var gstOptgroup = taxElement.find('optgroup[label="GST"]');
+        var gstOptions = gstOptgroup.find('option');
+
+        for (var j = 0; j < gstOptions.length; j++) {
+          select.selectedIndex = gstOptions[0].index; // Set selectedIndex to the index of the matched option
+          break;
+        }
+      } else {
+        taxElement.find('optgroup[label="GST"]').hide();
+        taxElement.find('optgroup[label="IGST"]').show();
+        var select = document.getElementById(`tax${rowIndex}`);
+        var igstOptgroup = taxElement.find('optgroup[label="IGST"]');
+        var igstOptions = igstOptgroup.find('option');
+        for (var j = 0; j < igstOptions.length; j++) {
+          select.selectedIndex = igstOptions[0].index; // Set selectedIndex to the index of the matched option
+          break;
+        }
+      }
+    }
+
+    var r = document.querySelectorAll('#item_table tbody tr');
+    var rr = r.length;
+    for (var i = 1; i <= rr; i++) {
+      // Generate table row
+      // ...
+
+      // Call toggleDateInput function for each row
+      toggleDateInputs(i);
+    }
+
+  });
+
+
 
 
 
