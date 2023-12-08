@@ -1713,6 +1713,8 @@
 
 
 <script>
+
+  
   $(document).ready(function () {
     var x = $('#pay_method').val();
     if (x === 'cash') {
@@ -2300,15 +2302,16 @@
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
+        location.reload();
+        location.reload();
 
-
-        reloadcustomer();
+        //reloadcustomer();
 
       },
     });
   });
 
-  function reloadcustomer() {
+ /* function reloadcustomer() {
 
     $.ajax({
       url: "{% url 'customer_dropdown_sales' %}",
@@ -2322,14 +2325,14 @@
         dropdow.empty();
         dropdow.append($('<option value="" hidden selected></option>'));
         $.each(data, function (key, value) {
-          dropdow.append($('<option></option>').attr('value', key).text(value).val(value));
+          dropdow.append($('<option></option>').attr('value', key).text(value).val(key));
         });
       },
       error: function (xhr, status, error) {
         console.error(xhr.responseText);
       }
     });
-  }
+  }*/
 
 
 

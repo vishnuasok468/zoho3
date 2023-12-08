@@ -3213,7 +3213,7 @@ def termdata(request):
     
 def bankdata(request):
     bank_id = request.GET.get('id')
-    term = Bankcreation.objects.get(name=bank_id)
+    term = Bankcreation.objects.get(name=bank_id,user=request.user.id)
     data = {'bank': term.ac_no}
     return JsonResponse(data)
     
@@ -4120,9 +4120,6 @@ def add_sales_order(request):
             cus=customer.objects.get(id=c)   
             custo=cus.id
             sales_no=request.POST['sale_no']
-
-            if len(sales_no) == 4:
-                sales_no = sales_no[:3] + '0' +sales_no[-1]
 
             sale_list = list(SalesOrder.objects.filter(user=request.user.id).values_list('sales_no'))
             sale_list_update = [item[0] for item in sale_list]

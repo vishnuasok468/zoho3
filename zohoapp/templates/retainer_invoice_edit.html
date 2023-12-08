@@ -219,7 +219,7 @@
 
         <div class="col-md-6">
           <input type="text" class="form-control text-black" name="chq_no" id="cheque_id"
-            placeholder="Enter Cheque Number">
+            placeholder="Enter Cheque Number" value="{{pay_detail.cheque_no}}">
         </div>
       </div>
 
@@ -229,7 +229,7 @@
         </div>
 
         <div class="col-md-6">
-          <input type="text" class="form-control text-black" name="upi_id" id="upi_id" placeholder="Enter UPI ID">
+          <input type="text" class="form-control text-black" name="upi_id" id="upi_id" placeholder="Enter UPI ID" value="{{pay_detail.upi_id}}">
         </div>
       </div>
 
@@ -239,7 +239,7 @@
         </div>
 
         <div class="col-md-6">
-          <input type="text" class="form-control text-black" name="acc_no" id="bnk_id" readonly>
+          <input type="text" class="form-control text-black" name="acc_no" id="bnk_id" readonly value="{{pay_detail.acc_no}}">
         </div>
       </div>
 
@@ -1362,6 +1362,49 @@
 
 
 <script>
+
+$(document).ready(function () {
+    
+    var x = $('#pay_method').val();
+    if (x === 'cash') {
+      $('#chequediv').hide()
+      $('#bnkdiv').hide()
+      $('#upidiv').hide()
+      document.getElementById('cheque_id').value = null
+      document.getElementById('upi_id').value = null
+    } else if (x === 'cheque') {
+      $('#chequediv').show()
+      $('#bnkdiv').hide()
+      $('#upidiv').hide()
+      document.getElementById('upi_id').value = null
+    } else if (x === 'upi') {
+      $('#upidiv').show()
+      $('#bnkdiv').hide()
+      $('#chequediv').hide()
+      document.getElementById('cheque_id').value = null
+    } else {
+      $('#bnkdiv').show()
+      $('#chequediv').hide()
+      $('#upidiv').hide()
+      document.getElementById('cheque_id').value = null
+      document.getElementById('upi_id').value = null
+
+      $.ajax({
+        type: "GET",
+        url: "{% url 'bankdata' %}",
+        data: {
+          id: x,
+        },
+        success: function (response) {
+          data = response.bank
+          document.getElementById('cheque_id').value = null
+          document.getElementById('upi_id').value = null
+          document.getElementById("bnk_id").value = data
+        }
+      });
+    }
+  });
+
   $(document).ready(function () {
     $('#pay_method').change(function () {
       var x = $('#pay_method').val();
@@ -1376,10 +1419,13 @@
         $('#bnkdiv').hide()
         $('#upidiv').hide()
         document.getElementById('upi_id').value = null
+        document.getElementById('cheque_id').value = "{{pay_detail.cheque_no}}"
+
       } else if (x === 'upi') {
         $('#upidiv').show()
         $('#bnkdiv').hide()
         $('#chequediv').hide()
+        document.getElementById('upi_id').value = '{{pay_detail.upi_id}}'
         document.getElementById('cheque_id').value = null
       } else {
         $('#bnkdiv').show()
@@ -1752,6 +1798,7 @@
 
       success: function (response) {
         document.getElementById("modalCustomer").reset();
+        location.reload();
         location.reload();
 
         //reloadcustomer();

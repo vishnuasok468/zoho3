@@ -2095,7 +2095,7 @@
       success: function (response) {
         document.getElementById("modalCustomer").reset();
         location.reload();
-
+        location.reload();
         //reloadcustomer();
 
       },
@@ -2112,7 +2112,7 @@
       csrfmiddlewaretoken: '{{ csrf_token }}',
 
       success: function (data) {
-        var dropdow = $('#termdrop');
+        var dropdow = $('#customer_sel');
         dropdown.empty();
         dropdow.append($('<option value="" hidden selected></option>'));
         $.each(data, function (key, value) {
@@ -2755,7 +2755,7 @@
         oxy_igst = data2
         document.getElementById(`hsn${id}`).value = hsn
         document.getElementById(`rate${id}`).value = data
-        toggleDateInput(id, oxy_gst, oxy_igst)
+        toggleDateInput(id, oxy_gst, oxy_igst);
 
 
         var rate = parseFloat(data);
@@ -2864,6 +2864,7 @@
     var index = vale.indexOf("-");
     // Remove the first letters before the hyphen
     var result = vale.substring(index + 1);
+    console.log(result);
     var c_state = companyState;
     var gst = oxy_gst;
     var igst = oxy_igst;
@@ -2951,6 +2952,7 @@
     }
   }
 
+
   for (var i = 1; i <= rowCount; i++) {
     // Generate table row
     // ...
@@ -2959,16 +2961,22 @@
     toggleDateInput(i);
   }
 
+ 
+  $(document).ready(function () {
+    $('#srcofsupply').on('change', function () {
+      //var x = $(this).val();
+      //console.log(x);
+      for (var i = 1; i <= rowCount; i++) {
+        // Generate table row
+        // ...
 
-  $('#srcofsupply').on('change', function () {
-    for (var i = 1; i <= rowCount; i++) {
-      // Generate table row
-      // ...
-
-      // Call toggleDateInput function for each row
-      toggleDateInput(i);
-    }
+        // Call toggleDateInput function for each row
+        toggleDateInput(i);
+      }
+    });
   });
+
+
 
 
 
