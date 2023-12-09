@@ -1880,11 +1880,13 @@
 
       success: function (data) {
         var dropdown = $('.itm');
-        dropdown.empty();
-
-        dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
+          // Check if option with the same value already exists
+          if (dropdown.find('option[value="' + key + '"]').length === 0) {
+            // If it doesn't exist, create a new option element
+            var option = $('<option></option>').attr('value', key).text(value);
+            dropdown.append(option);
+          }
         });
       },
       error: function (xhr, status, error) {

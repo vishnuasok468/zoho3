@@ -152,7 +152,7 @@
 
 
             <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark" style="width: 91%;"
-              required>
+              required onselect="toggleDateInput()">
               <option value="" hidden selected>Select Customer</option>
               {% for cust in c %}
               <option value="{{cust.id}}" data-pos="{{cust.placeofsupply}}" id="crt_cust">{{cust.customerName}}</option>
@@ -206,7 +206,7 @@
           </div>
 
           <div class="col-md-6">
-            <select name="srcofsupply" id="srcofsupply" onclick="toggleDateInput()" onselect="calculateTaxAmount()"
+            <select name="srcofsupply" id="srcofsupply" onchange="toggleDateInput()" onselect="calculateTaxAmount()"
               class="form-control bg-light text-dark">
               <option value=""></option>
               <option value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
@@ -390,7 +390,7 @@
                       id='item1' onchange="itemfunction(this.id)">
                       <option value="" selected hidden>Select Item</option>
                       {% for i in itm %}
-                      <option class="text-black .name" value="{{i.id}}">{{ i.Name}} </option>
+                      <option class="text-black" value="{{i.id}}">{{ i.Name}} </option>
                       {% endfor %}
                     </select>
                   </td>
@@ -414,7 +414,7 @@
                   </td>
                   <td style="width: 22%;" class='text-right '> <select name='tax[]' id='tax1'
                       class='form-control border-0 bg-transparent text-white text-right border-0 tax'
-                      onchange="toggleDateInput()">
+                      onselect="toggleDateInput()">
                       <optgroup class="text-center text-black" label="GST">
                         <option class="text-black" value="0">0% GST(0%)</option>
                         <option class="text-black" value="3">3.0% GST(3%)</option>
@@ -2289,11 +2289,13 @@
 
       success: function (data) {
         var dropdown = $('.itm');
-        dropdown.empty();
-
-        dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
+          // Check if option with the same value already exists
+          if (dropdown.find('option[value="' + key + '"]').length === 0) {
+            // If it doesn't exist, create a new option element
+            var option = $('<option></option>').attr('value', key).text(value);
+            dropdown.append(option);
+          }
         });
       },
       error: function (xhr, status, error) {
@@ -2398,10 +2400,22 @@
             selectElement.selectedIndex = i;
             break; // Exit the loop once the option is selected
           }
+
         }
+        $(document).ready(function () {
+
+          for (var i = 1; i <= rowCount; i++) {
+            // Generate table row
+            // ...
+
+            // Call toggleDateInput function for each row
+            toggleDateInput(i);
+          }
+        });
       }
     });
   });
+
 </script>
 <script>
 
@@ -2563,7 +2577,7 @@
         </td>
         
         <td style="width: 22%;" class='text-right'>
-          <select name='tax[]'  id='tax${rowCount}' class='form-control border-0 bg-transparent text-white text-right border-0 tax' onchange="toggleDateInput()">
+          <select name='tax[]'  id='tax${rowCount}' class='form-control border-0 bg-transparent text-white text-right border-0 tax' onselect="toggleDateInput()">
             <optgroup class="text-center text-black" label="GST">
                             <option class="text-black" value="0">0% GST(0%)</option>
                             <option class="text-black" value="3">3.0% GST(3%)</option>
@@ -2755,7 +2769,8 @@
         oxy_igst = data2
         document.getElementById(`hsn${id}`).value = hsn
         document.getElementById(`rate${id}`).value = data
-        toggleDateInput(id, oxy_gst, oxy_igst);
+
+        toggleDateInput(id, oxy_igst, oxy_gst);
 
 
         var rate = parseFloat(data);
@@ -2858,6 +2873,7 @@
 
 
   function toggleDateInput(rowIndex) {
+
     var checkbox = document.getElementById("srcofsupply");
     var vale = checkbox.value;
     // Find the index of the hyphen
@@ -2865,7 +2881,10 @@
     // Remove the first letters before the hyphen
     var result = vale.substring(index + 1);
     console.log(result);
-    var c_state = companyState;
+
+    var c_state = '{{company.state}}';
+    console.log(c_state);
+
     var gst = oxy_gst;
     var igst = oxy_igst;
 
@@ -2940,7 +2959,6 @@
             else {
               labelElement.text('');
               labelElement.css('display', 'none');
-
             }
           });
           break;
@@ -2959,9 +2977,8 @@
 
     // Call toggleDateInput function for each row
     toggleDateInput(i);
-  }
 
- 
+  }
   $(document).ready(function () {
     $('#srcofsupply').on('change', function () {
       //var x = $(this).val();
@@ -2975,6 +2992,19 @@
       }
     });
   });
+
+
+  $(document).ready(function () {
+
+    for (var i = 1; i <= rowCount; i++) {
+      // Generate table row
+      // ...
+
+      // Call toggleDateInput function for each row
+      toggleDateInput(i);
+    }
+  });
+
 
 
 

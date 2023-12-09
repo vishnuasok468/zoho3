@@ -1714,7 +1714,7 @@
 
 <script>
 
-  
+
   $(document).ready(function () {
     var x = $('#pay_method').val();
     if (x === 'cash') {
@@ -2311,28 +2311,28 @@
     });
   });
 
- /* function reloadcustomer() {
-
-    $.ajax({
-      url: "{% url 'customer_dropdown_sales' %}",
-      type: "GET",
-      dataType: "json",
-      data: $(this).serialize(),
-      csrfmiddlewaretoken: '{{ csrf_token }}',
-
-      success: function (data) {
-        var dropdow = $('#customer_sel');
-        dropdow.empty();
-        dropdow.append($('<option value="" hidden selected></option>'));
-        $.each(data, function (key, value) {
-          dropdow.append($('<option></option>').attr('value', key).text(value).val(key));
-        });
-      },
-      error: function (xhr, status, error) {
-        console.error(xhr.responseText);
-      }
-    });
-  }*/
+  /* function reloadcustomer() {
+ 
+     $.ajax({
+       url: "{% url 'customer_dropdown_sales' %}",
+       type: "GET",
+       dataType: "json",
+       data: $(this).serialize(),
+       csrfmiddlewaretoken: '{{ csrf_token }}',
+ 
+       success: function (data) {
+         var dropdow = $('#customer_sel');
+         dropdow.empty();
+         dropdow.append($('<option value="" hidden selected></option>'));
+         $.each(data, function (key, value) {
+           dropdow.append($('<option></option>').attr('value', key).text(value).val(key));
+         });
+       },
+       error: function (xhr, status, error) {
+         console.error(xhr.responseText);
+       }
+     });
+   }*/
 
 
 
@@ -2501,11 +2501,13 @@
 
       success: function (data) {
         var dropdown = $('.itm');
-        dropdown.empty();
-
-        dropdown.append($('<option value="" selected hidden>Select Item</option>'));
         $.each(data, function (key, value) {
-          dropdown.append($('<option></option>').attr('value', key).text(value).val(key));
+          // Check if option with the same value already exists
+          if (dropdown.find('option[value="' + key + '"]').length === 0) {
+            // If it doesn't exist, create a new option element
+            var option = $('<option></option>').attr('value', key).text(value);
+            dropdown.append(option);
+          }
         });
       },
       error: function (xhr, status, error) {

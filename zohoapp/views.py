@@ -357,18 +357,15 @@ def base(request):
         Account(accountType='Expenses',accountName='Advertising & Marketing',description='Advertising & Marketing').save()
     if not Account.objects.filter(accountName='Automobile Expense').exists():
         Account(accountType='Expenses',accountName='Automobile Expense',description='Automobile Expense').save()
+
     if not payment_terms.objects.filter(Terms='NET 30').exists():
-        payment_terms(Terms='NET 30').save()
+        payment_terms(Terms='NET 30',Days = 30).save()
     if not payment_terms.objects.filter(Terms='NET 60').exists():
-        payment_terms(Terms='NET 60').save()
+        payment_terms(Terms='NET 60',Days = 60).save()
     if not payment_terms.objects.filter(Terms='NET 45').exists():
-        payment_terms(Terms='NET 45').save()
+        payment_terms(Terms='NET 45',Days = 45).save()
     if not payment_terms.objects.filter(Terms='Due on Receipt').exists():
         payment_terms(Terms='Due on Receipt').save()
-    
-
-
-   
 
     company = company_details.objects.get(user = request.user)
     context = {
@@ -7107,11 +7104,11 @@ def dashboard(request):
 
     userId=User.objects.get(id=request.user.id)
     if not payment_terms.objects.filter(Terms='NET 30',user=userId).exists():
-        payment_terms(Terms='NET 30',user=userId).save()
+        payment_terms(Terms='NET 30',user=userId ,Days = 30).save()
     if not payment_terms.objects.filter(Terms='NET 60',user=userId).exists():
-        payment_terms(Terms='NET 60',user=userId).save()
+        payment_terms(Terms='NET 60',user=userId,Days = 60).save()
     if not payment_terms.objects.filter(Terms='NET 45',user=userId).exists():
-        payment_terms(Terms='NET 45',user=userId).save()
+        payment_terms(Terms='NET 45',user=userId,Days = 45).save()
     if not payment_terms.objects.filter(Terms='Due on Receipt',user=userId).exists():
         payment_terms(Terms='Due on Receipt',user=userId).save()
 
